@@ -40,14 +40,29 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     Slider->setMinimum(RangeA.x()*10e6);
     Slider->setValue(InitialValue*10e6);
     connect(Slider, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int )));
-
+    connect(Slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
 
     QLabel *ValueLabel = Slider->getLabel();
     ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
     Layout->addWidget(ValueLabel);
     emit parameterChange(VarNameA, Slider->value()/10e6);
+    adjustSize();
 }
 
+
+void ParameterSliderDialog::sliderReleased(void)
+{
+    QParameterSlider *Slider = (QParameterSlider*)QObject::sender();
+
+    QLabel *ValueLabel = Slider->getLabel();
+    ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
+
+    QString VarName = Slider->GetName();
+    int value = Slider->value();
+    double Parameter = value/10e6;
+    emit parameterChange(VarName, Parameter);
+
+}
 
 void ParameterSliderDialog::valueChanged ( int value )
 {

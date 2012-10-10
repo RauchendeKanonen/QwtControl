@@ -52,6 +52,8 @@ public:
     void store(QString FilePath);
     double independentValue(QString IndepName, double *IndepVal);
     void closeEvent(QCloseEvent *event);
+    void lockAll(void);
+    void releaseAll(void);
 public slots:
     void CurveSegmentReady(CurveInformationStruct *CurveInfo);
     void CurveReady(CurveInformationStruct *CurveInfo);
