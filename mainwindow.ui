@@ -20,6 +20,19 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QLabel" name="label">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Expressions</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListView" name="ExpressionListView">
           <property name="maximumSize">
            <size>
@@ -30,12 +43,38 @@
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="label_2">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Variables</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListView" name="VariableListView">
           <property name="maximumSize">
            <size>
             <width>150</width>
             <height>16777215</height>
            </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Curves</string>
           </property>
          </widget>
         </item>

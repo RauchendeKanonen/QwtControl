@@ -27,12 +27,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->VariableListView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->CurveListView->setContextMenuPolicy(Qt::CustomContextMenu);
 
+
     VariableSliderDialog = new ParameterSliderDialog();
+    VariableSliderDialog->setWindowTitle(QString("Variable Sliders"));
     connect(VariableSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(parameterChange(QString , double )));
     IndependentMarkerSliderDialog = new ParameterSliderDialog();
+    IndependentMarkerSliderDialog->setWindowTitle(QString("Independent Sliders"));
     connect(IndependentMarkerSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(markerChange(QString , double )));
 
-
+    setWindowTitle(QString("untittled"));
 }
 
 MainWindow::~MainWindow()
@@ -230,8 +233,9 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
         Dlg.exec();
         QPointF Range = Dlg.getRange();
 
+        double ActValue = VariabelMdl->getVarValuePtr(VariableName)->GetFloat();
 
-        VariableSliderDialog->addSlider(VariableName, Range);
+        VariableSliderDialog->addSlider(VariableName, Range, ActValue);
         VariableSliderDialog->show();
         VariableSliderDialog->setVisible(true);
         VariableSliderDialog->setFocus();
@@ -695,6 +699,20 @@ void MainWindow::store(QString FilePath)
     return;
 }
 
+
+void MainWindow::on_actionSave_triggered()
+{
+    if(QString("") != WorkFile)
+    {
+        store(WorkFile);
+    }
+    else
+    {
+        on_actionSave_as_triggered();
+    }
+}
+
+
 void MainWindow::on_actionLoad_triggered()
 {
     QFileDialog dlg(this, QString("Laden"),QString("data/"));
@@ -704,6 +722,7 @@ void MainWindow::on_actionLoad_triggered()
     {
         if(dlg.selectedFiles().count())
         {
+            setWindowTitle(dlg.selectedFiles().at(0));
             load(dlg.selectedFiles().at(0));
         }
     }
@@ -711,7 +730,7 @@ void MainWindow::on_actionLoad_triggered()
 
 void MainWindow::on_actionSave_as_triggered()
 {
-    QFileDialog dlg(this, QString("Speichern"),QString("data/"));
+    QFileDialog dlg(this, QString("Speichern"),QString("./data/"));
     dlg.setModal(true);
 
     if(dlg.exec())
@@ -721,7 +740,9 @@ void MainWindow::on_actionSave_as_triggered()
             setWindowTitle(dlg.selectedFiles().at(0));
 
             QString Filename = dlg.selectedFiles().at(0);
+            setWindowTitle(dlg.selectedFiles().at(0));
             store(Filename);
+            WorkFile = Filename;
         }
     }
 }
@@ -836,3 +857,5 @@ void MainWindow::on_CurveListView_clicked(const QModelIndex &index)
     Wdg->raise();
 
 }
+
+
