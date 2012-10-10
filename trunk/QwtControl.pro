@@ -51,11 +51,11 @@ FORMS    += mainwindow.ui \
     parametersliderdialog.ui
 
 INCLUDEPATH += /usr/include/qwt5/ \
-                ../../muparserx-read-only/parser
+               muparserx-read-only/parser
 
 LIBS += -L/usr/lib/ \
     -L. \
+    -L./muparserx-read-only/bin \
     -lqwt \
-    -lmuparser \
     -lmuparserx \
     -lm
