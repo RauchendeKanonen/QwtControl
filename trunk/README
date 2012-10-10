@@ -1,0 +1,51 @@
+Build QwtControl
+
+First it is necessary to build the
+muParserx library:
+
+cd muparserx-read-only
+make
+cd ..
+
+Then the include/library Paths of your system
+needs to be updated.
+
+Find qwt5 include Path:
+
+updatedb
+locate qwt5 | grep include/qwt5
+///exampel output
+-> /usr/include/qwt5
+
+So replace this path in the Section INCLUDEPATH in 
+the file QwtControl.pro.
+
+find the qwt5 linker command:
+
+locate qwt | grep .so
+///example output
+-> /usr/lib64/libqwt.so				<---- this one seems to be the right one
+-> /usr/lib64/libqwt.so.5
+-> /usr/lib64/libqwt.so.5.2
+-> /usr/lib64/libqwt.so.5.2.1
+-> /usr/lib64/libqwt6.so
+-> /usr/lib64/libqwt6.so.6
+-> /usr/lib64/libqwt6.so.6.0
+-> /usr/lib64/libqwt6.so.6.0.0
+-> /usr/lib64/debug/usr/lib64/libqwt.so.5.2.1.debug
+-> /usr/lib64/debug/usr/lib64/libqwt6.so.6.0.0.debug
+
+The linkercommand for /usr/lib64/libqwt.so is:
+
+-lqwt
+
+So replace the linkercommand in the Section LIBS of the file QwtControl.pro
+
+Then QwtControl can be built:
+
+qmake
+make
+
+
+Having suggestions, ideas, bug reports, wanna develop?
+send me a mail to florian-hillen at web dot de
