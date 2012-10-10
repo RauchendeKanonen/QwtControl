@@ -14,7 +14,7 @@ using namespace mup;
 
 #define N_SUBSEGMENTS -1
 #define NO_SUBSEGMENTS -2
-#define NumThreads 8
+#define NumThreads 3
 
 struct CurveInformationStruct
 {

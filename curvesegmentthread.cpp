@@ -7,35 +7,37 @@ CurveSegmentThread::CurveSegmentThread(QObject *parent, CurveInformationStruct *
     CurveInfo = CurveInfoA;
     start();
 }
+CurveSegmentThread::~CurveSegmentThread(void)
+{
 
+}
 
 void CurveSegmentThread::run (void)
 {
+    Restart:
     Value  InVal(CurveInfo->StartPoint);
     Variable InVar(&InVal);
 
     int i;
     int index = 0;
-    int m = 0;
-    CurveInfo->Sem->acquire();
+
+    //CurveInfo->Sem->acquire();
     try
     {
         if(CurveInfo->CurveType == CURVE_TYPE_XY_NUMERICAL)
         {
-            NumericalLaplace Laplace;
 
-            double LocalStartPoint = CurveInfo->DataSize*CurveInfo->Segment*CurveInfo->Resolution;
+            int EndLoop = (CurveInfo->DataSize*(CurveInfo->Segment+1));
 
-            for(i = CurveInfo->DataSize*CurveInfo->Segment ; i < (CurveInfo->DataSize*(CurveInfo->Segment+1)) ; i ++)
+            for(i = CurveInfo->DataSize*CurveInfo->Segment ; i < EndLoop ; i ++)
             {
-
-
+                if(!CurveInfo->Sem->tryAcquire())
+                    goto Restart;
                 CurveInfo->xData[index] = i*CurveInfo->Resolution;
-                CurveInfo->yData[index] = Laplace.InverseTransform(CurveInfo->Expression, i*CurveInfo->Resolution);
+                CurveInfo->yData[index] = Laplace.InverseTransform(CurveInfo->Expression, CurveInfo->xData[index]);
 
-                if(fabs(CurveInfo->yData[index] - CurveInfo->yData[index-1]) > 10.0)
-                    CurveInfo->yData[index] = CurveInfo->yData[index-1];
                 index ++;
+                CurveInfo->Sem->release();
             }
 
             if(CurveInfo->Segment == 0)
@@ -46,6 +48,6 @@ void CurveSegmentThread::run (void)
     {
         std::cout << e.GetMsg() << std::endl;
     }
-    CurveInfo->Sem->release();
+    //CurveInfo->Sem->release();
     emit CurveSegmentReady(CurveInfo);
 }

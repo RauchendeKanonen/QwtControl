@@ -15,11 +15,13 @@ class CurveSegmentThread : public QThread
     Q_OBJECT
 public:
     explicit CurveSegmentThread(QObject *parent, CurveInformationStruct *CurveInfoA);
+    ~CurveSegmentThread(void);
     void run (void);
 signals:
     void CurveSegmentReady(CurveInformationStruct *CurveInfo);
 public slots:
 private:
+    NumericalLaplace Laplace;
     CurveInformationStruct *CurveInfo;
 };
 

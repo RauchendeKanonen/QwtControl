@@ -22,7 +22,7 @@ private:
     QList <QParameterSlider*> SliderList;
 public slots:
     void valueChanged ( int value );
-
+    void sliderReleased(void);
 signals:
     void parameterChange(QString VarName, double Value);
 };

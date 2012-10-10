@@ -28,10 +28,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->CurveListView->setContextMenuPolicy(Qt::CustomContextMenu);
 
 
-    VariableSliderDialog = new ParameterSliderDialog();
+    VariableSliderDialog = new ParameterSliderDialog(this);
     VariableSliderDialog->setWindowTitle(QString("Variable Sliders"));
     connect(VariableSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(parameterChange(QString , double )));
-    IndependentMarkerSliderDialog = new ParameterSliderDialog();
+    IndependentMarkerSliderDialog = new ParameterSliderDialog(this);
     IndependentMarkerSliderDialog->setWindowTitle(QString("Independent Sliders"));
     connect(IndependentMarkerSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(markerChange(QString , double )));
 
@@ -433,12 +433,52 @@ void MainWindow::CurveReady(CurveInformationStruct *CurveInfo)
     CurveInfo->Plot->replot();
 }
 
+void MainWindow::lockAll(void)
+{
+    for(int i = 0 ; i < CurveInformationList.count() ; i ++)
+    {
+        if(CurveInformationList.at(i)->Segment == NO_SUBSEGMENTS)
+        {
+            CurveInformationList.at(i)->Sem->acquire();
+        }
+        else
+        {
+            for(int k = 0 ; k < NumThreads ; k ++)
+            {
+                CurveInformationStruct *CurveSegmentInfo = (CurveInformationList.at(i)->SubSegmentInformation)[k];
 
+                CurveSegmentInfo->Sem->acquire();
+            }
+        }
+    }
 
+}
+
+void MainWindow::releaseAll(void)
+{
+    for(int i = 0 ; i < CurveInformationList.count() ; i ++)
+    {
+        if(CurveInformationList.at(i)->Segment == NO_SUBSEGMENTS)
+        {
+            CurveInformationList.at(i)->Sem->release();
+        }
+        else
+        {
+            for(int k = 0 ; k < NumThreads ; k ++)
+            {
+                CurveInformationStruct *CurveSegmentInfo = (CurveInformationList.at(i)->SubSegmentInformation)[k];
+
+                CurveSegmentInfo->Sem->release();
+            }
+        }
+    }
+
+}
 void MainWindow::parameterChange(QString VarName, double DblVal)
 {
     Value *Val = VariabelMdl->getVarValuePtr(VarName);
 
+    lockAll();
     if(Val != NULL)
     {
         *Val = DblVal;
@@ -449,26 +489,21 @@ void MainWindow::parameterChange(QString VarName, double DblVal)
         {
             if(DependingList->at(i)->Segment == NO_SUBSEGMENTS)
             {
-                if(((CurveThread*)DependingList->at(i)->Thread)->isFinished())
-                    ((CurveThread*)DependingList->at(i)->Thread)->start();
+                ((CurveThread*)DependingList->at(i)->Thread)->start();
             }
             else
             {
                 for(int k = 0 ; k < NumThreads ; k ++)
                 {
                     CurveInformationStruct *CurveSegmentInfo = (DependingList->at(i)->SubSegmentInformation)[k];
-
-                    if(CurveSegmentInfo->Thread->isFinished())
-                    {
-                        CurveSegmentInfo->Thread->start();
-                    }
+                    CurveSegmentInfo->Thread->start();
                 }
 
             }
         }
         VariabelMdl->valueChange();
-        return;
     }
+    releaseAll();
 
 }
 
