@@ -15,7 +15,7 @@ ParameterSliderDialog::~ParameterSliderDialog()
     delete ui;
 }
 
-void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA)
+void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double InitialValue)
 {
     for(int i = 0 ; i < SliderList.count() ; i ++ )
     {
@@ -27,10 +27,10 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA)
     }
 
     QParameterSlider *Slider = new QParameterSlider(this, VarNameA);
-    QVBoxLayout *Layout = new QVBoxLayout();
+    QVBoxLayout *Layout = new QVBoxLayout(this);
     ui->horizontalLayout->addLayout(Layout);
     Layout->addWidget(Slider);
-    QLabel *Label = new QLabel();
+    QLabel *Label = new QLabel(this);
     Label->setText(VarNameA);
     Layout->addWidget(Label);
 
@@ -38,10 +38,13 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA)
     SliderList.append(Slider);
     Slider->setMaximum(RangeA.y()*10e6);
     Slider->setMinimum(RangeA.x()*10e6);
+    Slider->setValue(InitialValue*10e6);
     connect(Slider, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int )));
 
 
-
+    QLabel *ValueLabel = Slider->getLabel();
+    ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
+    Layout->addWidget(ValueLabel);
     emit parameterChange(VarNameA, Slider->value()/10e6);
 }
 
@@ -49,6 +52,10 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA)
 void ParameterSliderDialog::valueChanged ( int value )
 {
     QParameterSlider *Slider = (QParameterSlider*)QObject::sender();
+
+    QLabel *ValueLabel = Slider->getLabel();
+    ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
+
     QString VarName = Slider->GetName();
     double Parameter = value/10e6;
     emit parameterChange(VarName, Parameter);

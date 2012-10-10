@@ -16,7 +16,7 @@ class ParameterSliderDialog : public QDialog
 public:
     explicit ParameterSliderDialog(QWidget *parent = 0);
     ~ParameterSliderDialog();
-    void addSlider(QString VarNameA, QPointF RangeA);
+    void addSlider(QString VarNameA, QPointF RangeA, double InitialValue=0.0);
 private:
     Ui::ParameterSliderDialog *ui;
     QList <QParameterSlider*> SliderList;

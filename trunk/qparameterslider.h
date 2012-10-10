@@ -2,7 +2,7 @@
 #define QPARAMETERSLIDER_H
 
 #include <QSlider>
-
+#include <QLabel>
 class QParameterSlider : public QSlider
 {
     Q_OBJECT
@@ -12,6 +12,10 @@ public:
     {
         return VarName;
     }
+    QLabel *getLabel(void)
+    {
+        return ValueLabel;
+    }
 
 signals:
     
@@ -20,7 +24,7 @@ public slots:
 private:
     QString VarName;
     QObject *pParent;
-    
+    QLabel *ValueLabel;
 };
 
 #endif // QPARAMETERSLIDER_H

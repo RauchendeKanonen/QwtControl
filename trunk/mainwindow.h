@@ -80,6 +80,8 @@ private slots:
 
     void on_CurveListView_clicked(const QModelIndex &index);
 
+    void on_actionSave_triggered();
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
@@ -89,6 +91,7 @@ private:
 
     ParameterSliderDialog *VariableSliderDialog;
     ParameterSliderDialog *IndependentMarkerSliderDialog;
+    QString WorkFile;
 };
 
 #endif // MAINWINDOW_H
