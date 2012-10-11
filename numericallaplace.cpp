@@ -2,6 +2,7 @@
 
 
 
+
 NumericalLaplace::NumericalLaplace()
 {
     InitStehfest(DefaultStehfestN);
@@ -10,6 +11,23 @@ NumericalLaplace::NumericalLaplace()
 NumericalLaplace::~NumericalLaplace()
 {
 
+}
+
+double NumericalLaplace::InverseTransform(mathFunctionEvaluator *Eval, double t)
+{
+    if(t <= 0.00001)
+        t = 00001;
+    double ln2t = ln2 / t;
+
+    double x = 0;
+    double y = 0;
+
+    for (int i = 0; i < V_Length; i++)
+    {
+        x += ln2t;
+        y += V[i] * Eval->eval(x);
+    }
+    return ln2t * y;
 }
 
 double NumericalLaplace::InverseTransform(ParserX *f, double t)

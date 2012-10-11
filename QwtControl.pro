@@ -24,7 +24,10 @@ SOURCES += main.cpp\
     qparameterslider.cpp \
     numericallaplace.cpp \
     curvesegmentthread.cpp \
-    curvemodel.cpp
+    curvemodel.cpp \
+    mathFunction/mathfunctionpreprocessor.cpp \
+    mathFunction/mathfunctionevaluator.cpp \
+    mathFunction/mathfunctioncompiler.cpp
 
 HEADERS  += mainwindow.h \
     vardialog.h \
@@ -40,7 +43,10 @@ HEADERS  += mainwindow.h \
     numericallaplace.h \
     curvesegmentthread.h \
     curvemodel.h \
-    definitions.h
+    definitions.h \
+    mathFunction/mathfunctionpreprocessor.h \
+    mathFunction/mathfunctionevaluator.h \
+    mathFunction/mathfunctioncompiler.h
 
 FORMS    += mainwindow.ui \
     vardialog.ui \
@@ -58,7 +64,7 @@ INCLUDEPATH += /usr/include/qwt5/ \
 LIBS += -L/usr/lib/ \
     -L. \
     -L./muparserx-read-only/bin \
-    -lqwt-qt4 \
+    -lqwt \
     -lmuparserx \
     -lm
 
