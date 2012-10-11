@@ -41,6 +41,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
+    bool waitAll(void);
     void deleteCurve(CurveInformationStruct *CurveInfo);
     void load(QString FilePath);
     QList <CurveInformationStruct*> *dependingCurves(QString VarName);

@@ -474,11 +474,38 @@ void MainWindow::releaseAll(void)
     }
 
 }
+
+bool MainWindow::waitAll(void)
+{
+    for(int i = 0 ; i < CurveInformationList.count() ; i ++)
+    {
+        if(CurveInformationList.at(i)->Segment == NO_SUBSEGMENTS)
+        {
+            if(!CurveInformationList.at(i)->Thread->isFinished())
+                return false;
+        }
+        else
+        {
+            for(int k = 0 ; k < NumThreads ; k ++)
+            {
+                CurveInformationStruct *CurveSegmentInfo = (CurveInformationList.at(i)->SubSegmentInformation)[k];
+
+                if(!CurveSegmentInfo->Thread->isFinished())
+                    return false;
+
+            }
+        }
+    }
+    return true;
+}
+
 void MainWindow::parameterChange(QString VarName, double DblVal)
 {
     Value *Val = VariabelMdl->getVarValuePtr(VarName);
 
-    lockAll();
+    if(!waitAll())
+        return;
+
     if(Val != NULL)
     {
         *Val = DblVal;
@@ -503,7 +530,6 @@ void MainWindow::parameterChange(QString VarName, double DblVal)
         }
         VariabelMdl->valueChange();
     }
-    releaseAll();
 
 }
 
@@ -822,6 +848,8 @@ void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
             QWidget *Wdg = (QWidget*) CurveInfo->Plot->parent();
             delete CurveInfo->Plot;
             delete Wdg;
+            free(CurveInfo->xData);
+            free(CurveInfo->yData);
         }
         else
         {
@@ -833,6 +861,8 @@ void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
             CurveInfo->Marker->detach();
             delete CurveInfo->Marker;
             CurveInfo->Plot->replot();
+            free(CurveInfo->xData);
+            free(CurveInfo->yData);
         }
     }
     else
@@ -844,6 +874,8 @@ void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
             CurveInformationStruct *CurveSegmentInfo = CurveInfo->SubSegmentInformation[k];
             CurveSegmentInfo->Thread->terminate();
             delete CurveSegmentInfo->Thread;
+            free(CurveSegmentInfo->xData);
+            free(CurveSegmentInfo->yData);
         }
         CurveInfo->Curve->detach();
         delete CurveInfo->Curve;

@@ -1,4 +1,5 @@
 #include "curvesegmentthread.h"
+#include "mathFunction/mathfunctionevaluator.h"
 
 
 CurveSegmentThread::CurveSegmentThread(QObject *parent, CurveInformationStruct *CurveInfoA) :
@@ -14,6 +15,11 @@ CurveSegmentThread::~CurveSegmentThread(void)
 
 void CurveSegmentThread::run (void)
 {
+
+    //mathFunctionEvaluator Evaluator(*CurveInfo->Expression, QString("s"), QString("Funktion1"));
+
+
+
     Restart:
     Value  InVal(CurveInfo->StartPoint);
     Variable InVar(&InVal);
@@ -21,7 +27,7 @@ void CurveSegmentThread::run (void)
     int i;
     int index = 0;
 
-    //CurveInfo->Sem->acquire();
+    CurveInfo->Sem->acquire();
     try
     {
         if(CurveInfo->CurveType == CURVE_TYPE_XY_NUMERICAL)
@@ -31,13 +37,11 @@ void CurveSegmentThread::run (void)
 
             for(i = CurveInfo->DataSize*CurveInfo->Segment ; i < EndLoop ; i ++)
             {
-                if(!CurveInfo->Sem->tryAcquire())
-                    goto Restart;
                 CurveInfo->xData[index] = i*CurveInfo->Resolution;
                 CurveInfo->yData[index] = Laplace.InverseTransform(CurveInfo->Expression, CurveInfo->xData[index]);
-
+                //CurveInfo->yData[index] = Laplace.InverseTransform(&Evaluator, CurveInfo->xData[index]);
                 index ++;
-                CurveInfo->Sem->release();
+
             }
 
             if(CurveInfo->Segment == 0)
@@ -48,6 +52,6 @@ void CurveSegmentThread::run (void)
     {
         std::cout << e.GetMsg() << std::endl;
     }
-    //CurveInfo->Sem->release();
+    CurveInfo->Sem->release();
     emit CurveSegmentReady(CurveInfo);
 }
