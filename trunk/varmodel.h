@@ -20,7 +20,6 @@ private:
 
     QStringList VarList;
     QList <Value*> ValueList;
-    QList <int> ValueReferenceCounterList;
 
 public:
 
@@ -29,8 +28,7 @@ public:
     }
     bool setData(const QModelIndex &index,
                  const QVariant &value, int role);
-    bool setData(const QModelIndex &index,
-                 const void *value, int role);
+
     void valueChange(void);
     QString getVarName(const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -39,8 +37,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index,
-                 const QVariant &value, int role, QColor *color);
     bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
     bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
     void setflags(QModelIndex index, int Flags);

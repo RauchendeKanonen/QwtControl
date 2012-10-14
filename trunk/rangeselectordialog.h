@@ -1,6 +1,6 @@
 #ifndef RANGESELECTORDIALOG_H
 #define RANGESELECTORDIALOG_H
-
+#include "colorlisteditor.h"
 #include <QDialog>
 
 namespace Ui {
@@ -19,7 +19,9 @@ public:
     double getResolution(void);
     void setRange(QPointF RangeA);
     void setResolution(double Resolution);
+    QColor getColor(void);
 private:
+    ColorListEditor *ColorCombo;
     Ui::RangeSelectorDialog *ui;
 };
 

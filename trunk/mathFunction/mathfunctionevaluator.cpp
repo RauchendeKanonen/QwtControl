@@ -4,28 +4,11 @@
 
 
 
-mathFunctionEvaluator::mathFunctionEvaluator(ParserX Parser, QString IndepVarName, QString FunctionName)
+mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString FunctionName)
 {
     QString LibFile;
-    LibFile = QString("mathFunction/compile/") + FunctionName + QString(".so.1.0");
-
-    mathFunctionpreprocessor Preprocessor(Parser, IndepVarName);
-    QString PreprocessedString = Preprocessor.preprocessedString();
-
-
-
-    printf("Compiling %s\n", PreprocessedString.toStdString().c_str());
-    mathFunctionCompiler *Compiler = new mathFunctionCompiler(PreprocessedString, IndepVarName, LibFile);
-    bool ret = Compiler->getState();
-    delete Compiler;
-    printf("Compilation Successful!\n");
-    printf("expression with %d chars\n", PreprocessedString.size());
-
-    if(!ret)
-    {
-        state = false;
-        return;
-    }
+    LibFile = QString("mathFunction/compile/") + FunctionName + QString(".so.0.1");
+    IndepVarName = IndepVarNameA;
 
 
     char libstr[1024];
@@ -44,9 +27,34 @@ mathFunctionEvaluator::mathFunctionEvaluator(ParserX Parser, QString IndepVarNam
         return;
     }
 
+    state=true;
+    pf = (double (*)(double))dlsym(libhandle, FunctionName.toStdString().c_str());
+    pSetVar = (void (*)(char *, double))dlsym(libhandle, "setVar");
+    pGetVar = (char** (*)(void))dlsym(libhandle, "getVar");
+}
 
-    pf = (double (*)(double))dlsym(libhandle, "f");
-    pIndepVarName = (char *(*)(void))dlsym(libhandle, "IndepVarName");
+QString mathFunctionEvaluator::indepVarName(void)
+{
+    return IndepVarName;
+}
+
+QStringList mathFunctionEvaluator::getExpressionVars(void)
+{
+    QStringList VarList;
+    if(!state)
+        return QStringList();
+    char **Vars = pGetVar();
+    for(; *Vars != NULL ; Vars ++)
+    {
+        VarList.append(*Vars);
+    }
+    return VarList;
+}
+
+void mathFunctionEvaluator::setVar(QString VarName, double Arg)
+{
+    if(state)
+        pSetVar((char*)VarName.toStdString().c_str(), Arg);
 }
 
 
@@ -54,10 +62,6 @@ double mathFunctionEvaluator::eval(double Arg)
 {
     if(state)
         return pf(Arg);
+    return 0.0;
 }
 
-QString mathFunctionEvaluator::indepVarName(void)
-{
-    if(state)
-        return QString(pIndepVarName());
-}

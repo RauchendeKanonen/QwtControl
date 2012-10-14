@@ -16,14 +16,25 @@ void CurveThread::run (void)
     CurveInfo->Sem->acquire();
     try
     {
-        if(CurveInfo->CurveType == CURVE_TYPE_XY_NUMERICAL)
+        if(CurveInfo->CurveType == CURVE_TYPE_XY_COMPILED_NUMERICAL)
         {
             NumericalLaplace Laplace;
+
+            QStringList VarList = CurveInfo->Evaluator->getExpressionVars();
+
+            for(int i = 0 ; i < VarList.count() ; i ++ )
+            {
+                Value *Val = CurveInfo->pVariabelMdl->getVarValuePtr(VarList.at(i));
+                double test = Val->GetFloat();
+                CurveInfo->Evaluator->setVar(VarList.at(i), Val->GetFloat());
+            }
+
+
 
             for(int i = 1 ; i < CurveInfo->DataSize ; i ++)
             {
                 CurveInfo->xData[i] = i*CurveInfo->Resolution;
-                CurveInfo->yData[i] = Laplace.InverseTransform(CurveInfo->Expression, i*CurveInfo->Resolution);
+                CurveInfo->yData[i] = Laplace.InverseTransform(CurveInfo->Evaluator, i*CurveInfo->Resolution);
             }
             CurveInfo->Sem->release();
             emit CurveReady(CurveInfo);

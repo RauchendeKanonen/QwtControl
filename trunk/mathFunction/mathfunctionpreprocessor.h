@@ -9,11 +9,14 @@ using namespace mup;
 class mathFunctionpreprocessor
 {
 public:
-    mathFunctionpreprocessor(ParserX Expression, QString IndepVarName);
-    QList < QPair < QString, double > > getVariables(ParserX ExpressionX);
+    mathFunctionpreprocessor(QString Expression);
+    bool preformatExponents(QString *Expression);
+    bool preprocessExponents(QString *Expression);
     QString ExpressionString;
 
     QString preprocessedString(void);
+    QString Message;
+    bool state;
 };
 
 #endif // MATHFUNCTIONPREPROCESSOR_H

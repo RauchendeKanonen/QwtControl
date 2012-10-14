@@ -8,14 +8,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/time.h>
-
+#include <QStringList>
 #define CFLAGS "-fPIC -g "
 
 
 class mathFunctionCompiler
 {
 private:
-    QString FunktionString;
     bool InsertRet;
     bool WriteRet;
     bool ReadRet;
@@ -28,10 +27,17 @@ public:
             return true;
         return false;
     }
+    void insertGlobalVariable(QString *SourceBuffer, QString VariableDeclaration);
+    QString ifStatement(QString Expression);
+    QStringList findCharacterStrings(QString Buffer);
+    bool appendFunctionStatement(QString *SourceBuffer, QString FunctionName, QString Statement);
+    void insertFunctionPrototype(QString *SourceBuffer, QString FunctionName, QStringList Parameters, QString ReturnType);
     bool compile(QString Source, QString Dest);
     bool link(QString Object, QString Dest);
-    bool insertFunction(QString *SourceBuffer, QString Function, QString VarName);
-    mathFunctionCompiler(QString Funktion, QString IndependentVarName, QString OutputLib);
+    bool insertFunctionOld(QString *SourceBuffer, QString Function, QString VarName);
+    void insertFunction(QString *SourceBuffer, QString FunctionName, QStringList Parameters, QString ReturnType);
+    mathFunctionCompiler(QString FunctionDefinition, QString IndependentVarName, QString FunctionName);
+    bool insertLocalIncludeStatement(QString *SourceBuffer, QString File);
     bool readFile(QString Path, QString *Buffer);
     bool writeFile(QString Path, QString *Buffer);
 };

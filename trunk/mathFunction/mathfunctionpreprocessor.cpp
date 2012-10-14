@@ -1,38 +1,169 @@
 #include "mathfunctionpreprocessor.h"
 
-QList < QPair < QString , double > > mathFunctionpreprocessor::getVariables(ParserX ExpressionX)
-{
-    QList  < QPair < QString , double > > VariablePairs;
-    var_maptype vmap = ExpressionX.GetExprVar();
-    for (var_maptype::iterator item = vmap.begin(); item!=vmap.end(); ++item)
-    {
-        QString VarName = QString::fromStdString(item->first);
-        QString ValueString = QString::fromStdString((*(item->second)).ToString());
 
-        double DblVal = strtod(ValueString.toStdString().c_str(), NULL);
-        QPair< QString, double> Pair;
-        Pair.first = VarName;
-        Pair.second = DblVal;
-        VariablePairs.append(Pair);
-    }
-    return VariablePairs;
+
+mathFunctionpreprocessor::mathFunctionpreprocessor(QString ExpressionA)
+{
+    ExpressionString =  ExpressionA;
+    preformatExponents(&ExpressionString);
+    state = preprocessExponents(&ExpressionString);
 }
 
-mathFunctionpreprocessor::mathFunctionpreprocessor(ParserX ExpressionX, QString IndepVarName)
+bool mathFunctionpreprocessor::preformatExponents(QString *Expression)
 {
-    ExpressionString = QString::fromStdString(ExpressionX.GetExpr());
-    QList  < QPair < QString , double > > VariablePairs = getVariables(ExpressionX);
-
-    for(int i = 0 ; i < VariablePairs.count() ; i ++ )
+    if(Expression->contains("^"))
     {
-        QString ValueString;
-        ValueString.sprintf("%f", VariablePairs.at(i).second);
-        if(IndepVarName != VariablePairs.at(i).first)
-            ExpressionString.replace(VariablePairs.at(i).first, ValueString);
+        for(int index = 0 ; index >=0 ; )
+        {
+            index = Expression->indexOf("^", index+1);
+            //no more potences
+            if(index == -1)
+                break;
+
+            //isolate potence with brackets
+            if(Expression->at(index+1) != '(')
+            {
+                bool Symbol = (Expression->at(index+1) == '-' || Expression->at(index+1) == '+');
+                bool alpha = Expression->at(index+1).isLetter();
+                if(Symbol)
+                    alpha = Expression->at(index+2).isLetter();
+                for( int i = index+1 ; i < Expression->count() ; i ++ )
+                {
+                    if(alpha && Expression->at(i+1).isLetter())
+                    {
+
+                    }
+                    else if(alpha)
+                    {
+                        Expression->insert(i+1, ')');
+                        Expression->insert(index+1, '(');
+                        break;
+                    }
+                    if(!alpha && Expression->at(i+1).isDigit())
+                    {
+
+                    }
+                    else if(!alpha)
+                    {
+
+                        Expression->insert(i+1, ')');
+                        Expression->insert(index+1, '(');
+                        break;
+                    }
+                }
+            }
+
+            //isolate base with brackets
+            if(Expression->at(index-1) != ')')
+            {
+                bool alpha = Expression->at(index-1).isLetter();
+                for( int i = index ; i > 0 ; i-- )
+                {
+                    if(alpha && Expression->at(i-1).isLetter())
+                    {
+
+                    }
+                    else if(alpha)
+                    {
+                        Expression->insert(index, ')');
+                        Expression->insert(i, '(');
+                        break;
+                    }
+                    if(!alpha && Expression->at(i-1).isDigit())
+                    {
+
+                    }
+                    else if(!alpha)
+                    {
+                        Expression->insert(index, ')');
+                        Expression->insert(i, '(');
+                        break;
+                    }
+                }
+                index += 2;
+            }
+
+        }
     }
+    return true;
 }
+
+bool mathFunctionpreprocessor::preprocessExponents(QString *Expression)
+{
+    if(Expression->contains("^"))
+    {
+        int index;
+        for(index = 0 ; index >=0 ; )
+        {
+            index = Expression->indexOf("^", index+1);
+
+            int ExpBegin = -1;
+            int ExpEnd = -1;
+
+            //no more potences
+            if(index == -1)
+                break;
+            //determine the base
+            if(Expression->at(index-1) == ')')
+            {
+                int closing_brackets = 1;
+                int i;
+                for( i = -1 ; closing_brackets > 0 && 0 <=(index-1+i); i --)
+                {
+                    if(Expression->at(index-1+i) == '(')
+                        closing_brackets--;
+                    if(Expression->at(index-1+i) == ')')
+                        closing_brackets++;
+                }
+                if(closing_brackets == 0)
+                {
+                    QString Base = Expression->left(index);
+                    Base = Base.right(-i);
+                    ExpBegin = index+i;
+                }
+            }
+            //determine exponent
+            if(Expression->at(index+1) == '(')
+            {
+                int opening_brackets = 1;
+                int i;
+                for( i = 1 ; opening_brackets > 0 && Expression->count() > (index+1+i); i ++)
+                {
+                    if(Expression->at(index+1+i) == '(')
+                        opening_brackets++;
+                    if(Expression->at(index+1+i) == ')')
+                        opening_brackets--;
+                }
+                if(opening_brackets == 0)
+                {
+                    QString Exponent = Expression->right(Expression->length()-index);
+                    Exponent = Exponent.right(i);
+                    ExpEnd = index+i;
+                }
+
+            }
+            if(ExpEnd > 0 && ExpBegin > 0)
+            {
+                Expression->replace(index, 1,",");
+
+                Expression->insert(ExpEnd, ")");
+                Expression->insert(ExpBegin, "pow(");
+            }
+            else
+            {
+                Message = "Missing Bracket";
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 QString mathFunctionpreprocessor::preprocessedString(void)
 {
-    return ExpressionString;
+    if(state)
+        return ExpressionString;
+
+
 }

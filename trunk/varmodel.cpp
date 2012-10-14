@@ -7,9 +7,6 @@ Value *VarModel::getVarValuePtr(QString VarName)
     {
         if(VarList.at(i).contains(VarName + QString(" = ")))
         {
-            int oldref = ValueReferenceCounterList.at(i);
-            oldref ++ ;
-            ValueReferenceCounterList.replace(i, (const int&)oldref);
             return ValueList.at(i);
         }
     }
@@ -86,25 +83,6 @@ Qt::ItemFlags VarModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
-
-bool VarModel::setData(const QModelIndex &index,
-                              const QVariant &value, int role, QColor *color)
-{
-    if (index.isValid() && role == Qt::EditRole)
-    {
-        QString ValueString = value.toString();
-        VarList.replace(index.row(), value.toString());
-        Value *ValPtr = ValueList.at(index.row());
-        *ValPtr;
-        int Index = ValueString.indexOf(" = ") + 3;
-        double Value = strtod(ValueString.toStdString().c_str()+Index, NULL);
-        *ValPtr = Value;
-        return true;
-    }
-    return false;
-}
-
-
 bool VarModel::setData(const QModelIndex &index,
                               const QVariant &value, int role)
 {
@@ -131,7 +109,6 @@ bool VarModel::insertRows(int position, int rows, const QModelIndex &parent)
     {
         VarList.insert(position, "");
         ValueList.insert(position, new Value());
-        ValueReferenceCounterList.insert(position, 0);
     }
     endInsertRows();
 

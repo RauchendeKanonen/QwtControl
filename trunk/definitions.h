@@ -5,16 +5,17 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include "mpParser.h"
+#include "mathFunction/mathfunctionevaluator.h"
+#include "varmodel.h"
 using namespace mup;
 #define CURVE_TYPE_XY           1
 #define CURVE_TYPE_COMPLEX      2
 #define CURVE_TYPE_MAGNITUDE    3
-#define CURVE_TYPE_XY_NUMERICAL 4
+#define CURVE_TYPE_XY_COMPILED_NUMERICAL 5
+
+
 #define LINUX 1
 
-#define N_SUBSEGMENTS -1
-#define NO_SUBSEGMENTS -2
-#define NumThreads 1
 
 struct CurveInformationStruct
 {
@@ -28,15 +29,14 @@ struct CurveInformationStruct
     double Resolution;
     ParserX *Expression;
     ParserX *BaseExpression;
+    mathFunctionEvaluator *Evaluator;
     QwtPlotCurve *Curve;
     double *xData;
     double *yData;
     int DataSize;
     QwtPlot *Plot;
     QThread *Thread;
-    int Segment;
-    CurveInformationStruct **SubSegmentInformation;
-    CurveInformationStruct *ParentInformation;
+    VarModel *pVariabelMdl;
 };
 
 
