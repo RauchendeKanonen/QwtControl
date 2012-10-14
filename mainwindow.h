@@ -29,8 +29,8 @@
 #include "QFileDialog"
 #include <QMessageBox>
 #include "curvethread.h"
-#include "curvesegmentthread.h"
 #include "curvemodel.h"
+#include "qwt_plot_root_locus_curve.h"
 
 namespace Ui {
 class MainWindow;
@@ -48,7 +48,10 @@ public:
     bool updateExpressionVars(ParserX *Expression, QString IndependentVars);
     QStringList independentVariables(void);
     explicit MainWindow(QWidget *parent = 0);
-    void initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression, double StartPoint, double EndPoint, double Resolution, int CurveType, QString IndependentVar, QwtPlotCurve *Curve);
+    void initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression,
+                                    double StartPoint, double EndPoint, double Resolution, int CurveType,
+                                    QString IndependentVar, QwtPlotCurve *Curve, mathFunctionEvaluator *Evaluator,
+                                    VarModel *pVariabelMdl, QColor Color);
     ~MainWindow();
     void store(QString FilePath);
     double independentValue(QString IndepName, double *IndepVal);
@@ -56,7 +59,6 @@ public:
     void lockAll(void);
     void releaseAll(void);
 public slots:
-    void CurveSegmentReady(CurveInformationStruct *CurveInfo);
     void CurveReady(CurveInformationStruct *CurveInfo);
     void parameterChange(QString VarName, double DblVal);
     void markerChange(QString VarName, double DblVal);

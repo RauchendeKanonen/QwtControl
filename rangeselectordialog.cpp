@@ -7,6 +7,8 @@ RangeSelectorDialog::RangeSelectorDialog(QWidget *parent, QString VarName) :
 {
     ui->setupUi(this);
     ui->VarNameLineEdit->setText(VarName);
+    ColorCombo = new ColorListEditor(this);
+    ui->verticalLayout->insertWidget(0, (QWidget*)ColorCombo, Qt::AlignBottom);
 }
 
 RangeSelectorDialog::~RangeSelectorDialog()
@@ -14,6 +16,10 @@ RangeSelectorDialog::~RangeSelectorDialog()
     delete ui;
 }
 
+QColor RangeSelectorDialog::getColor(void)
+{
+    return ColorCombo->color();
+}
 
 QPointF RangeSelectorDialog::getRange(void)
 {

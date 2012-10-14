@@ -30,26 +30,19 @@ QVariant CurveModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole)
     {
-        if(CurveList->at(index.row())->Segment == NO_SUBSEGMENTS)
+        switch(CurveList->at(index.row())->CurveType)
         {
-            switch(CurveList->at(index.row())->CurveType)
-            {
-            case CURVE_TYPE_MAGNITUDE:
-                return QVariant(QString("Bode Plot"));
+        case CURVE_TYPE_MAGNITUDE:
+            return QVariant(QString("Bode Plot"));
 
-            case CURVE_TYPE_COMPLEX:
-                return QVariant(QString("Root Locus"));
+        case CURVE_TYPE_COMPLEX:
+            return QVariant(QString("Root Locus"));
 
-            case CURVE_TYPE_XY:
-                return QVariant(QString("Symbolic Step Response"));
-            default:
-                return QVariant();
+        case CURVE_TYPE_XY_COMPILED_NUMERICAL:
+            return QVariant(QString("Response"));
+        default:
+            return QVariant();
 
-            }
-        }
-        else
-        {
-             return QVariant(QString("Numerical Solution of invers-Laplace Transform"));
         }
     }
     else

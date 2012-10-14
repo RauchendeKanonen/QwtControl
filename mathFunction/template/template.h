@@ -1,2 +1,2 @@
-
-double f(double arg);
+#include<math.h>
+#include<string.h>

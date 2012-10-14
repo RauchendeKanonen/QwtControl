@@ -19,13 +19,17 @@ using namespace mup;
 class mathFunctionEvaluator
 {
 public:
-    mathFunctionEvaluator(ParserX Parser, QString IndepVarName, QString FunctionName);
+    void setVar(QString VarName, double Arg);
+    mathFunctionEvaluator(QString IndepVarNameA, QString FunctionName);
     QString indepVarName(void);
+    QStringList getExpressionVars(void);
     double eval(double Arg);
 private:
     bool state;
     double(*pf)(double);
-    char *(*pIndepVarName)(void);
+    void (*pSetVar)(char *, double);
+    char** (*pGetVar)(void);
+    QString IndepVarName;
 };
 
 #endif // MATHFUNCTIONEVALUATOR_H

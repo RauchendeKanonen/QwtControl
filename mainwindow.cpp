@@ -4,8 +4,9 @@
 #include "expressionmodel.h"
 #include "varmodel.h"
 #include "numericallaplace.h"
-
-
+#include "mathFunction/mathfunctioncompiler.h"
+#include "mathFunction/mathfunctionevaluator.h"
+#include "mathFunction/mathfunctionpreprocessor.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -36,6 +37,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(IndependentMarkerSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(markerChange(QString , double )));
 
     setWindowTitle(QString("untittled"));
+/*
+    QString Function("a/a+(acs)^(-asd/2)/2");
+    mathFunctionpreprocessor PrePro(Function);*/
+/*
+    QString FunctionName("test");
+    QString Function("a/(a+s)");
+    QString Varname("s");
+    mathFunctionCompiler Compiler(Function, Varname, FunctionName);
+    mathFunctionEvaluator Evaluator(Varname, FunctionName);
+    QStringList Test = Evaluator.getExpressionVars();
+    Evaluator.setVar(QString("a"), 1.0);
+    double t = Evaluator.eval(1.0);
+    Test.append(Varname);*/
 }
 
 MainWindow::~MainWindow()
@@ -98,10 +112,9 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         return;
 
     QMenu ExpressionMenu;
-    ExpressionMenu.addAction(QString("draw as Complex Funktion"));
+    ExpressionMenu.addAction(QString("draw Root Locus"));
     ExpressionMenu.addAction(QString("draw Bode"));
-    ExpressionMenu.addAction(QString("draw Step Response"));
-    ExpressionMenu.addAction(QString("draw Step Response from Numerical Solution"));
+    ExpressionMenu.addAction(QString("draw Response"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -109,16 +122,37 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         return;
 
     RangeSelectorDialog Dlg(this, QString());
+    RedoDlg:
     Dlg.setModal(true);
     if(!Dlg.exec())
         return;
 
 
     QPointF Range = Dlg.getRange();
-    QString VarName = Dlg.getVarName();
-    double Resolution = Dlg.getResolution();
+    if(Range.x() >= Range.y())
+    {
+        QMessageBox Box;
+        Box.setText(QString("Min/Max incorrect!!"));
+        Box.setModal(true);
+        Box.exec();
+        goto RedoDlg;
+    }
 
-    if(happened->text() == QString("draw as Complex Funktion"))
+    QString VarName = Dlg.getVarName();
+    if(VarName.count() == 0)//|| VariabelMdl->getVarValuePtr(VarName) == NULL)
+    {
+        QMessageBox Box;
+        Box.setText(QString("Variabel Name incorrect!!"));
+        Box.setModal(true);
+        Box.exec();
+        goto RedoDlg;
+    }
+
+
+    double Resolution = Dlg.getResolution();
+    QColor Color = Dlg.getColor();
+
+    if(happened->text() == QString("draw Root Locus"))
     {
         ParserX *Expression = ExpressionMdl->getExpression(Index);
         ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
@@ -145,10 +179,11 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         IndependentMarkerSliderDialog->activateWindow();
         IndependentMarkerSliderDialog->raise();
 
-
+        QwtPlotCurve* Curve = (QwtPlotCurve*)new QwtPlotRootLocusCurve();
+        ((QwtPlotRootLocusCurve*)Curve)->setSplit(10);
         initCurveInformationStruct(ui->qwtPlot, Expression, BaseExpression,
                                    Range.x(), Range.y(), Resolution, CURVE_TYPE_COMPLEX,
-                                   VarName, new QwtPlotCurve());
+                                   VarName, Curve, NULL, NULL, Color);
     }
 
 
@@ -172,13 +207,23 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         BodeList.append(BodeDiagram);*/
     }
 
-    if(happened->text() == QString("draw Step Response"))
+    if(happened->text() == QString("draw Response"))
     {
         StepResponseDialog *StDialog = new StepResponseDialog(this);
         StDialog->show();
 
         ParserX *Expression = ExpressionMdl->getExpression(Index);
         ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
+
+        QString FunctionName("test");
+        QString Function = QString::fromStdString(Expression->GetExpr());
+
+        mathFunctionpreprocessor Processor(Function);
+        Function = Processor.preprocessedString();
+        mathFunctionCompiler Compiler(Function, VarName, FunctionName);
+        mathFunctionEvaluator *Evaluator = new mathFunctionEvaluator(VarName, FunctionName);
+
+
         if(false == updateExpressionVars(Expression, VarName))
         {
             delete StDialog;
@@ -186,27 +231,10 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         }
 
         initCurveInformationStruct(StDialog->getPlot(), Expression, BaseExpression,
-                                   Range.x(), Range.y(), Resolution, CURVE_TYPE_XY,
-                                   VarName, StDialog->getPlotCurve());
+                                   Range.x(), Range.y(), Resolution, CURVE_TYPE_XY_COMPILED_NUMERICAL,
+                                   VarName, StDialog->getPlotCurve(), Evaluator, VariabelMdl, Color);
     }
-    if(happened->text() == QString("draw Step Response from Numerical Solution"))
-    {
 
-        StepResponseDialog *StDialog = new StepResponseDialog(this);
-        StDialog->show();
-
-        ParserX *Expression = ExpressionMdl->getExpression(Index);
-        ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
-        if(false == updateExpressionVars(Expression, VarName))
-        {
-            delete StDialog;
-            return;
-        }
-
-        initCurveInformationStruct(StDialog->getPlot(), Expression, BaseExpression,
-                                   Range.x(), Range.y(), Resolution, CURVE_TYPE_XY_NUMERICAL,
-                                   VarName, StDialog->getPlotCurve());
-    }
     CurveMdl->valueChange();
 }
 
@@ -277,112 +305,58 @@ bool MainWindow::updateExpressionVars(ParserX *Expression, QString IndependentVa
 
 void MainWindow::initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression,
                                             double StartPoint, double EndPoint, double Resolution, int CurveType,
-                                            QString IndependentVar, QwtPlotCurve *Curve)
+                                            QString IndependentVar, QwtPlotCurve *Curve, mathFunctionEvaluator *Evaluator,
+                                            VarModel *pVariabelMdl, QColor Color)
 {
 
-    if(CurveType != CURVE_TYPE_XY_NUMERICAL)
+    CurveInformationStruct *CurveItem = new CurveInformationStruct;
+    CurveItem->Sem = new QSemaphore();
+    CurveItem->Sem->release();
+    CurveItem->Curve = Curve;
+
+    CurveItem->CurveType = CurveType;
+
+    CurveItem->pVariabelMdl = pVariabelMdl;
+    CurveItem->Evaluator = Evaluator;
+
+
+    CurveItem->Marker = new QwtPlotMarker();
+
+    CurveItem->MarkerPos = 0.0;
+
+    if(CurveType == CURVE_TYPE_COMPLEX)
     {
-        CurveInformationStruct *CurveItem = new CurveInformationStruct;
-        CurveItem->Sem = new QSemaphore();
-        CurveItem->Sem->release();
-        CurveItem->Curve = Curve;
-        CurveItem->CurveType = CurveType;
-
-        CurveItem->Marker = new QwtPlotMarker();
-        CurveItem->MarkerPos = 0.0;
-
-        if(CurveType == CURVE_TYPE_COMPLEX)
-        {
-
-            CurveItem->Marker->setSymbol( QwtSymbol( QwtSymbol::Diamond,
-                                                     QColor( Qt::yellow ), QColor( Qt::green ), QSize( 7, 7 ) ) );
-            CurveItem->Marker->attach(Plot);
-        }
-
-        memset(CurveItem->IndepVarName, 0, sizeof(CurveItem->IndepVarName));
-        memcpy(CurveItem->IndepVarName, IndependentVar.toStdString().c_str(), strlen(IndependentVar.toStdString().c_str()));
-
-        CurveItem->Segment = NO_SUBSEGMENTS;
-        CurveItem->Resolution = Resolution;
-        CurveItem->StartPoint = StartPoint;
-        CurveItem->EndPoint = EndPoint;
-        CurveItem->DataSize = (EndPoint - StartPoint)/Resolution;
-
-        CurveItem->xData = (double*)malloc( CurveItem->DataSize * sizeof(double));
-        CurveItem->yData = (double*)malloc( CurveItem->DataSize * sizeof(double));
-        CurveItem->Expression = Expression;
-        CurveItem->BaseExpression = BaseExpression;
-        CurveItem->Plot = Plot;
-        CurveItem->Curve->attach(Plot);
-
-        CurveItem->Thread = (CurveThread*)new CurveThread(NULL, CurveItem);
-        connect(CurveItem->Thread, SIGNAL(CurveReady(CurveInformationStruct *)), this, SLOT( CurveReady(CurveInformationStruct *)));
-
-
-        CurveInformationList.append(CurveItem);
-        ((CurveThread*)CurveItem->Thread)->start();
+        CurveItem->Curve->setPen(QPen(Color));
+        CurveItem->Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
+                                              QColor(Color), QColor(Color), QSize( 2, 2 ) ));
+        CurveItem->Marker->setSymbol( QwtSymbol( QwtSymbol::Cross,
+                                                 QColor(Color), QColor(Color), QSize( 10, 10 ) ) );
+        CurveItem->Marker->attach(Plot);
     }
-    else
-    {
-        CurveInformationStruct *CurveItem = new CurveInformationStruct;
-        CurveItem->Resolution = Resolution;
-        CurveItem->DataSize = ((EndPoint - StartPoint)/Resolution);
-        CurveItem->Curve = Curve;
-        CurveItem->CurveType = CurveType;
-        CurveItem->Plot = Plot;
-        CurveItem->BaseExpression = BaseExpression;
-        CurveItem->SubSegmentInformation = (CurveInformationStruct**)malloc(sizeof(CurveInformationStruct*)*NumThreads);
-        CurveItem->Segment = N_SUBSEGMENTS;
-        CurveItem->xData = (double*)malloc( CurveItem->DataSize * sizeof(double));
-        CurveItem->yData = (double*)malloc( CurveItem->DataSize * sizeof(double));
-        CurveItem->StartPoint = StartPoint;
-        CurveItem->EndPoint = EndPoint;
+
+    memset(CurveItem->IndepVarName, 0, sizeof(CurveItem->IndepVarName));
+    memcpy(CurveItem->IndepVarName, IndependentVar.toStdString().c_str(), strlen(IndependentVar.toStdString().c_str()));
+
+    CurveItem->Resolution = Resolution;
+    CurveItem->StartPoint = StartPoint;
+    CurveItem->EndPoint = EndPoint;
+    CurveItem->DataSize = (EndPoint - StartPoint)/Resolution;
+
+    CurveItem->xData = (double*)malloc( CurveItem->DataSize * sizeof(double));
+    CurveItem->yData = (double*)malloc( CurveItem->DataSize * sizeof(double));
+    CurveItem->Expression = Expression;
+    CurveItem->BaseExpression = BaseExpression;
+    CurveItem->Plot = Plot;
+    CurveItem->Curve->attach(Plot);
+
+    CurveItem->Thread = (CurveThread*)new CurveThread(NULL, CurveItem);
+    connect(CurveItem->Thread, SIGNAL(CurveReady(CurveInformationStruct *)), this, SLOT( CurveReady(CurveInformationStruct *)));
 
 
-        for(int i = 0 ; i < NumThreads ; i ++ )
-        {
-            CurveInformationStruct *SubCurveItem = new CurveInformationStruct;
-            CurveItem->SubSegmentInformation[i] = SubCurveItem;
-            SubCurveItem->ParentInformation = CurveItem;
-            SubCurveItem->Sem = new QSemaphore();
-            SubCurveItem->Sem->release();
-            SubCurveItem->Curve = Curve;
-            SubCurveItem->CurveType = CurveType;
-
-            SubCurveItem->MarkerPos = 0.0;
-
-            memset(SubCurveItem->IndepVarName, 0, sizeof(SubCurveItem->IndepVarName));
-            memcpy(SubCurveItem->IndepVarName, IndependentVar.toStdString().c_str(), strlen(IndependentVar.toStdString().c_str()));
+    CurveInformationList.append(CurveItem);
+    ((CurveThread*)CurveItem->Thread)->start();
 
 
-            SubCurveItem->Resolution = Resolution;
-            SubCurveItem->DataSize = ((EndPoint - StartPoint)/Resolution) / NumThreads;
-            SubCurveItem->xData = (double*)malloc( SubCurveItem->DataSize * sizeof(double));
-            SubCurveItem->yData = (double*)malloc( SubCurveItem->DataSize * sizeof(double));
-
-            SubCurveItem->StartPoint = StartPoint + i * (Resolution*(SubCurveItem->DataSize));
-            SubCurveItem->EndPoint = SubCurveItem->StartPoint + (Resolution*(SubCurveItem->DataSize));
-
-
-
-            QString ExpressionString = QString(Expression->GetExpr().c_str());
-
-            SubCurveItem->Expression = new ParserX();
-            SubCurveItem->Expression->SetExpr(ExpressionString.toStdString().c_str());
-            if(!updateExpressionVars(SubCurveItem->Expression, SubCurveItem->IndepVarName))
-                return;
-
-            SubCurveItem->Segment = i;
-            SubCurveItem->BaseExpression = BaseExpression;
-            SubCurveItem->Thread = (CurveSegmentThread*)new CurveSegmentThread(NULL, SubCurveItem);
-            SubCurveItem->Plot = Plot;
-            SubCurveItem->Curve->attach(Plot);
-
-            connect(SubCurveItem->Thread, SIGNAL(CurveSegmentReady(CurveInformationStruct *)), this, SLOT( CurveSegmentReady(CurveInformationStruct *)));
-            ((CurveSegmentThread*)SubCurveItem->Thread)->start();
-        }
-        CurveInformationList.append(CurveItem);
-    }
 }
 
 QList <CurveInformationStruct*> *MainWindow::dependingCurves(QString VarName)
@@ -414,19 +388,6 @@ QList <CurveInformationStruct*> *MainWindow::dependingCurves(QString VarName)
     return DependingList;
 }
 
-
-void MainWindow::CurveSegmentReady(CurveInformationStruct *CurveInfo)
-{
-    CurveInformationStruct *Parent = CurveInfo->ParentInformation;
-
-    memcpy(Parent->xData+(CurveInfo->DataSize)*CurveInfo->Segment, CurveInfo->xData, CurveInfo->DataSize*sizeof(double));
-    memcpy(Parent->yData+(CurveInfo->DataSize)*CurveInfo->Segment, CurveInfo->yData, CurveInfo->DataSize*sizeof(double));
-
-    CurveInfo->Curve->setData(Parent->xData, Parent->yData, Parent->DataSize);
-    CurveInfo->Plot->replot();
-
-}
-
 void MainWindow::CurveReady(CurveInformationStruct *CurveInfo)
 {
     CurveInfo->Curve->setData(CurveInfo->xData, CurveInfo->yData, CurveInfo->DataSize);
@@ -437,19 +398,7 @@ void MainWindow::lockAll(void)
 {
     for(int i = 0 ; i < CurveInformationList.count() ; i ++)
     {
-        if(CurveInformationList.at(i)->Segment == NO_SUBSEGMENTS)
-        {
-            CurveInformationList.at(i)->Sem->acquire();
-        }
-        else
-        {
-            for(int k = 0 ; k < NumThreads ; k ++)
-            {
-                CurveInformationStruct *CurveSegmentInfo = (CurveInformationList.at(i)->SubSegmentInformation)[k];
-
-                CurveSegmentInfo->Sem->acquire();
-            }
-        }
+        CurveInformationList.at(i)->Sem->acquire();
     }
 
 }
@@ -458,19 +407,7 @@ void MainWindow::releaseAll(void)
 {
     for(int i = 0 ; i < CurveInformationList.count() ; i ++)
     {
-        if(CurveInformationList.at(i)->Segment == NO_SUBSEGMENTS)
-        {
-            CurveInformationList.at(i)->Sem->release();
-        }
-        else
-        {
-            for(int k = 0 ; k < NumThreads ; k ++)
-            {
-                CurveInformationStruct *CurveSegmentInfo = (CurveInformationList.at(i)->SubSegmentInformation)[k];
-
-                CurveSegmentInfo->Sem->release();
-            }
-        }
+        CurveInformationList.at(i)->Sem->release();
     }
 
 }
@@ -479,22 +416,9 @@ bool MainWindow::waitAll(void)
 {
     for(int i = 0 ; i < CurveInformationList.count() ; i ++)
     {
-        if(CurveInformationList.at(i)->Segment == NO_SUBSEGMENTS)
-        {
-            if(!CurveInformationList.at(i)->Thread->isFinished())
-                return false;
-        }
-        else
-        {
-            for(int k = 0 ; k < NumThreads ; k ++)
-            {
-                CurveInformationStruct *CurveSegmentInfo = (CurveInformationList.at(i)->SubSegmentInformation)[k];
 
-                if(!CurveSegmentInfo->Thread->isFinished())
-                    return false;
-
-            }
-        }
+        if(!CurveInformationList.at(i)->Thread->isFinished())
+            return false;
     }
     return true;
 }
@@ -514,19 +438,7 @@ void MainWindow::parameterChange(QString VarName, double DblVal)
 
         for(int i = 0 ; i < DependingList->count() ; i ++)
         {
-            if(DependingList->at(i)->Segment == NO_SUBSEGMENTS)
-            {
-                ((CurveThread*)DependingList->at(i)->Thread)->start();
-            }
-            else
-            {
-                for(int k = 0 ; k < NumThreads ; k ++)
-                {
-                    CurveInformationStruct *CurveSegmentInfo = (DependingList->at(i)->SubSegmentInformation)[k];
-                    CurveSegmentInfo->Thread->start();
-                }
-
-            }
+            ((CurveThread*)DependingList->at(i)->Thread)->start();
         }
         VariabelMdl->valueChange();
     }
@@ -548,25 +460,22 @@ void MainWindow::markerChange(QString VarName, double DblVal)
 
     for(int i = 0 ; i < DependingList->count() ; i ++)
     {
-        if(DependingList->at(i)->Segment == NO_SUBSEGMENTS)
-        {
-            DependingList->at(i)->MarkerPos = DblVal;
-            if(((CurveThread*)DependingList->at(i)->Thread)->isFinished())
-                ((CurveThread*)DependingList->at(i)->Thread)->start();
-        }
-        else
-        {
-            for(int k = 0 ; k < NumThreads ; k ++)
-            {
-                CurveInformationStruct *CurveSegmentInfo = (DependingList->at(i)->SubSegmentInformation)[k];
-                CurveSegmentInfo->MarkerPos = DblVal;
-                if(CurveSegmentInfo->Thread->isFinished())
-                {
-                    CurveSegmentInfo->Thread->start();
-                }
-            }
+        CurveInformationStruct *CurveInfo = DependingList->at(i);
 
+        CurveInfo->MarkerPos = DblVal;
+        if(CurveInfo->CurveType == CURVE_TYPE_COMPLEX)
+        {
+            Value InVal = CurveInfo->MarkerPos;
+            Variable Var(&InVal);
+            CurveInfo->Expression->DefineVar(VarName.toStdString(), &Var);
+            Value MarkerResult = CurveInfo->Expression->Eval();
+            CurveInfo->Marker->setYValue(MarkerResult.GetImag());
+            CurveInfo->Marker->setXValue(MarkerResult.GetFloat());
+            CurveInfo->Plot->replot();
+            continue;
         }
+        if(((CurveThread*)DependingList->at(i)->Thread)->isFinished())
+            ((CurveThread*)DependingList->at(i)->Thread)->start();
 
     }
     return;
@@ -690,7 +599,7 @@ void MainWindow::load(QString FilePath)
             VariabelMdl->setData(VariabelMdl->index(0), QVariant(DecName + QString(" = ") + ValueString), Qt::EditRole);
             DeclarationPtr += strlen(DeclarationPtr)+1;
         }
-
+        VariabelMdl->valueChange();
     }
     ::close(INFILE);
 
@@ -833,57 +742,38 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 
 void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
 {
-    if(CurveInfo->Segment == NO_SUBSEGMENTS)
-    {
-        if(CurveInfo->CurveType != CURVE_TYPE_COMPLEX)
-        {
-            CurveInformationList.removeOne(CurveInfo);
 
-            CurveInfo->Thread->terminate();
-            delete CurveInfo->Thread;
-            CurveInfo->Curve->detach();
-            delete CurveInfo->Curve;
-            CurveInfo->Marker->detach();
-            delete CurveInfo->Marker;
-            QWidget *Wdg = (QWidget*) CurveInfo->Plot->parent();
-            delete CurveInfo->Plot;
-            delete Wdg;
-            free(CurveInfo->xData);
-            free(CurveInfo->yData);
-        }
-        else
-        {
-            CurveInformationList.removeOne(CurveInfo);
-            CurveInfo->Thread->terminate();
-            delete CurveInfo->Thread;
-            CurveInfo->Curve->detach();
-            delete CurveInfo->Curve;
-            CurveInfo->Marker->detach();
-            delete CurveInfo->Marker;
-            CurveInfo->Plot->replot();
-            free(CurveInfo->xData);
-            free(CurveInfo->yData);
-        }
+    if(CurveInfo->CurveType != CURVE_TYPE_COMPLEX)
+    {
+        CurveInformationList.removeOne(CurveInfo);
+
+        CurveInfo->Thread->terminate();
+        delete CurveInfo->Thread;
+        CurveInfo->Curve->detach();
+        delete CurveInfo->Curve;
+        CurveInfo->Marker->detach();
+        delete CurveInfo->Marker;
+        QWidget *Wdg = (QWidget*) CurveInfo->Plot->parent();
+        delete CurveInfo->Plot;
+        delete Wdg;
+        free(CurveInfo->xData);
+        free(CurveInfo->yData);
     }
     else
     {
         CurveInformationList.removeOne(CurveInfo);
-        for(int k = 0 ; k < NumThreads ; k ++)
-        {
-
-            CurveInformationStruct *CurveSegmentInfo = CurveInfo->SubSegmentInformation[k];
-            CurveSegmentInfo->Thread->terminate();
-            delete CurveSegmentInfo->Thread;
-            free(CurveSegmentInfo->xData);
-            free(CurveSegmentInfo->yData);
-        }
+        CurveInfo->Thread->terminate();
+        delete CurveInfo->Thread;
         CurveInfo->Curve->detach();
         delete CurveInfo->Curve;
-        QWidget *Wdg = (QWidget*) CurveInfo->Plot->parent();
-        delete CurveInfo->Plot;
-        delete Wdg;
-
+        CurveInfo->Marker->detach();
+        delete CurveInfo->Marker;
+        CurveInfo->Plot->replot();
+        free(CurveInfo->xData);
+        free(CurveInfo->yData);
     }
+
+
 }
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)

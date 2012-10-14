@@ -1,17 +1,13 @@
-#-------------------------------------------------
-#
+# -------------------------------------------------
 # Project created by QtCreator 2012-10-02T14:42:15
-#
-#-------------------------------------------------
-
-QT       += core gui
-
+# -------------------------------------------------
+QT += core \
+    gui
 TARGET = QwtControl
 TEMPLATE = app
 CONFIG += debug
-
-SOURCES += main.cpp\
-        mainwindow.cpp \
+SOURCES += main.cpp \
+    mainwindow.cpp \
     vardialog.cpp \
     stepresponsedialog.cpp \
     bodedialog.cpp \
@@ -23,13 +19,13 @@ SOURCES += main.cpp\
     parametersliderdialog.cpp \
     qparameterslider.cpp \
     numericallaplace.cpp \
-    curvesegmentthread.cpp \
     curvemodel.cpp \
     mathFunction/mathfunctionpreprocessor.cpp \
     mathFunction/mathfunctionevaluator.cpp \
-    mathFunction/mathfunctioncompiler.cpp
-
-HEADERS  += mainwindow.h \
+    mathFunction/mathfunctioncompiler.cpp \
+    colorlisteditor.cpp \
+    qwt_plot_root_locus_curve.cpp
+HEADERS += mainwindow.h \
     vardialog.h \
     stepresponsedialog.h \
     bodedialog.h \
@@ -41,30 +37,27 @@ HEADERS  += mainwindow.h \
     parametersliderdialog.h \
     qparameterslider.h \
     numericallaplace.h \
-    curvesegmentthread.h \
     curvemodel.h \
     definitions.h \
     mathFunction/mathfunctionpreprocessor.h \
     mathFunction/mathfunctionevaluator.h \
-    mathFunction/mathfunctioncompiler.h
-
-FORMS    += mainwindow.ui \
+    mathFunction/mathfunctioncompiler.h \
+    colorlisteditor.h \
+    qwt_plot_root_locus_curve.h
+FORMS += mainwindow.ui \
     vardialog.ui \
     bodedialog.ui \
     expressiondialog.ui \
     stepresponsedialog.ui \
     rangeselectordialog.ui \
     parametersliderdialog.ui
-
 INCLUDEPATH += /usr/include/qwt5/ \
-                /usr/include/qwt-qt4/ \
-                /usr/include/qt4 \
-               muparserx-read-only/parser
-
+    /usr/include/qwt-qt4/ \
+    /usr/include/qt4 \
+    muparserx-read-only/parser
 LIBS += -L/usr/lib/ \
     -L. \
     -L./muparserx-read-only/bin \
-    -lqwt \
+    -lqwt-qt4 \
     -lmuparserx \
     -lm
-
