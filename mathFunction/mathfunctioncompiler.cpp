@@ -1,5 +1,5 @@
 #include "mathfunctioncompiler.h"
-
+#include <QFile>
 
 mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString IndependentVarName, QString FunctionName)
 {
@@ -9,13 +9,20 @@ mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString I
     QString SourceFile("mathFunction/compile/");
     SourceFile.append(FunctionName+QString(".c"));
 
+    QFile SourceF(SourceFile);
+    SourceF.remove();
+
     QString HeaderFile("mathFunction/compile/");
     HeaderFile.append(FunctionName+QString(".h"));
 
-
+    QFile SourceH(HeaderFile);
+    SourceH.remove();
 
     QString ObjectFile("mathFunction/compile/");
     ObjectFile.append(FunctionName+QString(".o"));
+
+    QFile ObjectF(ObjectFile);
+    ObjectF.remove();
 
     QString OutputLib;
     OutputLib.append(QString("mathFunction/compile/") + FunctionName+QString(".so.0.1"));
@@ -23,11 +30,8 @@ mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString I
     QStringList Parameters;
     Parameters.append(QString("double ") + IndependentVarName);
 
-
-
-    ReadRet = readFile(QString("mathFunction/template/template.c"), &SourceBuffer);
-    ReadRet = readFile(QString("mathFunction/template/template.h"), &HeaderBuffer);
-
+    QFile LibF(OutputLib);
+    LibF.remove();
 
     insertFunction(&SourceBuffer, FunctionName, Parameters, QString("double "));
     insertFunctionPrototype(&HeaderBuffer, FunctionName, Parameters, QString("double "));
@@ -69,6 +73,8 @@ mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString I
     }
     insertLocalIncludeStatement(&SourceBuffer, FunctionName+QString(".h"));
 
+    insertLocalIncludeStatement(&HeaderBuffer, QString("math.h"));
+    insertLocalIncludeStatement(&HeaderBuffer, QString("string.h"));
 
     WriteRet = writeFile(SourceFile, &SourceBuffer);
 

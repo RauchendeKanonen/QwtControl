@@ -30,7 +30,8 @@
 #include <QMessageBox>
 #include "curvethread.h"
 #include "curvemodel.h"
-#include "qwt_plot_root_locus_curve.h"
+#include "qwt_plot_control_curve.h"
+#include "qwt_plot_scaleitem.h"
 
 namespace Ui {
 class MainWindow;
@@ -50,8 +51,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     void initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression,
                                     double StartPoint, double EndPoint, double Resolution, int CurveType,
-                                    QString IndependentVar, QwtPlotCurve *Curve, mathFunctionEvaluator *Evaluator,
-                                    VarModel *pVariabelMdl, QColor Color);
+                                    QString IndependentVar, QwtPlotControlCurve *Curve, mathFunctionEvaluator *Evaluator,
+                                    VarModel *pVariabelMdl, QColor Color, QString FuctionName);
     ~MainWindow();
     void store(QString FilePath);
     double independentValue(QString IndepName, double *IndepVal);

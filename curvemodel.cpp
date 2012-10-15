@@ -28,6 +28,9 @@ QVariant CurveModel::data(const QModelIndex &index, int role) const
     if (index.row() >= CurveList->size())
         return QVariant();
 
+    if(role == Qt::ForegroundRole)
+        return QVariant(CurveList->at(index.row())->Color);
+
     if (role == Qt::DisplayRole)
     {
         switch(CurveList->at(index.row())->CurveType)

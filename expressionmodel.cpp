@@ -2,7 +2,37 @@
 #include <QColor>
 
 
+QString ExpressionModel::getExpressionDefinition(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return QString();
 
+    if (index.row() >= ExpressionList.size())
+        return QString();
+
+    return ExpressionList.at(index.row());
+}
+
+QString ExpressionModel::getExpressionName(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return QString();
+
+    if (index.row() >= ExpressionList.size())
+        return QString();
+
+
+    QString ExpressionStr = ExpressionList.at(index.row());
+    int FunctionNameEnd = ExpressionStr.indexOf(':');
+
+    if(FunctionNameEnd > 0)
+    {
+        ExpressionStr = ExpressionStr.left(FunctionNameEnd);
+        return ExpressionStr;
+    }
+
+    return QString();
+}
 
 
 ParserX *ExpressionModel::getExpression(const QModelIndex &index)
@@ -13,8 +43,15 @@ ParserX *ExpressionModel::getExpression(const QModelIndex &index)
     if (index.row() >= ExpressionList.size())
         return NULL;
 
+
+    QString ExpressionStr = ExpressionList.at(index.row());
+    int FunctionNameEnd = ExpressionStr.indexOf(':');
+
+    if(FunctionNameEnd > 0)
+        ExpressionStr = ExpressionStr.right(ExpressionStr.count() - FunctionNameEnd - 1);
+
     ParserX *Expression = new ParserX();
-    Expression->SetExpr(ExpressionList.at(index.row()).toStdString().c_str());
+    Expression->SetExpr(ExpressionStr.toStdString().c_str());
     return Expression;
 }
 

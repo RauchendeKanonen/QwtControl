@@ -15,15 +15,13 @@
 class mathFunctionCompiler
 {
 private:
-    bool InsertRet;
     bool WriteRet;
-    bool ReadRet;
     bool CompileRet;
     bool LinkRet;
 public:
     bool getState(void)
     {
-        if(InsertRet && WriteRet && ReadRet && CompileRet && LinkRet)
+        if(WriteRet && CompileRet && LinkRet)
             return true;
         return false;
     }

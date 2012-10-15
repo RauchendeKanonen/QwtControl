@@ -23,7 +23,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
-#include "qwt_plot_root_locus_curve.h"
+#include "qwt_plot_control_curve.h"
 
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
@@ -36,10 +36,10 @@
 #include <qevent.h>
 #include <qpaintengine.h>
 
-class QwtPlotRootLocusCurvePaintHelper: public QObject
+class QwtPlotControlCurvePaintHelper: public QObject
 {
 public:
-    QwtPlotRootLocusCurvePaintHelper(const QwtPlotRootLocusCurve *curve, int from, int to):
+    QwtPlotControlCurvePaintHelper(const QwtPlotControlCurve *curve, int from, int to):
         _curve(curve),
         _from(from),
         _to(to)
@@ -56,7 +56,7 @@ public:
         return false;
     }
 private:
-    const QwtPlotRootLocusCurve *_curve;
+    const QwtPlotControlCurve *_curve;
     int _from;
     int _to;
 };
@@ -155,7 +155,7 @@ static int verifyRange(int size, int &i1, int &i2)
     return (i2 - i1 + 1);
 }
 
-class QwtPlotRootLocusCurve::PrivateData
+class QwtPlotControlCurve::PrivateData
 {
 public:
     class PixelMatrix: private QBitArray
@@ -189,7 +189,7 @@ public:
 
     PrivateData():
         curveType(Yfx),
-        style(QwtPlotRootLocusCurve::Lines),
+        style(QwtPlotControlCurve::Lines),
         reference(0.0),
         attributes(0),
         paintAttributes(0)
@@ -205,8 +205,8 @@ public:
         delete curveFitter;
     }
 
-    QwtPlotRootLocusCurve::CurveType curveType;
-    QwtPlotRootLocusCurve::CurveStyle style;
+    QwtPlotControlCurve::CurveType curveType;
+    QwtPlotControlCurve::CurveStyle style;
     double reference;
 
     QwtSymbol *symbol;
@@ -222,7 +222,7 @@ public:
 };
 
 //! Constructor
-QwtPlotRootLocusCurve::QwtPlotRootLocusCurve():
+QwtPlotControlCurve::QwtPlotControlCurve():
     QwtPlotItem(QwtText())
 {
     init();
@@ -232,7 +232,7 @@ QwtPlotRootLocusCurve::QwtPlotRootLocusCurve():
   Constructor
   \param title Title of the curve   
 */
-QwtPlotRootLocusCurve::QwtPlotRootLocusCurve(const QwtText &title):
+QwtPlotControlCurve::QwtPlotControlCurve(const QwtText &title):
     QwtPlotItem(title)
 {
     init();
@@ -242,14 +242,14 @@ QwtPlotRootLocusCurve::QwtPlotRootLocusCurve(const QwtText &title):
   Constructor
   \param title Title of the curve   
 */
-QwtPlotRootLocusCurve::QwtPlotRootLocusCurve(const QString &title):
+QwtPlotControlCurve::QwtPlotControlCurve(const QString &title):
     QwtPlotItem(QwtText(title))
 {
     init();
 }
 
 //! Destructor
-QwtPlotRootLocusCurve::~QwtPlotRootLocusCurve()
+QwtPlotControlCurve::~QwtPlotControlCurve()
 {
     delete d_xy;
     delete d_data;
@@ -258,7 +258,7 @@ QwtPlotRootLocusCurve::~QwtPlotRootLocusCurve()
 /*!
   \brief Initialize data members
 */
-void QwtPlotRootLocusCurve::init()
+void QwtPlotControlCurve::init()
 {
     DrawSplitted = 0;
     setItemAttribute(QwtPlotItem::Legend);
@@ -271,7 +271,7 @@ void QwtPlotRootLocusCurve::init()
 }
 
 //! \return QwtPlotItem::Rtti_PlotCurve
-int QwtPlotRootLocusCurve::rtti() const
+int QwtPlotControlCurve::rtti() const
 {
     return QwtPlotItem::Rtti_PlotCurve;
 }
@@ -283,7 +283,7 @@ int QwtPlotRootLocusCurve::rtti() const
   \param on On/Off
   /sa PaintAttribute, testPaintAttribute()
 */
-void QwtPlotRootLocusCurve::setPaintAttribute(PaintAttribute attribute, bool on)
+void QwtPlotControlCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 {
     if ( on )
         d_data->paintAttributes |= attribute;
@@ -295,7 +295,7 @@ void QwtPlotRootLocusCurve::setPaintAttribute(PaintAttribute attribute, bool on)
     \brief Return the current paint attributes
     \sa PaintAttribute, setPaintAttribute()
 */
-bool QwtPlotRootLocusCurve::testPaintAttribute(PaintAttribute attribute) const
+bool QwtPlotControlCurve::testPaintAttribute(PaintAttribute attribute) const
 {
     return (d_data->paintAttributes & attribute);
 }
@@ -306,7 +306,7 @@ bool QwtPlotRootLocusCurve::testPaintAttribute(PaintAttribute attribute) const
   \param style Curve style
   \sa CurveStyle, style()
 */
-void QwtPlotRootLocusCurve::setStyle(CurveStyle style)
+void QwtPlotControlCurve::setStyle(CurveStyle style)
 {
     if ( style != d_data->style )
     {
@@ -319,7 +319,7 @@ void QwtPlotRootLocusCurve::setStyle(CurveStyle style)
     Return the current style
     \sa CurveStyle, setStyle()
 */
-QwtPlotRootLocusCurve::CurveStyle QwtPlotRootLocusCurve::style() const
+QwtPlotControlCurve::CurveStyle QwtPlotControlCurve::style() const
 { 
     return d_data->style; 
 }
@@ -329,7 +329,7 @@ QwtPlotRootLocusCurve::CurveStyle QwtPlotRootLocusCurve::style() const
   \param symbol Symbol
   \sa symbol()
 */
-void QwtPlotRootLocusCurve::setSymbol(const QwtSymbol &symbol )
+void QwtPlotControlCurve::setSymbol(const QwtSymbol &symbol )
 {
     delete d_data->symbol;
     d_data->symbol = symbol.clone();
@@ -340,7 +340,7 @@ void QwtPlotRootLocusCurve::setSymbol(const QwtSymbol &symbol )
     \brief Return the current symbol
     \sa setSymbol()
 */
-const QwtSymbol &QwtPlotRootLocusCurve::symbol() const
+const QwtSymbol &QwtPlotControlCurve::symbol() const
 { 
     return *d_data->symbol; 
 }
@@ -354,7 +354,7 @@ const QwtSymbol &QwtPlotRootLocusCurve::symbol() const
   \param pen New pen
   \sa pen(), brush(), QwtPainter::scaledPen()
 */
-void QwtPlotRootLocusCurve::setPen(const QPen &pen)
+void QwtPlotControlCurve::setPen(const QPen &pen)
 {
     if ( pen != d_data->pen )
     {
@@ -367,7 +367,7 @@ void QwtPlotRootLocusCurve::setPen(const QPen &pen)
     \brief Return the pen used to draw the lines
     \sa setPen(), brush()
 */
-const QPen& QwtPlotRootLocusCurve::pen() const
+const QPen& QwtPlotControlCurve::pen() const
 { 
     return d_data->pen; 
 }
@@ -376,7 +376,7 @@ const QPen& QwtPlotRootLocusCurve::pen() const
   \brief Assign a brush. 
 
    In case of brush.style() != QBrush::NoBrush 
-   and style() != QwtPlotRootLocusCurve::Sticks
+   and style() != QwtPlotControlCurve::Sticks
    the area between the curve and the baseline will be filled.
 
    In case !brush.color().isValid() the area will be filled by
@@ -387,7 +387,7 @@ const QPen& QwtPlotRootLocusCurve::pen() const
   \param brush New brush
   \sa brush(), setBaseline(), baseline()
 */
-void QwtPlotRootLocusCurve::setBrush(const QBrush &brush)
+void QwtPlotControlCurve::setBrush(const QBrush &brush)
 {
     if ( brush != d_data->brush )
     {
@@ -400,7 +400,7 @@ void QwtPlotRootLocusCurve::setBrush(const QBrush &brush)
   \brief Return the brush used to fill the area between lines and the baseline
   \sa setBrush(), setBaseline(), baseline()
 */
-const QBrush& QwtPlotRootLocusCurve::brush() const
+const QBrush& QwtPlotControlCurve::brush() const
 {
     return d_data->brush;
 }
@@ -417,7 +417,7 @@ const QBrush& QwtPlotRootLocusCurve::brush() const
 
   \note Internally the data is stored in a QwtArrayData object
 */
-void QwtPlotRootLocusCurve::setData(const double *xData, const double *yData, int size)
+void QwtPlotControlCurve::setData(const double *xData, const double *yData, int size)
 {
     delete d_xy;
     d_xy = new QwtArrayData(xData, yData, size);
@@ -433,7 +433,7 @@ void QwtPlotRootLocusCurve::setData(const double *xData, const double *yData, in
 
   \note Internally the data is stored in a QwtArrayData object
 */
-void QwtPlotRootLocusCurve::setData(const QwtArray<double> &xData,
+void QwtPlotControlCurve::setData(const QwtArray<double> &xData,
     const QwtArray<double> &yData)
 {
     delete d_xy;
@@ -448,9 +448,9 @@ void QwtPlotRootLocusCurve::setData(const QwtArray<double> &xData,
   \note Internally the data is stored in a QwtPolygonFData object
 */
 #if QT_VERSION < 0x040000
-void QwtPlotRootLocusCurve::setData(const QwtArray<QwtDoublePoint> &data)
+void QwtPlotControlCurve::setData(const QwtArray<QwtDoublePoint> &data)
 #else
-void QwtPlotRootLocusCurve::setData(const QPolygonF &data)
+void QwtPlotControlCurve::setData(const QPolygonF &data)
 #endif
 {
     delete d_xy;
@@ -464,7 +464,7 @@ void QwtPlotRootLocusCurve::setData(const QPolygonF &data)
   \param data Data
   \sa QwtData::copy()
 */
-void QwtPlotRootLocusCurve::setData(const QwtData &data)
+void QwtPlotControlCurve::setData(const QwtData &data)
 {
     delete d_xy;
     d_xy = data.copy();
@@ -473,7 +473,7 @@ void QwtPlotRootLocusCurve::setData(const QwtData &data)
 
 /*!
   \brief Initialize the data by pointing to memory blocks which are not managed
-  by QwtPlotRootLocusCurve.
+  by QwtPlotControlCurve.
 
   setRawData is provided for efficiency. It is important to keep the pointers
   during the lifetime of the underlying QwtCPointerData class.
@@ -484,7 +484,7 @@ void QwtPlotRootLocusCurve::setData(const QwtData &data)
 
   \note Internally the data is stored in a QwtCPointerData object
 */
-void QwtPlotRootLocusCurve::setRawData(const double *xData, const double *yData, int size)
+void QwtPlotControlCurve::setRawData(const double *xData, const double *yData, int size)
 {
     delete d_xy;
     d_xy = new QwtCPointerData(xData, yData, size);
@@ -497,7 +497,7 @@ void QwtPlotRootLocusCurve::setRawData(const double *xData, const double *yData,
   \sa QwtData::boundingRect(), QwtDoubleRect::isValid()
 */
 
-QwtDoubleRect QwtPlotRootLocusCurve::boundingRect() const
+QwtDoubleRect QwtPlotControlCurve::boundingRect() const
 {
     if ( d_xy == NULL )
         return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
@@ -514,7 +514,7 @@ QwtDoubleRect QwtPlotRootLocusCurve::boundingRect() const
 
   \sa drawCurve(), drawSymbols()
 */
-void QwtPlotRootLocusCurve::draw(QPainter *painter,
+void QwtPlotControlCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &) const
 {
@@ -538,7 +538,7 @@ void QwtPlotRootLocusCurve::draw(QPainter *painter,
 
   \sa drawCurve(), drawSymbols()
 */
-void QwtPlotRootLocusCurve::draw(int from, int to) const
+void QwtPlotControlCurve::draw(int from, int to) const
 {
     if ( !plot() )
         return;
@@ -565,11 +565,11 @@ void QwtPlotRootLocusCurve::draw(int from, int to) const
         /*
           We save curve and range in helper and call repaint.
           The helper filters the Paint event, to repeat
-          the QwtPlotRootLocusCurve::draw, but now from inside the paint
+          the QwtPlotControlCurve::draw, but now from inside the paint
           event.
          */
 
-        QwtPlotRootLocusCurvePaintHelper helper(this, from, to);
+        QwtPlotControlCurvePaintHelper helper(this, from, to);
         canvas->installEventFilter(&helper);
 
         const bool noSystemBackground =
@@ -624,7 +624,7 @@ void QwtPlotRootLocusCurve::draw(int from, int to) const
 
   \sa drawCurve(), drawSymbols(),
 */
-void QwtPlotRootLocusCurve::draw(QPainter *painter,
+void QwtPlotControlCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -660,7 +660,7 @@ void QwtPlotRootLocusCurve::draw(QPainter *painter,
 /*!
   \brief Draw the line part (without symbols) of a curve interval. 
   \param painter Painter
-  \param style curve style, see QwtPlotRootLocusCurve::CurveStyle
+  \param style curve style, see QwtPlotControlCurve::CurveStyle
   \param xMap x map
   \param yMap y map
   \param from index of the first point to be painted
@@ -668,7 +668,7 @@ void QwtPlotRootLocusCurve::draw(QPainter *painter,
   \sa draw(), drawDots(), drawLines(), drawSteps(), drawSticks()
 */
 
-void QwtPlotRootLocusCurve::drawCurve(QPainter *painter, int style,
+void QwtPlotControlCurve::drawCurve(QPainter *painter, int style,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -714,7 +714,7 @@ void QwtPlotRootLocusCurve::drawCurve(QPainter *painter, int style,
   \sa setCurveAttribute(), setCurveFitter(), draw(), 
       drawLines(), drawDots(), drawSteps(), drawSticks()
 */
-void QwtPlotRootLocusCurve::drawLines(QPainter *painter,
+void QwtPlotControlCurve::drawLines(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -853,7 +853,7 @@ void QwtPlotRootLocusCurve::drawLines(QPainter *painter,
 
   \sa draw(), drawCurve(), drawDots(), drawLines(), drawSteps()
 */
-void QwtPlotRootLocusCurve::drawSticks(QPainter *painter,
+void QwtPlotControlCurve::drawSticks(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -883,7 +883,7 @@ void QwtPlotRootLocusCurve::drawSticks(QPainter *painter,
 
   \sa draw(), drawCurve(), drawSticks(), drawLines(), drawSteps()
 */
-void QwtPlotRootLocusCurve::drawDots(QPainter *painter,
+void QwtPlotControlCurve::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -976,7 +976,7 @@ void QwtPlotRootLocusCurve::drawDots(QPainter *painter,
   \sa CurveAttribute, setCurveAttribute(),
       draw(), drawCurve(), drawDots(), drawLines(), drawSticks()
 */
-void QwtPlotRootLocusCurve::drawSteps(QPainter *painter,
+void QwtPlotControlCurve::drawSteps(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -1021,7 +1021,7 @@ void QwtPlotRootLocusCurve::drawSteps(QPainter *painter,
 
   /sa CurveAttribute, testCurveAttribute(), setCurveFitter()
 */
-void QwtPlotRootLocusCurve::setCurveAttribute(CurveAttribute attribute, bool on)
+void QwtPlotControlCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 {
     if ( bool(d_data->attributes & attribute) == on )
         return;
@@ -1038,7 +1038,7 @@ void QwtPlotRootLocusCurve::setCurveAttribute(CurveAttribute attribute, bool on)
     \return true, if attribute is enabled
     \sa CurveAttribute, setCurveAttribute()
 */
-bool QwtPlotRootLocusCurve::testCurveAttribute(CurveAttribute attribute) const
+bool QwtPlotControlCurve::testCurveAttribute(CurveAttribute attribute) const
 { 
     return d_data->attributes & attribute;
 }
@@ -1049,7 +1049,7 @@ bool QwtPlotRootLocusCurve::testCurveAttribute(CurveAttribute attribute) const
   \param curveType Yfx or Xfy
   \sa CurveType, curveType()
 */
-void QwtPlotRootLocusCurve::setCurveType(CurveType curveType)
+void QwtPlotControlCurve::setCurveType(CurveType curveType)
 {
     if ( d_data->curveType != curveType )
     {
@@ -1062,7 +1062,7 @@ void QwtPlotRootLocusCurve::setCurveType(CurveType curveType)
    Return the curve type
    \sa CurveType, setCurveType()
 */
-QwtPlotRootLocusCurve::CurveType QwtPlotRootLocusCurve::curveType() const
+QwtPlotControlCurve::CurveType QwtPlotControlCurve::curveType() const
 {
     return d_data->curveType;
 }
@@ -1073,7 +1073,7 @@ QwtPlotRootLocusCurve::CurveType QwtPlotRootLocusCurve::curveType() const
 
   \param curveFitter Curve fitter
 */
-void QwtPlotRootLocusCurve::setCurveFitter(QwtCurveFitter *curveFitter)
+void QwtPlotControlCurve::setCurveFitter(QwtCurveFitter *curveFitter)
 {
     delete d_data->curveFitter;
     d_data->curveFitter = curveFitter;
@@ -1085,7 +1085,7 @@ void QwtPlotRootLocusCurve::setCurveFitter(QwtCurveFitter *curveFitter)
   Get the curve fitter. If curve fitting is disabled NULL is returned.
   \return Curve fitter
 */
-QwtCurveFitter *QwtPlotRootLocusCurve::curveFitter() const
+QwtCurveFitter *QwtPlotControlCurve::curveFitter() const
 {
     return d_data->curveFitter;
 }
@@ -1101,7 +1101,7 @@ QwtCurveFitter *QwtPlotRootLocusCurve::curveFitter() const
 
   \sa setBrush(), setBaseline(), setCurveType()
 */
-void QwtPlotRootLocusCurve::fillCurve(QPainter *painter,
+void QwtPlotControlCurve::fillCurve(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtPolygon &pa) const
 {
@@ -1134,7 +1134,7 @@ void QwtPlotRootLocusCurve::fillCurve(QPainter *painter,
   \param yMap Y map
   \param pa Polygon to be completed
 */
-void QwtPlotRootLocusCurve::closePolyline(
+void QwtPlotControlCurve::closePolyline(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtPolygon &pa) const
 {
@@ -1144,7 +1144,7 @@ void QwtPlotRootLocusCurve::closePolyline(
 
     pa.resize(sz + 2);
 
-    if ( d_data->curveType == QwtPlotRootLocusCurve::Xfy )
+    if ( d_data->curveType == QwtPlotControlCurve::Xfy )
     {
         pa.setPoint(sz,
             xMap.transform(d_data->reference), pa.point(sz - 1).y());
@@ -1171,7 +1171,7 @@ void QwtPlotRootLocusCurve::closePolyline(
 
   \sa setSymbol(), draw(), drawCurve()
 */
-void QwtPlotRootLocusCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
+void QwtPlotControlCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -1222,14 +1222,14 @@ void QwtPlotRootLocusCurve::drawSymbols(QPainter *painter, const QwtSymbol &symb
   The baseline is needed for filling the curve with a brush or
   the Sticks drawing style. 
   The default value is 0.0. The interpretation
-  of the baseline depends on the CurveType. With QwtPlotRootLocusCurve::Yfx,
+  of the baseline depends on the CurveType. With QwtPlotControlCurve::Yfx,
   the baseline is interpreted as a horizontal line at y = baseline(),
-  with QwtPlotRootLocusCurve::Yfy, it is interpreted as a vertical line at
+  with QwtPlotControlCurve::Yfy, it is interpreted as a vertical line at
   x = baseline().
   \param reference baseline
   \sa baseline(), setBrush(), setStyle(), setCurveType()
 */
-void QwtPlotRootLocusCurve::setBaseline(double reference)
+void QwtPlotControlCurve::setBaseline(double reference)
 {
     if ( d_data->reference != reference )
     {
@@ -1242,7 +1242,7 @@ void QwtPlotRootLocusCurve::setBaseline(double reference)
     Return the value of the baseline
     \sa setBaseline()
 */
-double QwtPlotRootLocusCurve::baseline() const
+double QwtPlotControlCurve::baseline() const
 { 
     return d_data->reference; 
 }
@@ -1251,7 +1251,7 @@ double QwtPlotRootLocusCurve::baseline() const
   Return the size of the data arrays
   \sa setData()
 */
-int QwtPlotRootLocusCurve::dataSize() const
+int QwtPlotControlCurve::dataSize() const
 {
     return d_xy->size();
 }
@@ -1267,7 +1267,7 @@ int QwtPlotRootLocusCurve::dataSize() const
   \note closestPoint() implements a dumb algorithm, that iterates 
         over all points
 */
-int QwtPlotRootLocusCurve::closestPoint(const QPoint &pos, double *dist) const
+int QwtPlotControlCurve::closestPoint(const QPoint &pos, double *dist) const
 {
     if ( plot() == NULL || dataSize() <= 0 )
         return -1;
@@ -1297,7 +1297,7 @@ int QwtPlotRootLocusCurve::closestPoint(const QPoint &pos, double *dist) const
 }
 
 //!  Update the widget that represents the curve on the legend
-void QwtPlotRootLocusCurve::updateLegend(QwtLegend *legend) const
+void QwtPlotControlCurve::updateLegend(QwtLegend *legend) const
 {
     if ( !legend )
         return;
@@ -1340,7 +1340,7 @@ void QwtPlotRootLocusCurve::updateLegend(QwtLegend *legend) const
     {
         int mode = 0;
 
-        if (QwtPlotRootLocusCurve::NoCurve != style())
+        if (QwtPlotControlCurve::NoCurve != style())
         {
             legendItem->setCurvePen(pen());
             mode |= QwtLegendItem::ShowLine;

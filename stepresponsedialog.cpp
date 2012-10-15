@@ -7,7 +7,7 @@ StepResponseDialog::StepResponseDialog(QWidget *parent) :
 {
     pParent = parent;
     ui->setupUi(this);
-    ResponseCurve = new QwtPlotCurve( "Amplidue" );
+    ResponseCurve = new QwtPlotControlCurve( "Amplidue" );
     ResponseCurve->attach(ui->qwtPlot);
 }
 
@@ -16,7 +16,7 @@ StepResponseDialog::~StepResponseDialog()
     delete ui;
 }
 
-QwtPlotCurve *StepResponseDialog::getPlotCurve(void)
+QwtPlotControlCurve *StepResponseDialog::getPlotCurve(void)
 {
     return ResponseCurve;
 }
