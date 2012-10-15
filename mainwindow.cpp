@@ -386,7 +386,7 @@ void MainWindow::initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, 
         CurveItem->Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
                                               QColor(Color), QColor(Color), QSize( 2, 2 ) ));
         CurveItem->Marker->setSymbol( QwtSymbol( QwtSymbol::Cross,
-                                                 QColor(Color), QColor(Color), QSize( 15, 15 ) ) );
+                                                 QColor(Color), QColor(Color), QSize( 25, 25 ) ) );
         CurveItem->Marker->attach(Plot);
 
         CurveItem->RootLocation->attach(Plot);

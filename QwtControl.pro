@@ -58,6 +58,6 @@ INCLUDEPATH += /usr/include/qwt5/ \
 LIBS += -L/usr/lib/ \
     -L. \
     -L./muparserx-read-only/bin \
-    -lqwt \
+    -lqwt-qt4 \
     -lmuparserx \
     -lm
