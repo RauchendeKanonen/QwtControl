@@ -495,6 +495,9 @@ void MainWindow::parameterChange(QString VarName, double DblVal)
 
         QList <CurveInformationStruct*> *DependingList = dependingCurves(VarName);
 
+        if(DependingList == NULL)
+            return;
+
         for(int i = 0 ; i < DependingList->count() ; i ++)
         {
             ((CurveThread*)DependingList->at(i)->Thread)->start();
@@ -516,7 +519,8 @@ void MainWindow::markerChange(QString VarName, double DblVal)
 
 
     QList <CurveInformationStruct*> *DependingList = dependingCurves(VarName);
-
+    if(DependingList == NULL)
+        return;
     for(int i = 0 ; i < DependingList->count() ; i ++)
     {
         CurveInformationStruct *CurveInfo = DependingList->at(i);
@@ -820,7 +824,7 @@ void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
         free(CurveInfo->xData);
         free(CurveInfo->yData);
     }
-    else
+    else if(CurveInfo->CurveType == CURVE_TYPE_COMPLEX)
     {
         CurveInformationList.removeOne(CurveInfo);
         CurveInfo->Thread->terminate();
