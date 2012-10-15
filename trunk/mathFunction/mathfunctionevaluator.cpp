@@ -14,7 +14,7 @@ mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString Func
     char libstr[1024];
     char *ptr =  (char*)LibFile.toStdString().c_str();
     strcpy(libstr, ptr);
-    void* libhandle = dlopen(libstr, RTLD_LAZY);
+    libhandle = dlopen(libstr, RTLD_LAZY);
 
 
 
@@ -31,6 +31,11 @@ mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString Func
     pf = (double (*)(double))dlsym(libhandle, FunctionName.toStdString().c_str());
     pSetVar = (void (*)(char *, double))dlsym(libhandle, "setVar");
     pGetVar = (char** (*)(void))dlsym(libhandle, "getVar");
+}
+
+bool mathFunctionEvaluator::getState(void)
+{
+    return state;
 }
 
 QString mathFunctionEvaluator::indepVarName(void)

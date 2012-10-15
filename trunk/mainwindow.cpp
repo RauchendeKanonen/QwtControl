@@ -24,6 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
 
+    QwtPlotScaleItem *scaleItem = new QwtPlotScaleItem(QwtScaleDraw::TopScale, 0.0);
+    scaleItem->attach(ui->qwtPlot);
+    scaleItem = new QwtPlotScaleItem(QwtScaleDraw::RightScale, 0.0);
+    scaleItem->attach(ui->qwtPlot);
+    ui->qwtPlot->enableAxis(QwtPlot::yLeft, false);
+    ui->qwtPlot->enableAxis(QwtPlot::xBottom, false);
+
     ui->ExpressionListView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->VariableListView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->CurveListView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -37,19 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(IndependentMarkerSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(markerChange(QString , double )));
 
     setWindowTitle(QString("untittled"));
-/*
-    QString Function("a/a+(acs)^(-asd/2)/2");
-    mathFunctionpreprocessor PrePro(Function);*/
-/*
-    QString FunctionName("test");
-    QString Function("a/(a+s)");
-    QString Varname("s");
-    mathFunctionCompiler Compiler(Function, Varname, FunctionName);
-    mathFunctionEvaluator Evaluator(Varname, FunctionName);
-    QStringList Test = Evaluator.getExpressionVars();
-    Evaluator.setVar(QString("a"), 1.0);
-    double t = Evaluator.eval(1.0);
-    Test.append(Varname);*/
 }
 
 MainWindow::~MainWindow()
@@ -74,15 +68,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_actionExpression_triggered()
 {
-    ParserX *pParser = new ParserX();
-    ExpressionDialog Dlg(this, pParser);
+    QString Expression;
+    ExpressionDialog Dlg(this, &Expression);
     Dlg.setModal(true);
     Dlg.exec();
 
     QModelIndex index = ExpressionMdl->index(0, 0, QModelIndex());
     ExpressionMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = ExpressionMdl->index(0, 0, QModelIndex());
-    ExpressionMdl->setData(index, QString(pParser->GetExpr().c_str()),Qt::EditRole);
+    ExpressionMdl->setData(index, Expression,Qt::EditRole);
 }
 
 
@@ -156,6 +150,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     {
         ParserX *Expression = ExpressionMdl->getExpression(Index);
         ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
+        QString FunctionName = ExpressionMdl->getExpressionName(Index);
         if(false == updateExpressionVars(Expression, VarName))
             return;
 
@@ -179,11 +174,10 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         IndependentMarkerSliderDialog->activateWindow();
         IndependentMarkerSliderDialog->raise();
 
-        QwtPlotCurve* Curve = (QwtPlotCurve*)new QwtPlotRootLocusCurve();
-        ((QwtPlotRootLocusCurve*)Curve)->setSplit(10);
+        QwtPlotControlCurve* Curve = new QwtPlotControlCurve();
         initCurveInformationStruct(ui->qwtPlot, Expression, BaseExpression,
                                    Range.x(), Range.y(), Resolution, CURVE_TYPE_COMPLEX,
-                                   VarName, Curve, NULL, NULL, Color);
+                                   VarName, Curve, NULL, NULL, Color, FunctionName);
     }
 
 
@@ -215,24 +209,75 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         ParserX *Expression = ExpressionMdl->getExpression(Index);
         ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
 
-        QString FunctionName("test");
+        QString FunctionName = ExpressionMdl->getExpressionName(Index);
+        if(FunctionName == QString())
+        {
+            QMessageBox Box;
+            Box.setText(QString("Unnamed Functions are not allowed!!!"));
+            Box.setModal(true);
+            Box.exec();
+            delete StDialog;
+            return;
+        }
+
         QString Function = QString::fromStdString(Expression->GetExpr());
 
         mathFunctionpreprocessor Processor(Function);
+        bool procState = Processor.getState();
+        if(!procState)
+        {
+            QMessageBox Box;
+            Box.setText(QString("Error while preprocessing Function!!!"));
+            Box.setModal(true);
+            Box.exec();
+            delete StDialog;
+            return;
+        }
+
+
+
         Function = Processor.preprocessedString();
         mathFunctionCompiler Compiler(Function, VarName, FunctionName);
+        bool comState = Compiler.getState();
+        if(!comState)
+        {
+            QMessageBox Box;
+            Box.setText(QString("Error while compiling/linking Function!!!"));
+            Box.setModal(true);
+            Box.exec();
+            delete StDialog;
+            return;
+        }
+
+
         mathFunctionEvaluator *Evaluator = new mathFunctionEvaluator(VarName, FunctionName);
+        bool evalState = Evaluator->getState();
+        if(!evalState)
+        {
+            QMessageBox Box;
+            Box.setText(QString("Error while evaluating Function!!!"));
+            Box.setModal(true);
+            Box.exec();
+            delete StDialog;
+            return;
+        }
 
 
         if(false == updateExpressionVars(Expression, VarName))
         {
+            QMessageBox Box;
+            Box.setText(QString("Error undefined Variables!!!"));
+            Box.setModal(true);
+            Box.exec();
+            delete StDialog;
+            return;
             delete StDialog;
             return;
         }
 
         initCurveInformationStruct(StDialog->getPlot(), Expression, BaseExpression,
                                    Range.x(), Range.y(), Resolution, CURVE_TYPE_XY_COMPILED_NUMERICAL,
-                                   VarName, StDialog->getPlotCurve(), Evaluator, VariabelMdl, Color);
+                                   VarName, StDialog->getPlotCurve(), Evaluator, VariabelMdl, Color, FunctionName);
     }
 
     CurveMdl->valueChange();
@@ -305,8 +350,8 @@ bool MainWindow::updateExpressionVars(ParserX *Expression, QString IndependentVa
 
 void MainWindow::initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression,
                                             double StartPoint, double EndPoint, double Resolution, int CurveType,
-                                            QString IndependentVar, QwtPlotCurve *Curve, mathFunctionEvaluator *Evaluator,
-                                            VarModel *pVariabelMdl, QColor Color)
+                                            QString IndependentVar, QwtPlotControlCurve *Curve, mathFunctionEvaluator *Evaluator,
+                                            VarModel *pVariabelMdl, QColor Color, QString FuctionName)
 {
 
     CurveInformationStruct *CurveItem = new CurveInformationStruct;
@@ -322,16 +367,30 @@ void MainWindow::initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, 
 
     CurveItem->Marker = new QwtPlotMarker();
 
-    CurveItem->MarkerPos = 0.0;
 
+    CurveItem->MarkerPos = 0.0;
+    CurveItem->Color = Color;
     if(CurveType == CURVE_TYPE_COMPLEX)
     {
+        CurveItem->PoleLocation = new QwtPlotMarker();
+
+        CurveItem->RootLocation = new QwtPlotMarker();
+
+        CurveItem->PoleLocation->setSymbol( QwtSymbol( QwtSymbol::XCross,
+                                                         QColor(Color), QColor(Color), QSize( 15, 15 ) ) );
+
+        CurveItem->RootLocation->setSymbol( QwtSymbol( QwtSymbol::Ellipse,
+                                                         QColor(Color), QColor(Color), QSize( 10, 10 ) ) );
+
         CurveItem->Curve->setPen(QPen(Color));
         CurveItem->Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
                                               QColor(Color), QColor(Color), QSize( 2, 2 ) ));
         CurveItem->Marker->setSymbol( QwtSymbol( QwtSymbol::Cross,
-                                                 QColor(Color), QColor(Color), QSize( 10, 10 ) ) );
+                                                 QColor(Color), QColor(Color), QSize( 15, 15 ) ) );
         CurveItem->Marker->attach(Plot);
+
+        CurveItem->RootLocation->attach(Plot);
+        CurveItem->PoleLocation->attach(Plot);
     }
 
     memset(CurveItem->IndepVarName, 0, sizeof(CurveItem->IndepVarName));
@@ -483,14 +542,12 @@ void MainWindow::markerChange(QString VarName, double DblVal)
 
 void MainWindow::on_ExpressionListView_doubleClicked(const QModelIndex &index)
 {
-    ParserX *Expression = ExpressionMdl->getExpression(index);
-    ExpressionDialog Dlg(this, Expression);
+    QString Expression = ExpressionMdl->getExpressionDefinition(index);
+    ExpressionDialog Dlg(this, &Expression);
     Dlg.setModal(true);
     Dlg.exec();
 
-    ExpressionMdl->setData(index, QString(Expression->GetExpr().c_str()),Qt::EditRole);
-
-    delete Expression;
+    ExpressionMdl->setData(index, QString(Expression),Qt::EditRole);
 }
 
 void MainWindow::on_VariableListView_doubleClicked(const QModelIndex &index)
@@ -610,11 +667,13 @@ void MainWindow::store(QString FilePath)
 {
     char ExpressionBuffer[1024*1024];
     char *ptr=ExpressionBuffer;
-    for(int i = 0 ; i < ExpressionMdl->rowCount() ; i ++ )
+    for(int i = ExpressionMdl->rowCount() -1  ; i >= 0  ; i -- )
     {
-        const char *Expression = QString(ExpressionMdl->data(ExpressionMdl->index(i), Qt::DisplayRole).toString()).toStdString().c_str();
+        const char *Expression = ExpressionMdl->getExpressionDefinition(ExpressionMdl->index(i)).toStdString().c_str();
         memcpy((void*)ptr, Expression, strlen(Expression)+1);
-        ptr += (long)strlen(Expression)+1;
+        ptr += (long)strlen(Expression);
+        *ptr = 0;
+        ptr += 1;
     }
 
     int OUTFILE;
@@ -640,7 +699,7 @@ void MainWindow::store(QString FilePath)
     char DeclarationBuffer[1024*1024];
     char *DeclarationPtr=DeclarationBuffer;
 
-    for(int i = 0 ; i < VariabelMdl->rowCount() ; i ++)
+    for(int i = VariabelMdl->rowCount()-1 ; i >= 0  ; i --)
     {
         QString Declaration = QString(VariabelMdl->data(VariabelMdl->index(i), Qt::DisplayRole).toString());
         const char *DeclarationStr = Declaration.toStdString().c_str();
@@ -694,6 +753,7 @@ void MainWindow::on_actionLoad_triggered()
         {
             setWindowTitle(dlg.selectedFiles().at(0));
             load(dlg.selectedFiles().at(0));
+            WorkFile = dlg.selectedFiles().at(0);
         }
     }
 }
@@ -743,7 +803,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
 {
 
-    if(CurveInfo->CurveType != CURVE_TYPE_COMPLEX)
+    if(CurveInfo->CurveType == CURVE_TYPE_XY_COMPILED_NUMERICAL)
     {
         CurveInformationList.removeOne(CurveInfo);
 
@@ -753,6 +813,7 @@ void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
         delete CurveInfo->Curve;
         CurveInfo->Marker->detach();
         delete CurveInfo->Marker;
+        delete CurveInfo->Evaluator;
         QWidget *Wdg = (QWidget*) CurveInfo->Plot->parent();
         delete CurveInfo->Plot;
         delete Wdg;
@@ -768,12 +829,14 @@ void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
         delete CurveInfo->Curve;
         CurveInfo->Marker->detach();
         delete CurveInfo->Marker;
+        CurveInfo->RootLocation->detach();
+        delete CurveInfo->RootLocation;
+        CurveInfo->PoleLocation->detach();
+        delete CurveInfo->PoleLocation;
         CurveInfo->Plot->replot();
         free(CurveInfo->xData);
         free(CurveInfo->yData);
     }
-
-
 }
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)

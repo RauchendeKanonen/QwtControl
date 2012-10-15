@@ -9,6 +9,11 @@ mathFunctionpreprocessor::mathFunctionpreprocessor(QString ExpressionA)
     state = preprocessExponents(&ExpressionString);
 }
 
+bool mathFunctionpreprocessor::getState(void)
+{
+    return state;
+}
+
 bool mathFunctionpreprocessor::preformatExponents(QString *Expression)
 {
     if(Expression->contains("^"))
@@ -39,7 +44,7 @@ bool mathFunctionpreprocessor::preformatExponents(QString *Expression)
                         Expression->insert(index+1, '(');
                         break;
                     }
-                    if(!alpha && Expression->at(i+1).isDigit())
+                    if(!alpha && ((Expression->at(i+1).isDigit()) || (Expression->at(i+1) == '.')))
                     {
 
                     }
@@ -69,7 +74,7 @@ bool mathFunctionpreprocessor::preformatExponents(QString *Expression)
                         Expression->insert(i, '(');
                         break;
                     }
-                    if(!alpha && Expression->at(i-1).isDigit())
+                    if(!alpha && ((Expression->at(i-1).isDigit()) || (Expression->at(i-1) == '.')))
                     {
 
                     }

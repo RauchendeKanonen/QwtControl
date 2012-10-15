@@ -12,7 +12,7 @@
 #include <qwt_text.h>
 #include <qmath.h>
 #include "mpParser.h"
-
+#include "qwt_plot_control_curve.h"
 using namespace mup;
 namespace Ui
 {
@@ -29,14 +29,14 @@ public:
     void setResponse(const double *XData, const double *YData, int Size);
     void setExpression(ParserX *ExpressionA);
     void replot(void);
-    QwtPlotCurve *getPlotCurve(void);
+    QwtPlotControlCurve *getPlotCurve(void);
     QwtPlot *getPlot(void);
 private:
     double Time[10000];
     double ResponseValue[10000];
     QWidget *pParent;
     Ui::StepResponseDialog *ui;
-    QwtPlotCurve *ResponseCurve;
+    QwtPlotControlCurve *ResponseCurve;
     ParserX *Expression;
 };
 

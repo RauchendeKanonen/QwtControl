@@ -13,7 +13,7 @@ public:
     bool preformatExponents(QString *Expression);
     bool preprocessExponents(QString *Expression);
     QString ExpressionString;
-
+    bool getState(void);
     QString preprocessedString(void);
     QString Message;
     bool state;

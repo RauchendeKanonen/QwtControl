@@ -21,6 +21,7 @@ private:
     Ui::ParameterSliderDialog *ui;
     QList <QParameterSlider*> SliderList;
 public slots:
+    void sliderPressed(void);
     void valueChanged ( int value );
     void sliderReleased(void);
 signals:

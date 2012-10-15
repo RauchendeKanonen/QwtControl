@@ -16,14 +16,14 @@ class ExpressionDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit ExpressionDialog(QWidget *parent, ParserX *muFunctionParserA);
+    explicit ExpressionDialog(QWidget *parent, QString *ExpressionA);
     ~ExpressionDialog();
     
 private slots:
     void on_buttonBox_accepted();
 
 private:
-    ParserX *muComplexFunctionParser;
+    QString *pExpression;
     Ui::ExpressionDialog *ui;
 };
 

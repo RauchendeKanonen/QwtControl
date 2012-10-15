@@ -39,8 +39,10 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     Slider->setMaximum(RangeA.y()*10e6);
     Slider->setMinimum(RangeA.x()*10e6);
     Slider->setValue(InitialValue*10e6);
+
     connect(Slider, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int )));
     connect(Slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
+    connect(Slider, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()));
 
     QLabel *ValueLabel = Slider->getLabel();
     ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
@@ -49,6 +51,10 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     adjustSize();
 }
 
+void ParameterSliderDialog::sliderPressed(void)
+{
+
+}
 
 void ParameterSliderDialog::sliderReleased(void)
 {

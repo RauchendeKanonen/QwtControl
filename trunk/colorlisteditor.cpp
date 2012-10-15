@@ -50,6 +50,7 @@
 
  QColor ColorListEditor::color() const
  {
+     int row = currentIndex();
      return qVariantValue<QColor>(itemData(currentIndex(), Qt::DecorationRole));
  }
 
@@ -61,11 +62,16 @@
  void ColorListEditor::populateList()
  {
      QStringList colorNames = QColor::colorNames();
+    int index = 0;
 
-     for (int i = 0; i < colorNames.size(); ++i) {
+     for (int i = 0; i < colorNames.size(); i ++)
+     {
          QColor color(colorNames[i]);
-
-         insertItem(i, colorNames[i]);
-         setItemData(i, color, Qt::DecorationRole);
+         if(180 > color.value())
+         {
+            insertItem(index, colorNames[i]);
+            setItemData(index, color, Qt::DecorationRole);
+            index ++;
+         }
      }
  }

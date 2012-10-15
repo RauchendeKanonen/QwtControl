@@ -21,10 +21,17 @@ class mathFunctionEvaluator
 public:
     void setVar(QString VarName, double Arg);
     mathFunctionEvaluator(QString IndepVarNameA, QString FunctionName);
+    ~mathFunctionEvaluator(void)
+    {
+        dlclose(libhandle);
+    }
+
     QString indepVarName(void);
     QStringList getExpressionVars(void);
     double eval(double Arg);
+    bool getState(void);
 private:
+    void* libhandle;
     bool state;
     double(*pf)(double);
     void (*pSetVar)(char *, double);

@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_PLOT_ROOT_LOCUS_CURVE_H
-#define QWT_PLOT_ROOT_LOCUS_CURVE_H
+#ifndef QWT_PLOT_CONTROL_CURVE_H
+#define QWT_PLOT_CONTROL_CURVE_H
 
 #include <qpen.h>
 #include <qstring.h>
@@ -36,10 +36,10 @@ class QwtCurveFitter;
   with in Lines style and no symbols. You can change this by calling 
   setPen(), setStyle() and setSymbol().</dd>
   <dt>b) Connect/Assign data.</dt>
-  <dd>QwtPlotRootLocusCurve gets its points using a QwtData object offering
+  <dd>QwtPlotControlCurve gets its points using a QwtData object offering
   a bridge to the real storage of the points ( like QAbstractItemModel ).
   There are several convenience classes derived from QwtData, that also store
-  the points inside ( like QStandardItemModel ). QwtPlotRootLocusCurve also offers
+  the points inside ( like QStandardItemModel ). QwtPlotControlCurve also offers
   a couple of variations of setData(), that build QwtData objects from
   arrays internally.</dd>
   <dt>c) Attach the curve to a plot</dt>
@@ -51,7 +51,7 @@ class QwtCurveFitter;
 
   \sa QwtPlot, QwtData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtPlotRootLocusCurve: public QwtPlotItem
+class QWT_EXPORT QwtPlotControlCurve: public QwtPlotItem
 {
 public:
     /*!
@@ -98,7 +98,7 @@ public:
            as a curve in NoStyle style and a symbol painting a point.
          - UserCurve\n
            Styles >= UserCurve are reserved for derived
-           classes of QwtPlotRootLocusCurve that overload drawCurve() with
+           classes of QwtPlotControlCurve that overload drawCurve() with
            additional application specific curve types.
 
         \sa setStyle(), style()
@@ -118,13 +118,13 @@ public:
     /*! 
       Attribute for drawing the curve
 
-      - Fitted ( in combination with the Lines QwtPlotRootLocusCurve::CurveStyle only )\n
+      - Fitted ( in combination with the Lines QwtPlotControlCurve::CurveStyle only )\n
         A QwtCurveFitter tries to
         interpolate/smooth the curve, before it is painted.
         Note that curve fitting requires temorary memory
         for calculating coefficients and additional points.
         If painting in Fitted mode is slow it might be better
-        to fit the points, before they are passed to QwtPlotRootLocusCurve.
+        to fit the points, before they are passed to QwtPlotControlCurve.
       - Inverted\n
         For Steps only. Draws a step function
         from the right to the left.
@@ -161,16 +161,16 @@ public:
         ClipPolygons = 2
     };
 
-    explicit QwtPlotRootLocusCurve();
-    explicit QwtPlotRootLocusCurve(const QwtText &title);
-    explicit QwtPlotRootLocusCurve(const QString &title);
+    explicit QwtPlotControlCurve();
+    explicit QwtPlotControlCurve(const QwtText &title);
+    explicit QwtPlotControlCurve(const QString &title);
 
     void setSplit(int split)
     {
         DrawSplitted = split;
     }
 
-    virtual ~QwtPlotRootLocusCurve();
+    virtual ~QwtPlotControlCurve();
 
     virtual int rtti() const;
 
@@ -282,13 +282,13 @@ private:
 };
 
 //! \return the the curve data
-inline QwtData &QwtPlotRootLocusCurve::data()
+inline QwtData &QwtPlotControlCurve::data()
 {
     return *d_xy;
 }
 
 //! \return the the curve data
-inline const QwtData &QwtPlotRootLocusCurve::data() const
+inline const QwtData &QwtPlotControlCurve::data() const
 {
     return *d_xy;
 }
@@ -297,7 +297,7 @@ inline const QwtData &QwtPlotRootLocusCurve::data() const
     \param i index
     \return x-value at position i
 */
-inline double QwtPlotRootLocusCurve::x(int i) const
+inline double QwtPlotControlCurve::x(int i) const
 { 
     return d_xy->x(i); 
 }
@@ -306,7 +306,7 @@ inline double QwtPlotRootLocusCurve::x(int i) const
     \param i index
     \return y-value at position i
 */
-inline double QwtPlotRootLocusCurve::y(int i) const
+inline double QwtPlotControlCurve::y(int i) const
 { 
     return d_xy->y(i); 
 }

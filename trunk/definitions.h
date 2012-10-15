@@ -7,6 +7,8 @@
 #include "mpParser.h"
 #include "mathFunction/mathfunctionevaluator.h"
 #include "varmodel.h"
+#include "qwt_plot_control_curve.h"
+
 using namespace mup;
 #define CURVE_TYPE_XY           1
 #define CURVE_TYPE_COMPLEX      2
@@ -23,20 +25,23 @@ struct CurveInformationStruct
     int CurveType;
     char IndepVarName[32];
     double MarkerPos;
-    QwtPlotMarker *Marker;
     double StartPoint;
     double EndPoint;
     double Resolution;
     ParserX *Expression;
     ParserX *BaseExpression;
     mathFunctionEvaluator *Evaluator;
-    QwtPlotCurve *Curve;
+    QwtPlotControlCurve *Curve;
     double *xData;
     double *yData;
     int DataSize;
     QwtPlot *Plot;
     QThread *Thread;
     VarModel *pVariabelMdl;
+    QColor Color;
+    QwtPlotMarker *Marker;
+    QwtPlotMarker *PoleLocation;
+    QwtPlotMarker *RootLocation;
 };
 
 

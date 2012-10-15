@@ -24,7 +24,7 @@ SOURCES += main.cpp \
     mathFunction/mathfunctionevaluator.cpp \
     mathFunction/mathfunctioncompiler.cpp \
     colorlisteditor.cpp \
-    qwt_plot_root_locus_curve.cpp
+    qwt_plot_control_curve.cpp
 HEADERS += mainwindow.h \
     vardialog.h \
     stepresponsedialog.h \
@@ -43,7 +43,7 @@ HEADERS += mainwindow.h \
     mathFunction/mathfunctionevaluator.h \
     mathFunction/mathfunctioncompiler.h \
     colorlisteditor.h \
-    qwt_plot_root_locus_curve.h
+    qwt_plot_control_curve.h
 FORMS += mainwindow.ui \
     vardialog.ui \
     bodedialog.ui \
@@ -58,6 +58,6 @@ INCLUDEPATH += /usr/include/qwt5/ \
 LIBS += -L/usr/lib/ \
     -L. \
     -L./muparserx-read-only/bin \
-    -lqwt-qt4 \
+    -lqwt \
     -lmuparserx \
     -lm

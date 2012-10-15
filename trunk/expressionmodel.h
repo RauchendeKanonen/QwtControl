@@ -27,6 +27,8 @@ class ExpressionModel : public QAbstractListModel
      {
      }
     ParserX *getExpression(const QModelIndex &index);
+    QString getExpressionName(const QModelIndex &index);
+    QString getExpressionDefinition(const QModelIndex &index);
     bool setData(const QModelIndex &index,
                                const QVariant &value, int role);
     bool setData(const QModelIndex &index,
