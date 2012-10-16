@@ -6,7 +6,6 @@
 #include "numericallaplace.h"
 #include "mathFunction/mathfunctioncompiler.h"
 #include "mathFunction/mathfunctionevaluator.h"
-#include "mathFunction/mathfunctionpreprocessor.h"
 #include "controlexpression.h"
 
 
@@ -227,7 +226,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
         QString Function = QString::fromStdString(Expression->GetExpr());
 
-        mathFunctionpreprocessor Processor(Function);
+        ControlExpression Processor(Function);
         bool procState = Processor.getState();
         if(!procState)
         {
@@ -241,7 +240,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
 
 
-        Function = Processor.preprocessedString();
+        Function = Processor.cSourceString();
         mathFunctionCompiler Compiler(Function, VarName, FunctionName);
         bool comState = Compiler.getState();
         if(!comState)
