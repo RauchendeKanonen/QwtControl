@@ -50,6 +50,28 @@ ControlExpression::ControlExpression(QString ExpressionDef)
     }
 }
 
+QString ControlExpression::cSourceString(void)
+{
+    if(!state)
+        return QString();
+
+    ostringstream LatexOStream;
+    try
+    {
+        LatexOStream << csrc_double;
+        LatexOStream << *exExpression ;
+    }
+    catch (exception &p)
+    {
+        cerr << p.what() << endl;
+    }
+    QString Ret = QString::fromStdString(LatexOStream.str());
+    return Ret;
+}
+bool ControlExpression::getState(void)
+{
+    return state;
+}
 
 QString ControlExpression::latexString(void)
 {
@@ -73,7 +95,7 @@ QString ControlExpression::latexString(void)
 QImage ControlExpression::picture(void)
 {
     if(!state)
-        return QImage("Error.png");
+        return QImage("res/Error.png");
 
     QString LatexString = latexString();
 
@@ -85,11 +107,11 @@ QImage ControlExpression::picture(void)
         return QImage();
 
     QTextStream out(&file);
-    out << "\\documentclass[12pt]{article} \n\\pagestyle{empty}\n\\begin{document}\n\\begin{displaymath}\n";
-    out << LatexString << "\n";
-    out << "\\end{displaymath}\n\\end{document}\n";
 
-    QString ConverterCommand = QString("latex/textogif");
+    out << LatexString << "\n";
+
+
+    QString ConverterCommand = QString("latex/tex2im");
 
     QStringList Args;
     Args << QString("-p") << QString("latex/")+Filename;

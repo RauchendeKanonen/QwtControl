@@ -121,7 +121,7 @@ if [ -z $outfile ]; then
 		base=`basename ${infile} .tex` ;
 		outfile=${base}.$format
 	else
-		outfile=out.$format
+		outfile=out
 	fi
 fi
 

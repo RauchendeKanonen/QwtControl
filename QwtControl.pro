@@ -20,7 +20,6 @@ SOURCES += main.cpp \
     qparameterslider.cpp \
     numericallaplace.cpp \
     curvemodel.cpp \
-    mathFunction/mathfunctionpreprocessor.cpp \
     mathFunction/mathfunctionevaluator.cpp \
     mathFunction/mathfunctioncompiler.cpp \
     colorlisteditor.cpp \
@@ -40,7 +39,6 @@ HEADERS += mainwindow.h \
     numericallaplace.h \
     curvemodel.h \
     definitions.h \
-    mathFunction/mathfunctionpreprocessor.h \
     mathFunction/mathfunctionevaluator.h \
     mathFunction/mathfunctioncompiler.h \
     colorlisteditor.h \
@@ -60,7 +58,7 @@ INCLUDEPATH += /usr/include/qwt5/ \
 LIBS += -L/usr/lib/ \
     -L. \
     -L./muparserx-read-only/bin \
-    -lqwt \
+    -lqwt-qt4 \
     -lmuparserx \
     -lm \
     -lginac

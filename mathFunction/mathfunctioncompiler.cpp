@@ -99,6 +99,15 @@ QStringList mathFunctionCompiler::findCharacterStrings(QString Buffer)
             ActString.append(Buffer.at(i));
         else if(ActString.count())
         {
+            if(ActString == QString("e"))
+            {
+                if(i > 1 && Buffer.at(i-2).isDigit())
+                {
+                    ActString.clear();
+                    continue;
+                }
+
+            }
             Strings.append(ActString);
             ActString.clear();
         }

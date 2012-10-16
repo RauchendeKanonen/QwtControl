@@ -18,6 +18,8 @@ private:
     ex *exExpression;
     QStringList findCharacterStrings(QString Buffer);
 public:
+    bool getState(void);
+    QString cSourceString(void);
     QString getExpressionName(QString ExpressionDef);
     QString getExpression(QString ExpressionDef);
     QString latexString(void);

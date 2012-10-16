@@ -25,6 +25,8 @@ void CurveThread::run (void)
             for(int i = 0 ; i < VarList.count() ; i ++ )
             {
                 Value *Val = CurveInfo->pVariabelMdl->getVarValuePtr(VarList.at(i));
+                if(Val ==0)
+                    return;
                 double test = Val->GetFloat();
                 CurveInfo->Evaluator->setVar(VarList.at(i), Val->GetFloat());
             }
