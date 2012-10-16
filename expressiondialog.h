@@ -4,6 +4,13 @@
 #include <QDialog>
 #include <iostream>
 #include "mpParser.h"
+#include <iostream>
+#include <string>
+#include <ginac/ginac.h>
+#include <QGraphicsScene>
+#include "controlexpression.h"
+using namespace std;
+using namespace GiNaC;
 using namespace std;
 using namespace mup;
 
@@ -22,7 +29,12 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
+    void on_ExpressionEdit_textChanged(const QString &arg1);
+
 private:
+    QPixmap *ActImage;
+    QGraphicsPixmapItem *Item;
+    QGraphicsScene *Scene;
     QString *pExpression;
     Ui::ExpressionDialog *ui;
 };

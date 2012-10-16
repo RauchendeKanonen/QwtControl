@@ -7,6 +7,9 @@
 #include "mathFunction/mathfunctioncompiler.h"
 #include "mathFunction/mathfunctionevaluator.h"
 #include "mathFunction/mathfunctionpreprocessor.h"
+#include "controlexpression.h"
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -44,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(IndependentMarkerSliderDialog, SIGNAL(parameterChange(QString , double )), this, SLOT(markerChange(QString , double )));
 
     setWindowTitle(QString("untittled"));
+
+
 }
 
 MainWindow::~MainWindow()

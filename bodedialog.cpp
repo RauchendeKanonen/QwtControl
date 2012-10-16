@@ -49,7 +49,7 @@ BodeDialog::~BodeDialog()
 
 void BodeDialog::replot(double StartFrequency, double EndFrequency)
 {
-    Value  InVal(StartFrequency);
+    /*Value  InVal(StartFrequency);
     Variable Omega(&InVal);
 
     double Increment = (EndFrequency - StartFrequency)/10000;
@@ -126,7 +126,7 @@ void BodeDialog::replot(double StartFrequency, double EndFrequency)
     setPhase((const double*)Frequency, (const double*)Phase, 10000);
 
     ui->qwtAmplitudePlot->replot();
-    ui->qwtPhasePlot->replot();
+    ui->qwtPhasePlot->replot();*/
 }
 
 void BodeDialog::setAmplitude(const double *XData, const double *YData, int Size)
