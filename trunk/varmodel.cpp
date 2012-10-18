@@ -1,7 +1,7 @@
 #include "varmodel.h"
 #include <QColor>
 
-Value *VarModel::getVarValuePtr(QString VarName)
+double *VarModel::getVarValuePtr(QString VarName)
 {
     for(int i = 0 ; i < VarList.count() ; i ++ )
     {
@@ -19,7 +19,8 @@ void VarModel::valueChange(void)
     {
         int Idx = VarList.at(i).indexOf(" = ")+3;
         QString VarDef = VarList.at(i).left(Idx);
-        QString VarVal(ValueList.at(i)->ToString().c_str());
+        QString VarVal;
+        VarVal.sprintf("%f", *ValueList.at(i));
 
         VarList.replace(i, VarDef+VarVal);
     }
@@ -90,8 +91,8 @@ bool VarModel::setData(const QModelIndex &index,
     {
         QString ValueString = value.toString();
         VarList.replace(index.row(), value.toString());
-        Value *ValPtr = ValueList.at(index.row());
-        *ValPtr;
+        double *ValPtr = ValueList.at(index.row());
+
         int Index = ValueString.indexOf(" = ") + 3;
         double Value = strtod(ValueString.toStdString().c_str()+Index, NULL);
         *ValPtr = Value;
@@ -108,7 +109,7 @@ bool VarModel::insertRows(int position, int rows, const QModelIndex &parent)
     for (int row = 0; row < rows; ++row)
     {
         VarList.insert(position, "");
-        ValueList.insert(position, new Value());
+        ValueList.insert(position, new double);
     }
     endInsertRows();
 

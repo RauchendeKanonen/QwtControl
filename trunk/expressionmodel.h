@@ -6,9 +6,8 @@
 #include <QColor>
 #include <QFlags>
 #include <QFlag>
-#include "mpParser.h"
+#include "controlexpression.h"
 using namespace std;
-using namespace mup;
 
 //!Model for viewing Msgs in the MainView
 //!Implemented because the StandardModel consumed high cputime
@@ -26,7 +25,7 @@ class ExpressionModel : public QAbstractListModel
      ~ExpressionModel()
      {
      }
-    ParserX *getExpression(const QModelIndex &index);
+    ControlExpression *createExpression(const QModelIndex &index, QString IndepVarname);
     QString getExpressionName(const QModelIndex &index);
     QString getExpressionDefinition(const QModelIndex &index);
     bool setData(const QModelIndex &index,

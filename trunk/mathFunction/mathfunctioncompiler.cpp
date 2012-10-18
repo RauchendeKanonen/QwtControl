@@ -114,6 +114,30 @@ QStringList mathFunctionCompiler::findCharacterStrings(QString Buffer)
     }
     if(ActString.count())
         Strings.append(ActString);
+    Strings.removeDuplicates();
+    Strings.removeOne(QString("sin"));
+    Strings.removeOne(QString("cos"));
+    Strings.removeOne(QString("sinh"));
+    Strings.removeOne(QString("cosh"));
+    Strings.removeOne(QString("tanh"));
+    Strings.removeOne(QString("atanh"));
+    Strings.removeOne(QString("sqrt"));
+    Strings.removeOne(QString("log"));
+    Strings.removeOne(QString("log2"));
+    Strings.removeOne(QString("sign"));
+    Strings.removeOne(QString("logb"));
+    Strings.removeOne(QString("log10"));
+    Strings.removeOne(QString("atan"));
+    Strings.removeOne(QString("exp"));
+    Strings.removeOne(QString("exp2"));
+    Strings.removeOne(QString("acos"));
+    Strings.removeOne(QString("asin"));
+    Strings.removeOne(QString("tan"));
+    Strings.removeOne(QString("cotan"));
+    Strings.removeOne(QString("fabs"));
+    Strings.removeOne(QString("pow"));
+    Strings.removeOne(QString("atan2"));
+
     return Strings;
 }
 

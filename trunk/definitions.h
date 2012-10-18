@@ -4,45 +4,31 @@
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
-#include "mpParser.h"
+
 #include "mathFunction/mathfunctionevaluator.h"
 #include "varmodel.h"
-#include "qwt_plot_control_curve.h"
 
-using namespace mup;
+
+
+
 #define CURVE_TYPE_XY           1
 #define CURVE_TYPE_COMPLEX      2
 #define CURVE_TYPE_MAGNITUDE    3
+#define CURVE_TYPE_XY_SET       4
 #define CURVE_TYPE_XY_COMPILED_NUMERICAL 5
 
 
 #define LINUX 1
 
-
-struct CurveInformationStruct
+typedef struct
 {
-    QSemaphore *Sem;
-    int CurveType;
-    char IndepVarName[32];
-    double MarkerPos;
-    double StartPoint;
-    double EndPoint;
+    double IndepStart;
+    double IndepEnd;
     double Resolution;
-    ParserX *Expression;
-    ParserX *BaseExpression;
-    mathFunctionEvaluator *Evaluator;
-    QwtPlotControlCurve *Curve;
-    double *xData;
-    double *yData;
-    int DataSize;
-    QwtPlot *Plot;
-    QThread *Thread;
-    VarModel *pVariabelMdl;
-    QColor Color;
-    QwtPlotMarker *Marker;
-    QwtPlotMarker *PoleLocation;
-    QwtPlotMarker *RootLocation;
-};
+}EvalInfo;
+
+#define Rtti_PlotRootLocus 1
+#define Rtti_PlotResponse  2
 
 
 #endif // DEFINITIONS_H

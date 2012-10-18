@@ -1,2 +1,0 @@
-
-double f(double arg);

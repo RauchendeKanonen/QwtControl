@@ -11,9 +11,9 @@
 #include <qwt_legend.h>
 #include <qwt_text.h>
 #include <qmath.h>
-#include "mpParser.h"
-#include "qwt_plot_control_curve.h"
-using namespace mup;
+#include "qwt_response_curve.h"
+#include <QDragMoveEvent>
+
 namespace Ui
 {
 class StepResponseDialog;
@@ -26,18 +26,17 @@ class StepResponseDialog : public QDialog
 public:
     explicit StepResponseDialog(QWidget *parent = 0);
     ~StepResponseDialog();
-    void setResponse(const double *XData, const double *YData, int Size);
-    void setExpression(ParserX *ExpressionA);
     void replot(void);
-    QwtPlotControlCurve *getPlotCurve(void);
     QwtPlot *getPlot(void);
+protected:
+    void dropEvent ( QDropEvent * event );
+    void dragMoveEvent(QDragMoveEvent *de);
+    void dragEnterEvent(QDragEnterEvent *event);
 private:
-    double Time[10000];
-    double ResponseValue[10000];
+
     QWidget *pParent;
     Ui::StepResponseDialog *ui;
-    QwtPlotControlCurve *ResponseCurve;
-    ParserX *Expression;
+
 };
 
 #endif // STEPRESPONSEDIALOG_H

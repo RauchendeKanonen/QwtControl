@@ -35,7 +35,7 @@ QString ExpressionModel::getExpressionName(const QModelIndex &index)
 }
 
 
-ParserX *ExpressionModel::getExpression(const QModelIndex &index)
+ControlExpression *ExpressionModel::createExpression(const QModelIndex &index, QString IndepVarname)
 {
     if (!index.isValid())
         return NULL;
@@ -43,15 +43,9 @@ ParserX *ExpressionModel::getExpression(const QModelIndex &index)
     if (index.row() >= ExpressionList.size())
         return NULL;
 
+    QString ExpressionDef = getExpressionDefinition(index);
 
-    QString ExpressionStr = ExpressionList.at(index.row());
-    int FunctionNameEnd = ExpressionStr.indexOf(':');
-
-    if(FunctionNameEnd > 0)
-        ExpressionStr = ExpressionStr.right(ExpressionStr.count() - FunctionNameEnd - 1);
-
-    ParserX *Expression = new ParserX();
-    Expression->SetExpr(ExpressionStr.toStdString().c_str());
+    ControlExpression *Expression = new ControlExpression(ExpressionDef, IndepVarname);
     return Expression;
 }
 

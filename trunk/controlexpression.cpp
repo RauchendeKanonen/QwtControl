@@ -4,6 +4,9 @@
 #include <QTextStream>
 #include <QProcess>
 #include <QStringList>
+
+
+
 QStringList ControlExpression::findCharacterStrings(QString Buffer)
 {
     QStringList Strings;
@@ -23,25 +26,67 @@ QStringList ControlExpression::findCharacterStrings(QString Buffer)
     return Strings;
 }
 
-
-ControlExpression::ControlExpression(QString ExpressionDef)
+mathFunctionEvaluator *ControlExpression::getRealEvaluator(void)
 {
+    mathFunctionCompiler Compiler(cSourceStringRealPart(), IndependentVarName, ExpressionName+QString("real"));
+    bool comState = Compiler.getState();
+    if(!comState)
+    {
+        return NULL;
+    }
+    mathFunctionEvaluator *Evaluator = new mathFunctionEvaluator(IndependentVarName, ExpressionName+QString("real"));
+    if(!Evaluator->getState())
+    {
+        delete Evaluator;
+        return NULL;
+    }
+    return Evaluator;
+}
+
+mathFunctionEvaluator *ControlExpression::getImagEvaluator(void)
+{
+    mathFunctionCompiler Compiler(cSourceStringImagPart(), IndependentVarName, ExpressionName+QString("imag"));
+    bool comState = Compiler.getState();
+    if(!comState)
+    {
+        return NULL;
+    }
+    mathFunctionEvaluator *Evaluator = new mathFunctionEvaluator(IndependentVarName, ExpressionName+QString("imag"));
+    if(!Evaluator->getState())
+    {
+        delete Evaluator;
+        return NULL;
+    }
+    return Evaluator;
+}
+
+
+QString ControlExpression::independentVarName(void)
+{
+    return IndependentVarName;
+}
+
+ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
+{
+    IndependentVarName = IndepVar;
+
     ExpressionName = getExpressionName(ExpressionDef);
     ExpressionString = getExpression(ExpressionDef);
+
     if(ExpressionName == QString(""))
         ExpressionName = QString("std");
     QStringList Variables = findCharacterStrings(ExpressionString);
     Variables.removeDuplicates();
-    lst VarList;
+    GiNaC::lst VarList;
     state = true;
     for(int i = 0 ; i < Variables.count() ; i ++ )
     {
-        symbol Sym(Variables.at(i).toStdString());
+        GiNaC::realsymbol Sym(Variables.at(i).toStdString());
         VarList.append(Sym);
     }
     try
     {
-        exExpression = new ex(ExpressionString.toStdString().c_str(), VarList);
+        exExpression = new GiNaC::ex(ExpressionString.toStdString().c_str(), VarList);
     }
     catch (exception &p)
     {
@@ -58,7 +103,7 @@ QString ControlExpression::cSourceString(void)
     ostringstream LatexOStream;
     try
     {
-        LatexOStream << csrc_double;
+        LatexOStream << GiNaC::csrc_double;
         LatexOStream << *exExpression ;
     }
     catch (exception &p)
@@ -68,6 +113,45 @@ QString ControlExpression::cSourceString(void)
     QString Ret = QString::fromStdString(LatexOStream.str());
     return Ret;
 }
+
+QString ControlExpression::cSourceStringRealPart(void)
+{
+    if(!state)
+        return QString();
+
+    ostringstream LatexOStream;
+    try
+    {
+        LatexOStream << GiNaC::csrc_double;
+        LatexOStream << exExpression->real_part() ;
+    }
+    catch (exception &p)
+    {
+        cerr << p.what() << endl;
+    }
+    QString Ret = QString::fromStdString(LatexOStream.str());
+    return Ret;
+}
+
+QString ControlExpression::cSourceStringImagPart(void)
+{
+    if(!state)
+        return QString();
+
+    ostringstream LatexOStream;
+    try
+    {
+        LatexOStream << GiNaC::csrc_double;
+        LatexOStream << exExpression->imag_part() ;
+    }
+    catch (exception &p)
+    {
+        cerr << p.what() << endl;
+    }
+    QString Ret = QString::fromStdString(LatexOStream.str());
+    return Ret;
+}
+
 bool ControlExpression::getState(void)
 {
     return state;
@@ -81,7 +165,7 @@ QString ControlExpression::latexString(void)
     ostringstream LatexOStream;
     try
     {
-        LatexOStream << latex;
+        LatexOStream << GiNaC::latex;
         LatexOStream << *exExpression ;
     }
     catch (exception &p)

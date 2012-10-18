@@ -1,9 +1,9 @@
 #ifndef NUMERICALLAPLACE_H
 #define NUMERICALLAPLACE_H
 #include <math.h>
-#include "mpParser.h"
+
 #include "mathFunction/mathfunctionevaluator.h"
-using namespace mup;
+
 
 typedef double FunktionPrt(double t);
 #define DefaultStehfestN 14
@@ -18,7 +18,7 @@ private:
 public:
     NumericalLaplace();
     ~NumericalLaplace();
-    double InverseTransform(ParserX *f, double t);
+
     double InverseTransform(mathFunctionEvaluator *Eval, double t);
     double Factorial(int N);
     void InitStehfest(int N);
