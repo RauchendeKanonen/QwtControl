@@ -30,28 +30,6 @@ double NumericalLaplace::InverseTransform(mathFunctionEvaluator *Eval, double t)
     return ln2t * y;
 }
 
-double NumericalLaplace::InverseTransform(ParserX *f, double t)
-{
-    double ln2t = ln2 / t;
-    double x = 0;
-    double y = 0;
-
-    Value X(x);
-    Variable Xin(&X);
-
-    Value Inc(ln2t);
-    Variable IncVar(&Inc);
-
-    f->DefineVar("s", &Xin);
-
-    for (int i = 0; i < V_Length; i++)
-    {
-        X += IncVar;
-        y += V[i] * f->Eval().GetFloat();
-    }
-    return ln2t * y;
-}
-
 double NumericalLaplace::Factorial(int N)
 {
     double x = 1;

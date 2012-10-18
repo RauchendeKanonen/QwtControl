@@ -7,8 +7,30 @@ StepResponseDialog::StepResponseDialog(QWidget *parent) :
 {
     pParent = parent;
     ui->setupUi(this);
-    ResponseCurve = new QwtPlotControlCurve( "Amplidue" );
-    ResponseCurve->attach(ui->qwtPlot);
+
+
+    setAcceptDrops(true);
+}
+
+void StepResponseDialog::dragMoveEvent(QDragMoveEvent *de)
+{
+    // The event needs to be accepted here
+    de->accept();
+}
+
+void StepResponseDialog::dragEnterEvent(QDragEnterEvent *event)
+{
+    // Set the drop action to be the proposed action.
+    event->acceptProposedAction();
+}
+
+void StepResponseDialog::dropEvent ( QDropEvent * event )
+{
+//    QByteArray arraydata = event->mimeData()->data("application/set-curve");
+//    CurveInformationStruct **CurveInfo = (CurveInformationStruct**)arraydata.constData();
+//    (*CurveInfo)->Plot = ui->qwtPlot;
+//    (*CurveInfo)->Curve->attach(ui->qwtPlot);
+//    ui->qwtPlot->replot();
 }
 
 StepResponseDialog::~StepResponseDialog()
@@ -16,19 +38,10 @@ StepResponseDialog::~StepResponseDialog()
     delete ui;
 }
 
-QwtPlotControlCurve *StepResponseDialog::getPlotCurve(void)
-{
-    return ResponseCurve;
-}
 
 QwtPlot *StepResponseDialog::getPlot(void)
 {
     return ui->qwtPlot;
-}
-
-void StepResponseDialog::setResponse(const double *XData, const double *YData, int Size)
-{
-    ResponseCurve->setData((const double*)XData,(const double*) YData, Size);
 }
 
 void StepResponseDialog::replot(void)

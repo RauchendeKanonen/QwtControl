@@ -14,7 +14,6 @@ SOURCES += main.cpp \
     expressiondialog.cpp \
     expressionmodel.cpp \
     varmodel.cpp \
-    curvethread.cpp \
     rangeselectordialog.cpp \
     parametersliderdialog.cpp \
     qparameterslider.cpp \
@@ -23,8 +22,11 @@ SOURCES += main.cpp \
     mathFunction/mathfunctionevaluator.cpp \
     mathFunction/mathfunctioncompiler.cpp \
     colorlisteditor.cpp \
-    qwt_plot_control_curve.cpp \
-    controlexpression.cpp
+    controlexpression.cpp \
+    csv.cpp \
+    csvdialog.cpp \
+    qwt_root_locus_curve.cpp \
+    qwt_response_curve.cpp
 HEADERS += mainwindow.h \
     vardialog.h \
     stepresponsedialog.h \
@@ -32,7 +34,6 @@ HEADERS += mainwindow.h \
     expressiondialog.h \
     expressionmodel.h \
     varmodel.h \
-    curvethread.h \
     rangeselectordialog.h \
     parametersliderdialog.h \
     qparameterslider.h \
@@ -42,23 +43,24 @@ HEADERS += mainwindow.h \
     mathFunction/mathfunctionevaluator.h \
     mathFunction/mathfunctioncompiler.h \
     colorlisteditor.h \
-    qwt_plot_control_curve.h \
-    controlexpression.h
+    controlexpression.h \
+    csv.h \
+    csvdialog.h \
+    qwt_root_locus_curve.h \
+    qwt_response_curve.h
 FORMS += mainwindow.ui \
     vardialog.ui \
     bodedialog.ui \
     expressiondialog.ui \
     stepresponsedialog.ui \
     rangeselectordialog.ui \
-    parametersliderdialog.ui
+    parametersliderdialog.ui \
+    csvdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
-    /usr/include/qt4 \
-    muparserx-read-only/parser
+    /usr/include/qt4
 LIBS += -L/usr/lib/ \
     -L. \
-    -L./muparserx-read-only/bin \
-    -lqwt-qt4 \
-    -lmuparserx \
+    -lqwt \
     -lm \
     -lginac

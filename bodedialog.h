@@ -11,10 +11,10 @@
 #include <qwt_legend.h>
 #include <qwt_text.h>
 #include <qmath.h>
-#include "mpParser.h"
+
 
 using namespace std;
-using namespace mup;
+
 namespace Ui {
 class BodeDialog;
 }
@@ -29,7 +29,7 @@ public:
     void replot(double StartFrequency, double EndFrequency);
     void setPhase(const double *XData, const double *YData, int Size);
     void setAmplitude(const double *XData, const double *YData, int Size);
-    void setExpression(ParserX *ExpressionA);
+
 private:
     double Amplitude[10000];
     double Frequency[10000];
@@ -38,7 +38,7 @@ private:
     Ui::BodeDialog *ui;
     QwtPlotCurve *AmplitudeCurve;
     QwtPlotCurve *PhaseCurve;
-    ParserX *Expression;
+
     QwtPlotMarker *AmplitudeMarker;
     QwtPlotMarker *PhaseMarker;
 };

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <iostream>
-#include "mpParser.h"
+
 #include <iostream>
 #include <string>
 #include <ginac/ginac.h>
@@ -12,7 +12,7 @@
 using namespace std;
 using namespace GiNaC;
 using namespace std;
-using namespace mup;
+
 
 namespace Ui {
 class ExpressionDialog;

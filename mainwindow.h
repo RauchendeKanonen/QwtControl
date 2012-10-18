@@ -28,11 +28,11 @@
 #include "stepresponsedialog.h"
 #include "QFileDialog"
 #include <QMessageBox>
-#include "curvethread.h"
 #include "curvemodel.h"
-#include "qwt_plot_control_curve.h"
 #include "qwt_plot_scaleitem.h"
-
+#include "csv.h"
+#include "qwt_root_locus_curve.h"
+#include <QPair>
 namespace Ui {
 class MainWindow;
 }
@@ -40,27 +40,17 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+signals:
+    void valueChangeSignal(QPair<QString,double>);
+    void markerChangeSignal(QPair<QString,double>);
 public:
-    bool waitAll(void);
-    void deleteCurve(CurveInformationStruct *CurveInfo);
+    void emitAllValues(void);
     void load(QString FilePath);
-    QList <CurveInformationStruct*> *dependingCurves(QString VarName);
-    bool updateExpressionVars(ParserX *Expression, QString IndependentVars);
-    QStringList independentVariables(void);
     explicit MainWindow(QWidget *parent = 0);
-    void initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression,
-                                    double StartPoint, double EndPoint, double Resolution, int CurveType,
-                                    QString IndependentVar, QwtPlotControlCurve *Curve, mathFunctionEvaluator *Evaluator,
-                                    VarModel *pVariabelMdl, QColor Color, QString FuctionName);
     ~MainWindow();
     void store(QString FilePath);
-    double independentValue(QString IndepName, double *IndepVal);
     void closeEvent(QCloseEvent *event);
-    void lockAll(void);
-    void releaseAll(void);
 public slots:
-    void CurveReady(CurveInformationStruct *CurveInfo);
     void parameterChange(QString VarName, double DblVal);
     void markerChange(QString VarName, double DblVal);
 private slots:
@@ -88,12 +78,16 @@ private slots:
 
     void on_actionSave_triggered();
 
+    void on_actionCurve_from_DataSet_triggered();
+
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
     VarModel *VariabelMdl;
     CurveModel *CurveMdl;
-    QList <CurveInformationStruct*> CurveInformationList;
+
+    QList <QwtPlotItem*> CurveList;
 
     ParameterSliderDialog *VariableSliderDialog;
     ParameterSliderDialog *IndependentMarkerSliderDialog;

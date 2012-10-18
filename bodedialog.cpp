@@ -139,10 +139,7 @@ void BodeDialog::setPhase(const double *XData, const double *YData, int Size)
     PhaseCurve->setData((const double*)XData,(const double*) YData, Size);
 }
 
-void BodeDialog::setExpression(ParserX *ExpressionA)
-{
-    Expression = ExpressionA;
-}
+
 
 
 

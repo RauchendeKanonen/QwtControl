@@ -11,9 +11,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <dlfcn.h>
-#include "mpParser.h"
 
-using namespace mup;
 
 
 class mathFunctionEvaluator

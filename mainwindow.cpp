@@ -7,6 +7,8 @@
 #include "mathFunction/mathfunctioncompiler.h"
 #include "mathFunction/mathfunctionevaluator.h"
 #include "controlexpression.h"
+#include "csvdialog.h"
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -21,7 +23,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     CurveMdl = new CurveModel();
     ui->CurveListView->setModel(CurveMdl);
-    CurveMdl->setCurveList(&CurveInformationList);
+    CurveMdl->setCurveList(&CurveList);
+
+
+    /*ui->CurveSetListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->CurveSetListView->setDragEnabled(true);
+    ui->CurveSetListView->setAcceptDrops(true);
+    ui->CurveSetListView->setDropIndicatorShown(true);*/
 
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
@@ -36,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ExpressionListView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->VariableListView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->CurveListView->setContextMenuPolicy(Qt::CustomContextMenu);
+
 
 
     VariableSliderDialog = new ParameterSliderDialog(this);
@@ -87,7 +96,7 @@ void MainWindow::on_actionExpression_triggered()
 
 void MainWindow::on_actionVariable_triggered()
 {
-    Value Val;
+    double Val;
     QString Name;
     VarDialog Dlg(this, &Val, &Name);
     Dlg.setModal(true);
@@ -96,10 +105,13 @@ void MainWindow::on_actionVariable_triggered()
     if(!Dlg.exec())
         return;
 
+    QString ValueString;
+    ValueString.sprintf("%f", Val);
+
     QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
     VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = VariabelMdl->index(0, 0, QModelIndex());
-    VariabelMdl->setData(index, QString(Name + QString(" = ") + QString(Val.ToString().c_str())),Qt::EditRole);
+    VariabelMdl->setData(index, QString(Name + QString(" = ") + ValueString),Qt::EditRole);
 }
 
 void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &pos)
@@ -152,24 +164,48 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
     if(happened->text() == QString("draw Root Locus"))
     {
-        ParserX *Expression = ExpressionMdl->getExpression(Index);
-        ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
+
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
-        if(false == updateExpressionVars(Expression, VarName))
+        ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
+
+        if(FunctionName == QString())
+        {
+            QMessageBox Box;
+            Box.setText(QString("Unnamed Functions are not allowed!!!"));
+            Box.setModal(true);
+            Box.exec();
             return;
-
-
+        }
         //add the marker to the variables
         if(NULL == VariabelMdl->getVarValuePtr(VarName))
         {
-            Value Val;
+            double Val = 0;
+            QString ValueString;
+            ValueString.sprintf("%f", Val);
             QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
             VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
             index = VariabelMdl->index(0, 0, QModelIndex());
-            VariabelMdl->setData(index, QString(VarName + QString(" = ") + QString(Val.ToString().c_str())),Qt::EditRole);
+            VariabelMdl->setData(index, QString(VarName + QString(" = ") + ValueString),Qt::EditRole);
         }
 
 
+        EvalInfo Evinfo;
+        Evinfo.IndepStart = Range.x();
+        Evinfo.IndepEnd = Range.y();
+        Evinfo.Resolution = Resolution;
+
+        QwtRootLocusCurve *Curve = new QwtRootLocusCurve(Expression, Evinfo);
+
+        Curve->setSymbol(QwtSymbol());
+        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Curve, SLOT(valueChangeSlot(QPair<QString,double>)));
+        connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
+        Curve->attach(ui->qwtPlot);
+        Curve->setPen(QPen(Color));
+        Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
+                                              QColor(Color), QColor(Color), QSize( 2, 2 ) ));
+        Curve->start();
+
+        CurveList.append((QwtRootLocusCurve*)Curve);
 
         IndependentMarkerSliderDialog->addSlider(VarName, Range);
         IndependentMarkerSliderDialog->show();
@@ -177,11 +213,6 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         IndependentMarkerSliderDialog->setFocus();
         IndependentMarkerSliderDialog->activateWindow();
         IndependentMarkerSliderDialog->raise();
-
-        QwtPlotControlCurve* Curve = new QwtPlotControlCurve();
-        initCurveInformationStruct(ui->qwtPlot, Expression, BaseExpression,
-                                   Range.x(), Range.y(), Resolution, CURVE_TYPE_COMPLEX,
-                                   VarName, Curve, NULL, NULL, Color, FunctionName);
     }
 
 
@@ -207,83 +238,53 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
     if(happened->text() == QString("draw Response"))
     {
-        StepResponseDialog *StDialog = new StepResponseDialog(this);
-        StDialog->show();
-
-        ParserX *Expression = ExpressionMdl->getExpression(Index);
-        ParserX *BaseExpression = ExpressionMdl->getExpression(Index);
-
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
+        ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
+
         if(FunctionName == QString())
         {
             QMessageBox Box;
             Box.setText(QString("Unnamed Functions are not allowed!!!"));
             Box.setModal(true);
             Box.exec();
-            delete StDialog;
             return;
         }
-
-        QString Function = QString::fromStdString(Expression->GetExpr());
-
-        ControlExpression Processor(Function);
-        bool procState = Processor.getState();
-        if(!procState)
+        //add the marker to the variables
+        if(NULL == VariabelMdl->getVarValuePtr(VarName))
         {
-            QMessageBox Box;
-            Box.setText(QString("Error while preprocessing Function!!!"));
-            Box.setModal(true);
-            Box.exec();
-            delete StDialog;
-            return;
+            double Val = 0;
+            QString ValueString;
+            ValueString.sprintf("%f", Val);
+            QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
+            VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
+            index = VariabelMdl->index(0, 0, QModelIndex());
+            VariabelMdl->setData(index, QString(VarName + QString(" = ") + ValueString),Qt::EditRole);
         }
 
 
+        EvalInfo Evinfo;
+        Evinfo.IndepStart = Range.x();
+        Evinfo.IndepEnd = Range.y();
+        Evinfo.Resolution = Resolution;
 
-        Function = Processor.cSourceString();
-        mathFunctionCompiler Compiler(Function, VarName, FunctionName);
-        bool comState = Compiler.getState();
-        if(!comState)
-        {
-            QMessageBox Box;
-            Box.setText(QString("Error while compiling/linking Function!!!"));
-            Box.setModal(true);
-            Box.exec();
-            delete StDialog;
-            return;
-        }
+        StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
+        StepRespDialog->show();
+
+        QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
 
 
-        mathFunctionEvaluator *Evaluator = new mathFunctionEvaluator(VarName, FunctionName);
-        bool evalState = Evaluator->getState();
-        if(!evalState)
-        {
-            QMessageBox Box;
-            Box.setText(QString("Error while evaluating Function!!!"));
-            Box.setModal(true);
-            Box.exec();
-            delete StDialog;
-            return;
-        }
+        Curve->setSymbol(QwtSymbol());
+        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Curve, SLOT(valueChangeSlot(QPair<QString,double>)));
+        connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
+        Curve->attach(StepRespDialog->getPlot());
+        Curve->setPen(QPen(Color));
+        Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
+                                              QColor(Color), QColor(Color), QSize( 2, 2 ) ));
+        Curve->start();
 
-
-        if(false == updateExpressionVars(Expression, VarName))
-        {
-            QMessageBox Box;
-            Box.setText(QString("Error undefined Variables!!!"));
-            Box.setModal(true);
-            Box.exec();
-            delete StDialog;
-            return;
-            delete StDialog;
-            return;
-        }
-
-        initCurveInformationStruct(StDialog->getPlot(), Expression, BaseExpression,
-                                   Range.x(), Range.y(), Resolution, CURVE_TYPE_XY_COMPILED_NUMERICAL,
-                                   VarName, StDialog->getPlotCurve(), Evaluator, VariabelMdl, Color, FunctionName);
+        CurveList.append((QwtPlotItem*)Curve);
     }
-
+    emitAllValues();
     CurveMdl->valueChange();
 }
 
@@ -310,9 +311,9 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
         Dlg.exec();
         QPointF Range = Dlg.getRange();
 
-        double ActValue = VariabelMdl->getVarValuePtr(VariableName)->GetFloat();
+        double *ActValue = VariabelMdl->getVarValuePtr(VariableName);
 
-        VariableSliderDialog->addSlider(VariableName, Range, ActValue);
+        VariableSliderDialog->addSlider(VariableName, Range, *ActValue);
         VariableSliderDialog->show();
         VariableSliderDialog->setVisible(true);
         VariableSliderDialog->setFocus();
@@ -321,231 +322,50 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
     }
 }
 
-bool MainWindow::updateExpressionVars(ParserX *Expression, QString IndependentVar)
+
+void MainWindow::emitAllValues(void)
 {
-    try
+    int numVariabels = VariabelMdl->rowCount();
+
+    for(int i = 0 ; i < numVariabels ; i ++ )
     {
-        Expression->ClearVar();
-        var_maptype vmap = Expression->GetExprVar();
-        for (var_maptype::iterator item = vmap.begin(); item!=vmap.end(); ++item)
-        {
-
-            if(QString::fromStdString(item->first) == IndependentVar)
-                            continue;
-
-            Value *Val;
-            if((Val = VariabelMdl->getVarValuePtr(QString::fromStdString(item->first))) != NULL)
-            {
-                Expression->DefineVar(item->first, Val);
-            }
-
-            else if(QString::fromStdString(item->first) != IndependentVar)
-                return false;
-
-            cout << "  " << item->first << " =  " << (Variable&)(*(item->second)) << "\n";
-        }
+        QModelIndex Index = VariabelMdl->index(i);
+        QString VarName = VariabelMdl->getVarName(Index);
+        double *Val = VariabelMdl->getVarValuePtr(VarName);
+        parameterChange(VarName, *Val);
     }
-    catch(mup::ParserError &e)
-    {
-        return false;
-    }
-    return true;
 }
 
-void MainWindow::initCurveInformationStruct(QwtPlot *Plot, ParserX *Expression, ParserX *BaseExpression,
-                                            double StartPoint, double EndPoint, double Resolution, int CurveType,
-                                            QString IndependentVar, QwtPlotControlCurve *Curve, mathFunctionEvaluator *Evaluator,
-                                            VarModel *pVariabelMdl, QColor Color, QString FuctionName)
-{
-
-    CurveInformationStruct *CurveItem = new CurveInformationStruct;
-    CurveItem->Sem = new QSemaphore();
-    CurveItem->Sem->release();
-    CurveItem->Curve = Curve;
-
-    CurveItem->CurveType = CurveType;
-
-    CurveItem->pVariabelMdl = pVariabelMdl;
-    CurveItem->Evaluator = Evaluator;
-
-
-    CurveItem->Marker = new QwtPlotMarker();
-
-
-    CurveItem->MarkerPos = 0.0;
-    CurveItem->Color = Color;
-    if(CurveType == CURVE_TYPE_COMPLEX)
-    {
-        CurveItem->PoleLocation = new QwtPlotMarker();
-
-        CurveItem->RootLocation = new QwtPlotMarker();
-
-        CurveItem->PoleLocation->setSymbol( QwtSymbol( QwtSymbol::XCross,
-                                                         QColor(Color), QColor(Color), QSize( 15, 15 ) ) );
-
-        CurveItem->RootLocation->setSymbol( QwtSymbol( QwtSymbol::Ellipse,
-                                                         QColor(Color), QColor(Color), QSize( 10, 10 ) ) );
-
-        CurveItem->Curve->setPen(QPen(Color));
-        CurveItem->Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
-                                              QColor(Color), QColor(Color), QSize( 2, 2 ) ));
-        CurveItem->Marker->setSymbol( QwtSymbol( QwtSymbol::Cross,
-                                                 QColor(Color), QColor(Color), QSize( 25, 25 ) ) );
-        CurveItem->Marker->attach(Plot);
-
-        CurveItem->RootLocation->attach(Plot);
-        CurveItem->PoleLocation->attach(Plot);
-    }
-
-    memset(CurveItem->IndepVarName, 0, sizeof(CurveItem->IndepVarName));
-    memcpy(CurveItem->IndepVarName, IndependentVar.toStdString().c_str(), strlen(IndependentVar.toStdString().c_str()));
-
-    CurveItem->Resolution = Resolution;
-    CurveItem->StartPoint = StartPoint;
-    CurveItem->EndPoint = EndPoint;
-    CurveItem->DataSize = (EndPoint - StartPoint)/Resolution;
-
-    CurveItem->xData = (double*)malloc( CurveItem->DataSize * sizeof(double));
-    CurveItem->yData = (double*)malloc( CurveItem->DataSize * sizeof(double));
-    CurveItem->Expression = Expression;
-    CurveItem->BaseExpression = BaseExpression;
-    CurveItem->Plot = Plot;
-    CurveItem->Curve->attach(Plot);
-
-    CurveItem->Thread = (CurveThread*)new CurveThread(NULL, CurveItem);
-    connect(CurveItem->Thread, SIGNAL(CurveReady(CurveInformationStruct *)), this, SLOT( CurveReady(CurveInformationStruct *)));
-
-
-    CurveInformationList.append(CurveItem);
-    ((CurveThread*)CurveItem->Thread)->start();
-
-
-}
-
-QList <CurveInformationStruct*> *MainWindow::dependingCurves(QString VarName)
-{
-    QList <CurveInformationStruct*> *DependingList = new QList <CurveInformationStruct*>();
-    try
-    {
-        for(int i = 0 ; i < CurveInformationList.count(); i++)
-        {
-            ParserX *Expression = CurveInformationList.at(i)->BaseExpression;
-            Expression->ClearVar();
-            var_maptype vmap = Expression->GetExprVar();
-            for (var_maptype::iterator item = vmap.begin(); item!=vmap.end(); ++item)
-            {
-                QString Test = QString::fromStdString(item->first);
-                if(QString::fromStdString(item->first) == VarName)
-                {
-                    DependingList->append(CurveInformationList.at(i));
-                }
-            }
-            updateExpressionVars(Expression, CurveInformationList.at(i)->IndepVarName);
-        }
-    }
-    catch(mup::ParserError &e)
-    {
-        delete DependingList;
-        return NULL;
-    }
-    return DependingList;
-}
-
-void MainWindow::CurveReady(CurveInformationStruct *CurveInfo)
-{
-    CurveInfo->Curve->setData(CurveInfo->xData, CurveInfo->yData, CurveInfo->DataSize);
-    CurveInfo->Plot->replot();
-}
-
-void MainWindow::lockAll(void)
-{
-    for(int i = 0 ; i < CurveInformationList.count() ; i ++)
-    {
-        CurveInformationList.at(i)->Sem->acquire();
-    }
-
-}
-
-void MainWindow::releaseAll(void)
-{
-    for(int i = 0 ; i < CurveInformationList.count() ; i ++)
-    {
-        CurveInformationList.at(i)->Sem->release();
-    }
-
-}
-
-bool MainWindow::waitAll(void)
-{
-    for(int i = 0 ; i < CurveInformationList.count() ; i ++)
-    {
-
-        if(!CurveInformationList.at(i)->Thread->isFinished())
-            return false;
-    }
-    return true;
-}
 
 void MainWindow::parameterChange(QString VarName, double DblVal)
 {
-    Value *Val = VariabelMdl->getVarValuePtr(VarName);
-
-    if(!waitAll())
-        return;
+    double *Val = VariabelMdl->getVarValuePtr(VarName);
 
     if(Val != NULL)
     {
         *Val = DblVal;
-
-        QList <CurveInformationStruct*> *DependingList = dependingCurves(VarName);
-
-        if(DependingList == NULL)
-            return;
-
-        for(int i = 0 ; i < DependingList->count() ; i ++)
-        {
-            ((CurveThread*)DependingList->at(i)->Thread)->start();
-        }
         VariabelMdl->valueChange();
+        QPair<QString,double> VarPair;
+        VarPair.first = VarName;
+        VarPair.second = DblVal;
+        emit valueChangeSignal(VarPair);
     }
-
 }
 
 void MainWindow::markerChange(QString VarName, double DblVal)
 {
-    Value *Val = VariabelMdl->getVarValuePtr(VarName);
+    double *Val = VariabelMdl->getVarValuePtr(VarName);
 
     if(Val != NULL)
     {
         *Val = DblVal;
         VariabelMdl->valueChange();
+        QPair<QString,double> VarPair;
+        VarPair.first = VarName;
+        VarPair.second = DblVal;
+        emit markerChangeSignal(VarPair);
+        emit valueChangeSignal(VarPair);
     }
-
-
-    QList <CurveInformationStruct*> *DependingList = dependingCurves(VarName);
-    if(DependingList == NULL)
-        return;
-    for(int i = 0 ; i < DependingList->count() ; i ++)
-    {
-        CurveInformationStruct *CurveInfo = DependingList->at(i);
-
-        CurveInfo->MarkerPos = DblVal;
-        if(CurveInfo->CurveType == CURVE_TYPE_COMPLEX)
-        {
-            Value InVal = CurveInfo->MarkerPos;
-            Variable Var(&InVal);
-            CurveInfo->Expression->DefineVar(VarName.toStdString(), &Var);
-            Value MarkerResult = CurveInfo->Expression->Eval();
-            CurveInfo->Marker->setYValue(MarkerResult.GetImag());
-            CurveInfo->Marker->setXValue(MarkerResult.GetFloat());
-            CurveInfo->Plot->replot();
-            continue;
-        }
-        if(((CurveThread*)DependingList->at(i)->Thread)->isFinished())
-            ((CurveThread*)DependingList->at(i)->Thread)->start();
-
-    }
-    return;
 }
 
 void MainWindow::on_ExpressionListView_doubleClicked(const QModelIndex &index)
@@ -562,14 +382,15 @@ void MainWindow::on_VariableListView_doubleClicked(const QModelIndex &index)
 {
 
     QString Name = VariabelMdl->getVarName(index);
-    Value *Val = VariabelMdl->getVarValuePtr(Name);
+    double *Val = VariabelMdl->getVarValuePtr(Name);
 
     VarDialog Dlg(this, Val, &Name);
     Dlg.setModal(true);
     Dlg.exec();
 
-
-    VariabelMdl->setData(index, QString(Name + QString(" = ") + QString(Val->ToString().c_str())),Qt::EditRole);
+    QString ValueString;
+    ValueString.sprintf("%f", *Val);
+    VariabelMdl->setData(index, QString(Name + QString(" = ") + ValueString),Qt::EditRole);
 }
 
 
@@ -791,7 +612,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     QModelIndex index = ui->CurveListView->indexAt(pos);
     if(!index.isValid())
         return;
-    CurveInformationStruct *CurveInfo = CurveInformationList.at(index.row());
+    QwtPlotItem *CurveItem = CurveList.at(index.row());
 
     QMenu ExpressionMenu;
     ExpressionMenu.addAction(QString("delete"));
@@ -803,54 +624,18 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 
     if(happened->text() == QString("delete"))
     {
-        deleteCurve(CurveInfo);
+
     }
 
-}
-
-void MainWindow::deleteCurve(CurveInformationStruct *CurveInfo)
-{
-
-    if(CurveInfo->CurveType == CURVE_TYPE_XY_COMPILED_NUMERICAL)
-    {
-        CurveInformationList.removeOne(CurveInfo);
-
-        CurveInfo->Thread->terminate();
-        delete CurveInfo->Thread;
-        CurveInfo->Curve->detach();
-        delete CurveInfo->Curve;
-        CurveInfo->Marker->detach();
-        delete CurveInfo->Marker;
-        delete CurveInfo->Evaluator;
-        QWidget *Wdg = (QWidget*) CurveInfo->Plot->parent();
-        delete CurveInfo->Plot;
-        delete Wdg;
-        free(CurveInfo->xData);
-        free(CurveInfo->yData);
-    }
-    else if(CurveInfo->CurveType == CURVE_TYPE_COMPLEX)
-    {
-        CurveInformationList.removeOne(CurveInfo);
-        CurveInfo->Thread->terminate();
-        delete CurveInfo->Thread;
-        CurveInfo->Curve->detach();
-        delete CurveInfo->Curve;
-        CurveInfo->Marker->detach();
-        delete CurveInfo->Marker;
-        CurveInfo->RootLocation->detach();
-        delete CurveInfo->RootLocation;
-        CurveInfo->PoleLocation->detach();
-        delete CurveInfo->PoleLocation;
-        CurveInfo->Plot->replot();
-        free(CurveInfo->xData);
-        free(CurveInfo->yData);
-    }
 }
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)
 {
-    CurveInformationStruct *CurveInfo = CurveInformationList.at(index.row());
-    RangeSelectorDialog Dlg(this, QString(CurveInfo->IndepVarName));
+    QwtPlotItem *Curve = CurveList.at(index.row());
+    QwtPlot *Plot = Curve->plot();
+
+
+    /*RangeSelectorDialog Dlg(this, QString(CurveInfo->IndepVarName));
     Dlg.setRange(QPointF(CurveInfo->StartPoint, CurveInfo->EndPoint));
     Dlg.setResolution(CurveInfo->Resolution);
     Dlg.setModal(true);
@@ -872,18 +657,57 @@ void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)
     IndependentMarkerSliderDialog->setVisible(true);
     IndependentMarkerSliderDialog->setFocus();
     IndependentMarkerSliderDialog->activateWindow();
-    IndependentMarkerSliderDialog->raise();
+    IndependentMarkerSliderDialog->raise();*/
 
 }
 
 void MainWindow::on_CurveListView_clicked(const QModelIndex &index)
 {
-    QWidget *Wdg = (QWidget*) CurveInformationList.at(index.row())->Plot->parent();
-    Wdg->setVisible(true);
-    Wdg->setFocus();
-    Wdg->activateWindow();
-    Wdg->raise();
-
+    QwtPlot *Plot =  CurveList.at(index.row())->plot();
+    if(Plot)
+    {
+        QWidget *Wdg = (QWidget*) Plot->parent();
+        if(Wdg)
+        {
+            Wdg->setVisible(true);
+            Wdg->setFocus();
+            Wdg->activateWindow();
+            Wdg->raise();
+        }
+    }
 }
 
+
+
+void MainWindow::on_actionCurve_from_DataSet_triggered()
+{
+    QFileDialog dlg(this, QString("import"),QString("data/"));
+    dlg.setModal(true);
+    QString File;
+
+    if(dlg.exec())
+    {
+        if(dlg.selectedFiles().count())
+        {
+            setWindowTitle(dlg.selectedFiles().at(0));
+            File = dlg.selectedFiles().at(0);
+        }
+        else
+            return;
+    }
+    csv CSVFile(File);
+
+
+    CSVDialog Dlg(this, &CSVFile);
+    Dlg.setModal(true);
+    if(!Dlg.exec())
+        return;
+
+
+    CSVFile.readCSV(-1);
+    QPolygonF Dataset = CSVFile.getData();
+
+
+    QString FunctionName = File;
+}
 

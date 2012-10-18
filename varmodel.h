@@ -6,9 +6,7 @@
 #include <QColor>
 #include <QFlags>
 #include <QFlag>
-#include "mpParser.h"
 
-using namespace mup;
 
 //!Model for viewing Msgs in the MainView
 //!Implemented because the StandardModel consumed high cputime
@@ -19,7 +17,7 @@ class VarModel : public QAbstractListModel
 private:
 
     QStringList VarList;
-    QList <Value*> ValueList;
+    QList <double*> ValueList;
 
 public:
 
@@ -41,7 +39,7 @@ public:
     bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
     void setflags(QModelIndex index, int Flags);
     bool setColor(const QModelIndex &index, QColor *color);
-    Value *getVarValuePtr(QString VarName);
+    double *getVarValuePtr(QString VarName);
 };
 
 #endif // VarModel_H

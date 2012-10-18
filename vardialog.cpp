@@ -1,7 +1,7 @@
 #include "vardialog.h"
 #include "ui_vardialog.h"
 #include <iostream>
-VarDialog::VarDialog(QWidget *parent, Value *Val, QString *Name) :
+VarDialog::VarDialog(QWidget *parent, double *Val, QString *Name) :
     QDialog(parent),
     ui(new Ui::VarDialog)
 {
@@ -9,7 +9,9 @@ VarDialog::VarDialog(QWidget *parent, Value *Val, QString *Name) :
     pName = Name;
     ui->setupUi(this);
     ui->ExpressionEdit->setText(*Name);
-    ui->ValueEdit->setText(Val->ToString().c_str());
+    QString ValueString;
+    ValueString.sprintf("%f", *Val);
+    ui->ValueEdit->setText(ValueString);
 }
 
 VarDialog::~VarDialog()

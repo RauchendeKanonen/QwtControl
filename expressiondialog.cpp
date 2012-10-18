@@ -16,8 +16,6 @@ ExpressionDialog::ExpressionDialog(QWidget *parent, QString *ExpressionA) :
     ui->EquationGraphicsView->setScene(Scene);
     Item = Scene->addPixmap(QPixmap::fromImage(QImage(Img)));
     ui->ExpressionEdit->setText(*pExpression);
-
-
 }
 
 
@@ -42,7 +40,7 @@ void ExpressionDialog::on_buttonBox_accepted()
 void ExpressionDialog::on_ExpressionEdit_textChanged(const QString &arg1)
 {
     ControlExpression Exp(arg1);
-    QString Src = Exp.cSourceString();
+
     QImage Img = Exp.picture();
     Scene->clear();
     Scene->addPixmap(QPixmap::fromImage(Img));

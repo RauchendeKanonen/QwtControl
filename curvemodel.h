@@ -7,25 +7,23 @@
 #include <QColor>
 #include <QFlags>
 #include <QFlag>
-#include "mpParser.h"
 #include "definitions.h"
+#include <QMimeData>
+#include "qwt_root_locus_curve.h"
 
-using namespace mup;
+
 class CurveModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
     explicit CurveModel(QObject *parent = 0);
-    void setCurveList(QList <CurveInformationStruct*> *CurveListA)
-    {
-        CurveList = CurveListA;
-        dataChanged(index(0),index(CurveList->count()));
-    }
+    void setCurveList(QList <QwtPlotItem*> *CurveListA);
+    void valueChange(void);
 
-    void valueChange(void)
-    {
-        dataChanged(index(0),index(CurveList->count()));
-    }
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QStringList mimeTypes() const;
+    QMimeData* mimeData(const QModelIndexList &indexes)const;
+
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent) const;
@@ -39,7 +37,7 @@ signals:
 public slots:
 
 private:
-    QList <CurveInformationStruct*> *CurveList;
+    QList <QwtPlotItem*> *CurveList;
     
 };
 
