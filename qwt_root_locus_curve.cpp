@@ -297,14 +297,15 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 
 void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair)
 {
-    if(isRunning())
-        return;
+    bool Changed = false;
+
     QStringList imVars = pImagEval->getExpressionVars();
     for(int i = 0 ; i < imVars.count() ;  i ++ )
     {
         if(imVars.at(i) == VarPair.first)
         {
             pImagEval->setVar(VarPair.first, VarPair.second);
+            Changed = true;
         }
     }
 
@@ -314,9 +315,11 @@ void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair)
         if(reVars.at(i) == VarPair.first)
         {
             pRealEval->setVar(VarPair.first, VarPair.second);
+            Changed = true;
         }
     }
-    start();
+    if(isFinished() && Changed)
+        start();
 }
 
 
@@ -378,10 +381,6 @@ void QwtRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 
     setZ(20.0);
     qRegisterMetaType<QPolygonF>("QPolygonF");
-
-
-
-    moveToThread(this);
 
 
     PoleLocation = new QwtPlotMarker();
