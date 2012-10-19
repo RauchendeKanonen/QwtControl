@@ -226,10 +226,12 @@ void QwtRootLocusCurve::run (void)
 
     for(int i = 0 ; i < dots ; i ++ )
     {
+
         double im = pImagEval->eval(Inval);
         double re = pRealEval->eval(Inval);
 
         Inval +=  EvaluationInfo.Resolution;
+
         if(isinf(re) || isinf(im))
             continue;
         if(isnan(im) || isnan(re))
@@ -358,6 +360,10 @@ QwtRootLocusCurve::~QwtRootLocusCurve()
     delete d_xy;
     delete d_data;
 
+    PoleLocation->detach();
+    delete PoleLocation;
+    RootLocation->detach();
+    delete RootLocation;
     delete pExpression;
     delete pImagEval;
     delete pRealEval;

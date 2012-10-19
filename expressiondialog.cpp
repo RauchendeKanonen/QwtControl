@@ -31,6 +31,7 @@ void ExpressionDialog::on_buttonBox_accepted()
     QString Expression = ui->ExpressionEdit->text();
     if(Expression.count() == 0)
         return;
+    Expression.replace("%i", "I");
     Expression.remove("%");
     Expression.remove("\n");
     *pExpression = Expression;

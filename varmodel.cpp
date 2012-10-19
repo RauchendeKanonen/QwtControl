@@ -42,6 +42,12 @@ int VarModel::columnCount(const QModelIndex &parent) const
     return VarList.count();
 }
 
+
+QStringList VarModel::getVarStringList(void) const
+{
+    return VarList;
+}
+
 QString VarModel::getVarName(const QModelIndex &index) const
 {
     if (!index.isValid())

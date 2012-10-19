@@ -29,6 +29,6 @@ typedef struct
 
 #define Rtti_PlotRootLocus 1
 #define Rtti_PlotResponse  2
-
+#define Rtti_PlotDataSet   3
 
 #endif // DEFINITIONS_H

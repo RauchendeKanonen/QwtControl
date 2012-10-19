@@ -24,6 +24,7 @@ public:
     ~VarModel()
     {
     }
+    QStringList getVarStringList(void) const;
     bool setData(const QModelIndex &index,
                  const QVariant &value, int role);
 

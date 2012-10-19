@@ -26,7 +26,10 @@ SOURCES += main.cpp \
     csv.cpp \
     csvdialog.cpp \
     qwt_root_locus_curve.cpp \
-    qwt_response_curve.cpp
+    qwt_response_curve.cpp \
+    qwt_control_plot_item.cpp \
+    qwt_zeta_curve.cpp \
+    qwt_dataset_curve.cpp
 HEADERS += mainwindow.h \
     vardialog.h \
     stepresponsedialog.h \
@@ -47,7 +50,11 @@ HEADERS += mainwindow.h \
     csv.h \
     csvdialog.h \
     qwt_root_locus_curve.h \
-    qwt_response_curve.h
+    qwt_response_curve.h \
+    qwtcontrolplotitem.h \
+    qwt_control_plot_item.h \
+    qwt_zeta_curve.h \
+    qwt_dataset_curve.h
 FORMS += mainwindow.ui \
     vardialog.ui \
     bodedialog.ui \

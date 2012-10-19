@@ -17,6 +17,8 @@
 #include "mathFunction/mathfunctionevaluator.h"
 #include "definitions.h"
 #include "numericallaplace.h"
+#include "qwt_control_plot_item.h"
+#include "qwt_symbol.h"
 
 class QPainter;
 class QwtScaleMap;
@@ -51,7 +53,7 @@ class QwtCurveFitter;
 
   \sa QwtPlot, QwtData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtResponseCurve: public QThread, public QwtPlotItem
+class QWT_EXPORT QwtResponseCurve: public QThread, public QwtControlPlotItem
 {
     Q_OBJECT
 signals:
@@ -172,7 +174,33 @@ public:
     explicit QwtResponseCurve(const QwtText &title, ControlExpression *Expression, EvalInfo EvInfo);
     explicit QwtResponseCurve(const QString &title, ControlExpression *Expression, EvalInfo EvInfo);
 
+    EvalInfo *getEvalInfoPtr(void)
+    {
+        return &EvaluationInfo;
+    }
 
+    ControlExpression *getExpressionPtr(void)
+    {
+        return pExpression;
+    }
+    QColor getColor(void)
+    {
+        return pen().color();
+    }
+    QString typeName(void)
+    {
+        return QString("Response");
+    }
+    void   setColor(QColor Col)
+    {
+        setPen(QPen(Col));
+        setSymbol(QwtSymbol( QwtSymbol::Rect,
+                                              QColor(Col), QColor(Col), QSize( 2, 2 ) ));
+    }
+    void stopThread(void)
+    {
+        terminate();
+    }
 
     void run (void);
 
