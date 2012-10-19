@@ -26,6 +26,7 @@ class ExpressionModel : public QAbstractListModel
      {
      }
     ControlExpression *createExpression(const QModelIndex &index, QString IndepVarname);
+    QStringList getExpressionStringList(void);
     QString getExpressionName(const QModelIndex &index);
     QString getExpressionDefinition(const QModelIndex &index);
     bool setData(const QModelIndex &index,

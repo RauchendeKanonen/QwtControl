@@ -16,6 +16,11 @@ RangeSelectorDialog::~RangeSelectorDialog()
     delete ui;
 }
 
+void RangeSelectorDialog::setColor(QColor Color)
+{
+    ColorCombo->setColor(Color);
+}
+
 QColor RangeSelectorDialog::getColor(void)
 {
     return ColorCombo->color();

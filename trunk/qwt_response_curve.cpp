@@ -225,9 +225,9 @@ void QwtResponseCurve::run (void)
 
     for(int i = 0 ; i < dots ; i ++ )
     {
-        y = Laplace.InverseTransform(pRealEval, t);
-
         t +=  EvaluationInfo.Resolution;
+
+        y = Laplace.InverseTransform(pRealEval, t);
 
         if(isinf(y))
             continue;

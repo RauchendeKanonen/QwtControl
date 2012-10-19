@@ -19,6 +19,7 @@ public:
     double getResolution(void);
     void setRange(QPointF RangeA);
     void setResolution(double Resolution);
+    void setColor(QColor Color);
     QColor getColor(void);
 private:
     ColorListEditor *ColorCombo;

@@ -8,8 +8,8 @@
 #include "mathFunction/mathfunctionevaluator.h"
 #include "controlexpression.h"
 #include "csvdialog.h"
-
-
+#include "QTextStream"
+#include "qwt_dataset_curve.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,10 +26,10 @@ MainWindow::MainWindow(QWidget *parent) :
     CurveMdl->setCurveList(&CurveList);
 
 
-    /*ui->CurveSetListView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->CurveSetListView->setDragEnabled(true);
-    ui->CurveSetListView->setAcceptDrops(true);
-    ui->CurveSetListView->setDropIndicatorShown(true);*/
+    ui->CurveListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->CurveListView->setDragEnabled(true);
+    ui->CurveListView->setAcceptDrops(true);
+    ui->CurveListView->setDropIndicatorShown(true);
 
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
@@ -56,11 +56,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowTitle(QString("untittled"));
 
+    ZetaCurve = new QwtZetaCurve();
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), ZetaCurve, SLOT(markerChangeSlot(QPair<QString,double>)));
+    ZetaCurve->enable(true);
+    ZetaCurve->attach(ui->qwtPlot);
+    insertVariable(QString("zeta = 0.5"));
 
 }
 
 MainWindow::~MainWindow()
 {
+
     delete ui;
     if(VariableSliderDialog)
         delete VariableSliderDialog;
@@ -72,6 +78,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event = event;
+    deleteAllCurves();
     delete VariableSliderDialog;
     VariableSliderDialog = NULL;
     delete IndependentMarkerSliderDialog;
@@ -86,10 +93,7 @@ void MainWindow::on_actionExpression_triggered()
     Dlg.setModal(true);
     Dlg.exec();
 
-    QModelIndex index = ExpressionMdl->index(0, 0, QModelIndex());
-    ExpressionMdl->insertRows(0, 1, (const QModelIndex &)index);
-    index = ExpressionMdl->index(0, 0, QModelIndex());
-    ExpressionMdl->setData(index, Expression,Qt::EditRole);
+    insertExpression(Expression);
 }
 
 
@@ -107,12 +111,27 @@ void MainWindow::on_actionVariable_triggered()
 
     QString ValueString;
     ValueString.sprintf("%f", Val);
+    insertVariable(QString(Name + QString(" = ") + ValueString));
 
+}
+void MainWindow::insertExpression(QString Expression)
+{
+    QModelIndex index = ExpressionMdl->index(0, 0, QModelIndex());
+    ExpressionMdl->insertRows(0, 1, (const QModelIndex &)index);
+    index = ExpressionMdl->index(0, 0, QModelIndex());
+    ExpressionMdl->setData(index, Expression,Qt::EditRole);
+}
+
+void MainWindow::insertVariable(QString Definition)
+{
     QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
     VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = VariabelMdl->index(0, 0, QModelIndex());
-    VariabelMdl->setData(index, QString(Name + QString(" = ") + ValueString),Qt::EditRole);
+    VariabelMdl->setData(index, Definition,Qt::EditRole);
 }
+
+
+
 
 void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &pos)
 {
@@ -282,7 +301,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
                                               QColor(Color), QColor(Color), QSize( 2, 2 ) ));
         Curve->start();
 
-        CurveList.append((QwtPlotItem*)Curve);
+        CurveList.append((QwtControlPlotItem*)Curve);
     }
     emitAllValues();
     CurveMdl->valueChange();
@@ -395,174 +414,13 @@ void MainWindow::on_VariableListView_doubleClicked(const QModelIndex &index)
 
 
 
-void MainWindow::load(QString FilePath)
-{
-
-    int INFILE;
-
-    QString FileName = FilePath;
-#ifdef LINUX
-    if((INFILE = ::open(FileName.toStdString().c_str(),O_RDONLY))<=0)
-    {
-        QMessageBox Box;
-        Box.setText(QString("KannConfiguration nicht finden!!!!"));
-        Box.setModal(true);
-        Box.exec();
-    }
-
-#endif
-#ifdef WINDOWS
-    if((INFILE = ::open((QString(RELDATAPATH)+QString("/config")).toStdString().c_str(), O_RDONLY | _O_BINARY, _S_IREAD | _S_IWRITE))<=0)
-    {
-        int i = GetLastError();
-        QMessageBox Box;
-        Box.setText(QString("KannConfiguration nicht finden!!!!"));
-        Box.setModal(true);
-        Box.exec();
-    }
-#endif
-    char ExpressionBuffer[1024*1024];
-    char *ptr = ExpressionBuffer;
-    int size;
-
-    if((size = ::read(INFILE, (char*)ExpressionBuffer, 1024*1024)) <= 0)
-    {
-
-    }
-    else
-    {
-        while((long)ptr < ((long)ExpressionBuffer+(long)size))
-        {
-            QString Expression(ptr);
-            ExpressionMdl->insertRows(0,1);
-            ExpressionMdl->setData(ExpressionMdl->index(0), QVariant(Expression), Qt::EditRole);
-            ptr += strlen(ptr)+1;
-        }
-
-    }
-    ::close(INFILE);
-
-    FileName += QString(".var");
-#ifdef LINUX
-    if((INFILE = ::open(FileName.toStdString().c_str(),O_RDONLY))<=0)
-    {
-        QMessageBox Box;
-        Box.setText(QString("KannConfiguration nicht finden!!!!"));
-        Box.setModal(true);
-        Box.exec();
-    }
-
-#endif
-#ifdef WINDOWS
-    if((INFILE = ::open((QString(RELDATAPATH)+QString("/config")).toStdString().c_str(), O_RDONLY | _O_BINARY, _S_IREAD | _S_IWRITE))<=0)
-    {
-        int i = GetLastError();
-        QMessageBox Box;
-        Box.setText(QString("KannConfiguration nicht finden!!!!"));
-        Box.setModal(true);
-        Box.exec();
-    }
-#endif
-
-    char DeclarationBuffer[1024*1024];
-    char *DeclarationPtr = DeclarationBuffer;
-
-    if((size = ::read(INFILE, (char*)DeclarationBuffer, 1024*1024)) <= 0)
-    {
-
-    }
-    else
-    {
-        while((long)DeclarationPtr < ((long)DeclarationBuffer+(long)size))
-        {
-            QString DeclarationString(DeclarationPtr);
-            int Index = DeclarationString.indexOf(QString(" "), 0, Qt::CaseSensitive);
-            QString DecName = DeclarationString.left(Index);
-            Index = DeclarationString.indexOf(QString(" "), Index+1, Qt::CaseSensitive);
-            QString ValueString = DeclarationString.right(DeclarationString.length()-Index-1);
-
-            VariabelMdl->insertRows(0,1);
-            VariabelMdl->setData(VariabelMdl->index(0), QVariant(DecName + QString(" = ") + ValueString), Qt::EditRole);
-            DeclarationPtr += strlen(DeclarationPtr)+1;
-        }
-        VariabelMdl->valueChange();
-    }
-    ::close(INFILE);
-
-    return;
-}
-
-void MainWindow::store(QString FilePath)
-{
-    char ExpressionBuffer[1024*1024];
-    char *ptr=ExpressionBuffer;
-    for(int i = ExpressionMdl->rowCount() -1  ; i >= 0  ; i -- )
-    {
-        const char *Expression = ExpressionMdl->getExpressionDefinition(ExpressionMdl->index(i)).toStdString().c_str();
-        memcpy((void*)ptr, Expression, strlen(Expression)+1);
-        ptr += (long)strlen(Expression);
-        *ptr = 0;
-        ptr += 1;
-    }
-
-    int OUTFILE;
-#ifdef LINUX
-    if((OUTFILE = ::open(FilePath.toStdString().c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRWXU|S_IRWXG|S_IRWXO))<=0)
-        return ;
-#endif
-
-#ifdef WINDOWS
-    QFile OldOne(Filename);
-    OldOne.remove();
-    if((OUTFILE = ::open(FilePath.c_str(),O_CREAT | O_WRONLY |O_TRUNC | _O_BINARY, _S_IREAD | _S_IWRITE))<=0)
-        return ;
-#endif
-
-
-    ::write(OUTFILE, (char*)ExpressionBuffer, (long)ptr-(long)ExpressionBuffer);
-    ::close(OUTFILE);
-
-
-    FilePath += QString(".var");
-
-    char DeclarationBuffer[1024*1024];
-    char *DeclarationPtr=DeclarationBuffer;
-
-    for(int i = VariabelMdl->rowCount()-1 ; i >= 0  ; i --)
-    {
-        QString Declaration = QString(VariabelMdl->data(VariabelMdl->index(i), Qt::DisplayRole).toString());
-        const char *DeclarationStr = Declaration.toStdString().c_str();
-        memcpy(DeclarationPtr, DeclarationStr, strlen(DeclarationStr)+1);
-        DeclarationPtr += strlen(DeclarationStr)+1;
-    }
-
-#ifdef LINUX
-    if((OUTFILE = ::open(FilePath.toStdString().c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRWXU|S_IRWXG|S_IRWXO))<=0)
-        return ;
-#endif
-
-#ifdef WINDOWS
-    QFile OldOne(Filename);
-    OldOne.remove();
-    if((OUTFILE = ::open(FilePath.c_str(),O_CREAT | O_WRONLY |O_TRUNC | _O_BINARY, _S_IREAD | _S_IWRITE))<=0)
-        return ;
-#endif
-
-
-    ::write(OUTFILE, (char*)DeclarationBuffer, (long)DeclarationPtr-(long)DeclarationBuffer);
-    ::close(OUTFILE);
-
-
-
-    return;
-}
-
 
 void MainWindow::on_actionSave_triggered()
 {
     if(QString("") != WorkFile)
     {
-        store(WorkFile);
+        store(WorkFile, ExpressionMdl->getExpressionStringList());
+        store(WorkFile+QString(".var"), VariabelMdl->getVarStringList());
     }
     else
     {
@@ -576,12 +434,30 @@ void MainWindow::on_actionLoad_triggered()
     QFileDialog dlg(this, QString("Laden"),QString("data/"));
     dlg.setModal(true);
 
+    int r = QMessageBox::question(this, QString("Wirklich laden?"), QString("Alle daten des bestehenden ControlSystems gehen verloren"),
+    QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+
+    if(r == QMessageBox::No)
+    {
+        return;
+    }
+
+    deleteAllCurves();
+
     if(dlg.exec())
     {
         if(dlg.selectedFiles().count())
         {
             setWindowTitle(dlg.selectedFiles().at(0));
-            load(dlg.selectedFiles().at(0));
+            QStringList Expressions = load(dlg.selectedFiles().at(0));
+            for(int i = 0 ; i < Expressions.count() ; i++ )
+                insertExpression(Expressions.at(i));
+
+
+            QStringList Variables = load(dlg.selectedFiles().at(0)+QString(".var"));
+            for(int i = 0 ; i < Variables.count() ; i++ )
+                insertVariable(Variables.at(i));
+
             WorkFile = dlg.selectedFiles().at(0);
         }
     }
@@ -600,8 +476,33 @@ void MainWindow::on_actionSave_as_triggered()
 
             QString Filename = dlg.selectedFiles().at(0);
             setWindowTitle(dlg.selectedFiles().at(0));
-            store(Filename);
             WorkFile = Filename;
+            store(WorkFile, ExpressionMdl->getExpressionStringList());
+            store(WorkFile+QString(".var"), VariabelMdl->getVarStringList());
+
+        }
+    }
+}
+
+
+void MainWindow::deleteAllCurves(void)
+{
+    for(; CurveList.count() ; )
+    {
+        QwtControlPlotItem *CurveItem = CurveList.first();
+        CurveList.removeOne(CurveItem);
+        QwtPlot *Plot = CurveItem->plot();
+        CurveItem->detach();
+        CurveItem->stopThread();
+        delete CurveItem;
+        if(Plot && Plot->itemList().count() == 0)
+        {
+            QWidget *Wdg = (QWidget*) Plot->parent();
+            if(Wdg)
+            {
+                delete Plot;
+                delete Wdg;
+            }
         }
     }
 }
@@ -612,7 +513,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     QModelIndex index = ui->CurveListView->indexAt(pos);
     if(!index.isValid())
         return;
-    QwtPlotItem *CurveItem = CurveList.at(index.row());
+    QwtControlPlotItem *CurveItem = CurveList.at(index.row());
 
     QMenu ExpressionMenu;
     ExpressionMenu.addAction(QString("delete"));
@@ -624,41 +525,54 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 
     if(happened->text() == QString("delete"))
     {
+        CurveList.removeOne(CurveItem);
+        QwtPlot *Plot = CurveItem->plot();
+        CurveItem->detach();
+        CurveItem->stopThread();
+        delete CurveItem;
+        if(Plot->itemList().count() == 0)
+        {
+            QWidget *Wdg = (QWidget*) Plot->parent();
+            if(Wdg)
+            {
+                delete Plot;
+                delete Wdg;
+                return;
+            }
+        }
 
+        Plot->replot();
     }
-
 }
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)
 {
-    QwtPlotItem *Curve = CurveList.at(index.row());
+    QwtControlPlotItem *Curve = CurveList.at(index.row());
+    EvalInfo *EvInfo;
+    ControlExpression *pExpression;
+    pExpression = Curve->getExpressionPtr();
+    EvInfo = Curve->getEvalInfoPtr();
+
     QwtPlot *Plot = Curve->plot();
 
 
-    /*RangeSelectorDialog Dlg(this, QString(CurveInfo->IndepVarName));
-    Dlg.setRange(QPointF(CurveInfo->StartPoint, CurveInfo->EndPoint));
-    Dlg.setResolution(CurveInfo->Resolution);
+    RangeSelectorDialog Dlg(this, pExpression->independentVarName());
+    Dlg.setRange(QPointF(EvInfo->IndepStart, EvInfo->IndepEnd));
+    Dlg.setResolution(EvInfo->Resolution);
     Dlg.setModal(true);
+    Dlg.setColor(Curve->getColor());
     if(!Dlg.exec())
         return;
 
 
     QPointF Range = Dlg.getRange();
     double Resolution = Dlg.getResolution();
-
-
-    CurveInfo->StartPoint = Range.x();
-    CurveInfo->EndPoint = Range.y();
-    CurveInfo->Resolution = Resolution;
-    markerChange(CurveInfo->IndepVarName, CurveInfo->MarkerPos);
-
-    IndependentMarkerSliderDialog->addSlider(CurveInfo->IndepVarName, Range);
-    IndependentMarkerSliderDialog->show();
-    IndependentMarkerSliderDialog->setVisible(true);
-    IndependentMarkerSliderDialog->setFocus();
-    IndependentMarkerSliderDialog->activateWindow();
-    IndependentMarkerSliderDialog->raise();*/
-
+    QColor Color = Dlg.getColor();
+    Curve->setColor(Color);
+    EvInfo->IndepStart = Range.x();
+    EvInfo->IndepEnd = Range.y();
+    EvInfo->Resolution = Resolution;
+    Plot->replot();
 }
 
 void MainWindow::on_CurveListView_clicked(const QModelIndex &index)
@@ -707,7 +621,58 @@ void MainWindow::on_actionCurve_from_DataSet_triggered()
     CSVFile.readCSV(-1);
     QPolygonF Dataset = CSVFile.getData();
 
+    EvalInfo EvalI;
+    EvalI.IndepStart = Dataset.first().x();
+    EvalI.IndepEnd   = Dataset.last().x();
 
-    QString FunctionName = File;
+    QwtDataSetCurve *Curve = new QwtDataSetCurve(Dataset, EvalI);
+    CurveList.append((QwtControlPlotItem*)Curve);
+    CurveMdl->valueChange();
 }
 
+
+QStringList MainWindow::load(QString FilePath)
+{
+    QStringList List;
+
+
+
+    QFile fIn(FilePath);
+    if (fIn.open(QFile::ReadOnly | QFile::Text))
+    {
+      QTextStream sIn(&fIn);
+      while (!sIn.atEnd())
+        List += sIn.readLine();
+    }
+    else
+    {
+      std::cerr << "error opening output file\n";
+      return QStringList();
+    }
+
+    return List;
+}
+
+bool MainWindow::store(QString FilePath, QStringList List)
+{
+    // write data
+    QFile fOut(FilePath);
+
+    if (fOut.open(QFile::WriteOnly | QFile::Text))
+    {
+        QTextStream s(&fOut);
+        for (int i = 0; i < List.size(); ++i)
+        {
+            if(List.at(i).contains("zeta = "))
+                continue;
+            s << List.at(i) << '\n';
+        }
+    }
+    else
+    {
+        std::cerr << "error opening output file\n";
+        return false;
+    }
+    fOut.close();
+    return true;
+}

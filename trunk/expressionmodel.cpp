@@ -13,6 +13,12 @@ QString ExpressionModel::getExpressionDefinition(const QModelIndex &index)
     return ExpressionList.at(index.row());
 }
 
+
+QStringList ExpressionModel::getExpressionStringList(void)
+{
+    return ExpressionList;
+}
+
 QString ExpressionModel::getExpressionName(const QModelIndex &index)
 {
     if (!index.isValid())

@@ -32,6 +32,7 @@
 #include "qwt_plot_scaleitem.h"
 #include "csv.h"
 #include "qwt_root_locus_curve.h"
+#include "qwt_zeta_curve.h"
 #include <QPair>
 namespace Ui {
 class MainWindow;
@@ -45,11 +46,10 @@ signals:
     void markerChangeSignal(QPair<QString,double>);
 public:
     void emitAllValues(void);
-    void load(QString FilePath);
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void store(QString FilePath);
     void closeEvent(QCloseEvent *event);
+    void insertVariable(QString Definition);
 public slots:
     void parameterChange(QString VarName, double DblVal);
     void markerChange(QString VarName, double DblVal);
@@ -87,11 +87,19 @@ private:
     VarModel *VariabelMdl;
     CurveModel *CurveMdl;
 
-    QList <QwtPlotItem*> CurveList;
+    QList <QwtControlPlotItem*> CurveList;
 
     ParameterSliderDialog *VariableSliderDialog;
     ParameterSliderDialog *IndependentMarkerSliderDialog;
     QString WorkFile;
+    QwtZetaCurve *ZetaCurve;
+
+    void deleteAllCurves(void);
+    void insertExpression(QString Definition);
+    QStringList load(QString FilePath);
+    bool store(QString FilePath, QStringList List);
 };
+
+
 
 #endif // MAINWINDOW_H

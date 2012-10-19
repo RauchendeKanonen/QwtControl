@@ -26,11 +26,10 @@ void StepResponseDialog::dragEnterEvent(QDragEnterEvent *event)
 
 void StepResponseDialog::dropEvent ( QDropEvent * event )
 {
-//    QByteArray arraydata = event->mimeData()->data("application/set-curve");
-//    CurveInformationStruct **CurveInfo = (CurveInformationStruct**)arraydata.constData();
-//    (*CurveInfo)->Plot = ui->qwtPlot;
-//    (*CurveInfo)->Curve->attach(ui->qwtPlot);
-//    ui->qwtPlot->replot();
+    QByteArray arraydata = event->mimeData()->data("application/set-curve");
+    QwtControlPlotItem **CurveInfo = (QwtControlPlotItem**)arraydata.constData();
+    (*CurveInfo)->attach(ui->qwtPlot);
+    ui->qwtPlot->replot();
 }
 
 StepResponseDialog::~StepResponseDialog()

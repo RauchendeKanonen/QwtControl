@@ -5,7 +5,7 @@ CurveModel::CurveModel(QObject *parent) :
 {
 }
 
-void CurveModel::setCurveList(QList <QwtPlotItem*> *CurveListA)
+void CurveModel::setCurveList(QList <QwtControlPlotItem*> *CurveListA)
 {
     CurveList = CurveListA;
     dataChanged(index(0),index(CurveList->count()));
@@ -43,29 +43,11 @@ QVariant CurveModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::ForegroundRole)
     {
-        switch(CurveList->at(index.row())->rtti())
-        {
-        case (QwtPlotItem::Rtti_PlotUserItem+Rtti_PlotRootLocus):
-        {
-            QwtRootLocusCurve *Curve = (QwtRootLocusCurve*) CurveList->at(index.row());
-            return QVariant(Curve->pen().color());
-        }
-            break;
-        default:
-            return QVariant();
-
-        }
+        return QVariant(CurveList->at(index.row())->getColor());
     }
     if (role == Qt::DisplayRole)
     {
-        switch(CurveList->at(index.row())->rtti())
-        {
-        case QwtPlotItem::Rtti_PlotUserItem+Rtti_PlotRootLocus:
-            return QVariant(QString("Root Locus"));
-        default:
-            return QVariant();
-
-        }
+        return CurveList->at(index.row())->typeName();
     }
     else
         return QVariant();
@@ -98,15 +80,15 @@ QMimeData* CurveModel::mimeData(const QModelIndexList &indexes)const
 {
     QModelIndex Index = this->index(indexes.at(0).row(), 0, QModelIndex());
 
-    /*if(CurveList->count() > Index.row())
+    if(CurveList->count() > Index.row())
     {
         QMimeData *data = new QMimeData();
-        CurveInformationStruct *CurveInfo = CurveList->at(Index.row());
+        QwtControlPlotItem *CurveInfo = CurveList->at(Index.row());
 
 
-        data->setData("application/set-curve", QByteArray((const char*)&CurveInfo, sizeof(CurveInformationStruct*)));
+        data->setData("application/set-curve", QByteArray((const char*)&CurveInfo, sizeof(QwtControlPlotItem*)));
 
         return data;
-    }*/
+    }
     return NULL;
 }

@@ -17,7 +17,7 @@ class CurveModel : public QAbstractListModel
     Q_OBJECT
 public:
     explicit CurveModel(QObject *parent = 0);
-    void setCurveList(QList <QwtPlotItem*> *CurveListA);
+    void setCurveList(QList<QwtControlPlotItem *> *CurveListA);
     void valueChange(void);
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -37,7 +37,7 @@ signals:
 public slots:
 
 private:
-    QList <QwtPlotItem*> *CurveList;
+    QList <QwtControlPlotItem*> *CurveList;
     
 };
 
