@@ -28,6 +28,8 @@ QStringList ControlExpression::findCharacterStrings(QString Buffer)
 
 mathFunctionEvaluator *ControlExpression::getRealEvaluator(void)
 {
+    if(IndependentVarName == "")
+        return NULL;
     mathFunctionCompiler Compiler(cSourceStringRealPart(), IndependentVarName, ExpressionName+QString("real"));
     bool comState = Compiler.getState();
     if(!comState)
@@ -45,6 +47,8 @@ mathFunctionEvaluator *ControlExpression::getRealEvaluator(void)
 
 mathFunctionEvaluator *ControlExpression::getImagEvaluator(void)
 {
+    if(IndependentVarName == "")
+        return NULL;
     mathFunctionCompiler Compiler(cSourceStringImagPart(), IndependentVarName, ExpressionName+QString("imag"));
     bool comState = Compiler.getState();
     if(!comState)
@@ -60,11 +64,16 @@ mathFunctionEvaluator *ControlExpression::getImagEvaluator(void)
     return Evaluator;
 }
 
+void ControlExpression::setIndependentVarName(QString IndependentVarNameA)
+{
+    IndependentVarName = IndependentVarNameA;
+}
 
 QString ControlExpression::independentVarName(void)
 {
     return IndependentVarName;
 }
+
 
 ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
 {
@@ -214,6 +223,10 @@ QImage ControlExpression::picture(void)
     return QImage();
 }
 
+QString ControlExpression::getExpressionName(void)
+{
+    return ExpressionName;
+}
 
 QString ControlExpression::getExpressionName(QString ExpressionDef)
 {

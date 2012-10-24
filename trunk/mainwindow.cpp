@@ -31,6 +31,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->CurveListView->setAcceptDrops(true);
     ui->CurveListView->setDropIndicatorShown(true);
 
+
+    ui->ExpressionListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->ExpressionListView->setDragEnabled(true);
+    ui->ExpressionListView->setAcceptDrops(true);
+    ui->ExpressionListView->setDropIndicatorShown(true);
+
+
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
 
@@ -130,8 +137,29 @@ void MainWindow::insertVariable(QString Definition)
     VariabelMdl->setData(index, Definition,Qt::EditRole);
 }
 
+void MainWindow::enqueueCurve(QwtResponseCurve *Item)
+{
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Item, SLOT(valueChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
+    CurveList.append(Item);
+    CurveMdl->valueChange();
+}
 
+void MainWindow::enqueueCurve(QwtPhaseCurve *Item)
+{
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Item, SLOT(valueChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
+    CurveList.append(Item);
+    CurveMdl->valueChange();
+}
 
+void MainWindow::enqueueCurve(QwtMagnitudeCurve *Item)
+{
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Item, SLOT(valueChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
+    CurveList.append(Item);
+    CurveMdl->valueChange();
+}
 
 void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &pos)
 {
@@ -241,18 +269,33 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         BodeDiagram = new BodeDialog(this);
         BodeDiagram->show();
 
+        QwtPlot *MagnitudePlot = BodeDiagram->getAmplitudePlot();
+        QwtPlot *PhasePlot = BodeDiagram->getPhasePlot();
 
 
-       /* QListWidgetItem *Item = ui->ComplexExpressionListWidget->item(t.row());
-        int Index = Item->data(Qt::UserRole).toInt();
-        ParserX *Expression = ExpressionList.at(Index);
+        QString FunctionName = ExpressionMdl->getExpressionName(Index);
+        ControlExpression *MagExpression = ExpressionMdl->createExpression(Index, VarName);
+        ControlExpression *PhaExpression = ExpressionMdl->createExpression(Index, VarName);
+        EvalInfo Evinfo;
+        Evinfo.IndepStart = Range.x();
+        Evinfo.IndepEnd = Range.y();
+        Evinfo.Resolution = Resolution;
 
-        BodeDiagram->setExpression(Expression);
-        if(false == updateExpressionVars(Expression))
-            return;
+        QwtMagnitudeCurve *MagCurve = new QwtMagnitudeCurve(MagExpression, Evinfo);
+        MagCurve->attach(MagnitudePlot);
+        MagCurve->start();
+        MagnitudePlot->replot();
 
-        BodeDiagram->replot();
-        BodeList.append(BodeDiagram);*/
+        QwtPhaseCurve *PhaCurve = new QwtPhaseCurve(PhaExpression, Evinfo);
+        PhaCurve->attach(PhasePlot);
+        PhaCurve->start();
+        PhasePlot->replot();
+        enqueueCurve(PhaCurve);
+        enqueueCurve(MagCurve);
+
+        connect(MagCurve, SIGNAL(amplitudeMarkerChangeSignal(double)), PhaCurve, SLOT(phaseMarkerChangeSlot(double)));
+
+
     }
 
     if(happened->text() == QString("draw Response"))
@@ -292,13 +335,10 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
 
 
-        Curve->setSymbol(QwtSymbol());
         connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Curve, SLOT(valueChangeSlot(QPair<QString,double>)));
         connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
         Curve->attach(StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
-        Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
-                                              QColor(Color), QColor(Color), QSize( 2, 2 ) ));
         Curve->start();
 
         CurveList.append((QwtControlPlotItem*)Curve);
@@ -495,15 +535,6 @@ void MainWindow::deleteAllCurves(void)
         CurveItem->detach();
         CurveItem->stopThread();
         delete CurveItem;
-        if(Plot && Plot->itemList().count() == 0)
-        {
-            QWidget *Wdg = (QWidget*) Plot->parent();
-            if(Wdg)
-            {
-                delete Plot;
-                delete Wdg;
-            }
-        }
     }
 }
 
@@ -526,21 +557,11 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     if(happened->text() == QString("delete"))
     {
         CurveList.removeOne(CurveItem);
+        CurveMdl->valueChange();
         QwtPlot *Plot = CurveItem->plot();
         CurveItem->detach();
         CurveItem->stopThread();
         delete CurveItem;
-        if(Plot->itemList().count() == 0)
-        {
-            QWidget *Wdg = (QWidget*) Plot->parent();
-            if(Wdg)
-            {
-                delete Plot;
-                delete Wdg;
-                return;
-            }
-        }
-
         Plot->replot();
     }
 }
@@ -675,4 +696,10 @@ bool MainWindow::store(QString FilePath, QStringList List)
     }
     fOut.close();
     return true;
+}
+
+void MainWindow::on_actionResponse_Plot_triggered()
+{
+    StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
+    StepRespDialog->show();
 }

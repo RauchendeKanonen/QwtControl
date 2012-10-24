@@ -34,6 +34,8 @@
 #include "qwt_root_locus_curve.h"
 #include "qwt_zeta_curve.h"
 #include <QPair>
+#include "qwt_magnitude_curve.h"
+#include "qwt_phase_curve.h"
 namespace Ui {
 class MainWindow;
 }
@@ -45,6 +47,9 @@ signals:
     void valueChangeSignal(QPair<QString,double>);
     void markerChangeSignal(QPair<QString,double>);
 public:
+    void enqueueCurve(QwtResponseCurve *Item);
+    void enqueueCurve(QwtPhaseCurve *Item);
+    void enqueueCurve(QwtMagnitudeCurve *Item);
     void emitAllValues(void);
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -80,6 +85,8 @@ private slots:
 
     void on_actionCurve_from_DataSet_triggered();
 
+
+    void on_actionResponse_Plot_triggered();
 
 private:
     Ui::MainWindow *ui;

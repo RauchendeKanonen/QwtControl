@@ -29,18 +29,12 @@ public:
     void replot(double StartFrequency, double EndFrequency);
     void setPhase(const double *XData, const double *YData, int Size);
     void setAmplitude(const double *XData, const double *YData, int Size);
-
+    QwtPlot *getPhasePlot(void);
+    QwtPlot *getAmplitudePlot(void);
+    void replot(void);
 private:
-    double Amplitude[10000];
-    double Frequency[10000];
-    double Phase[10000];
     QWidget *pParent;
     Ui::BodeDialog *ui;
-    QwtPlotCurve *AmplitudeCurve;
-    QwtPlotCurve *PhaseCurve;
-
-    QwtPlotMarker *AmplitudeMarker;
-    QwtPlotMarker *PhaseMarker;
 };
 
 #endif // BODEDIALOG_H

@@ -2,7 +2,7 @@
 #include <QColor>
 
 
-QString ExpressionModel::getExpressionDefinition(const QModelIndex &index)
+QString ExpressionModel::getExpressionDefinition(const QModelIndex &index)const
 {
     if (!index.isValid())
         return QString();
@@ -96,10 +96,36 @@ Qt::ItemFlags ExpressionModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::ItemIsEnabled;
 
-
-    return QAbstractItemModel::flags(index);
+    return QAbstractListModel::flags(index)  | Qt::ItemIsDragEnabled;
 }
 
+
+QStringList ExpressionModel::mimeTypes() const
+{
+    QStringList types;
+    types<<"application/x-expression";
+    return types;
+}
+
+
+QMimeData* ExpressionModel::mimeData(const QModelIndexList &indexes)const
+{
+    QModelIndex Index = this->index(indexes.at(0).row(), 0, QModelIndex());
+
+    if(ExpressionList.count() > Index.row())
+    {
+        QMimeData *data = new QMimeData();
+
+        QString ExpressionDef = getExpressionDefinition(Index);
+
+        ControlExpression *Expression = new ControlExpression(ExpressionDef);
+
+        data->setData("application/x-expression", QByteArray((const char*)&Expression, sizeof(ControlExpression*)));
+
+        return data;
+    }
+    return NULL;
+}
 
 bool ExpressionModel::setData(const QModelIndex &index,
                               const QVariant &value, int role, QColor *color)

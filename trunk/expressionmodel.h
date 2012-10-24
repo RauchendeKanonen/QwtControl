@@ -7,6 +7,7 @@
 #include <QFlags>
 #include <QFlag>
 #include "controlexpression.h"
+#include <QMimeData>
 using namespace std;
 
 //!Model for viewing Msgs in the MainView
@@ -28,7 +29,7 @@ class ExpressionModel : public QAbstractListModel
     ControlExpression *createExpression(const QModelIndex &index, QString IndepVarname);
     QStringList getExpressionStringList(void);
     QString getExpressionName(const QModelIndex &index);
-    QString getExpressionDefinition(const QModelIndex &index);
+    QString getExpressionDefinition(const QModelIndex &index) const;
     bool setData(const QModelIndex &index,
                                const QVariant &value, int role);
     bool setData(const QModelIndex &index,
@@ -47,6 +48,9 @@ class ExpressionModel : public QAbstractListModel
      bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
      void setflags(QModelIndex index, int Flags);
      bool setColor(const QModelIndex &index, QColor *color);
+     QMimeData* mimeData(const QModelIndexList &indexes)const;
+     QStringList mimeTypes() const;
+
 };
 
 #endif // EXPRESSIONMODEL_H
