@@ -29,7 +29,9 @@ SOURCES += main.cpp \
     qwt_response_curve.cpp \
     qwt_control_plot_item.cpp \
     qwt_zeta_curve.cpp \
-    qwt_dataset_curve.cpp
+    qwt_dataset_curve.cpp \
+    qwt_magnitude_curve.cpp \
+    qwt_phase_curve.cpp
 HEADERS += mainwindow.h \
     vardialog.h \
     stepresponsedialog.h \
@@ -54,7 +56,9 @@ HEADERS += mainwindow.h \
     qwtcontrolplotitem.h \
     qwt_control_plot_item.h \
     qwt_zeta_curve.h \
-    qwt_dataset_curve.h
+    qwt_dataset_curve.h \
+    qwt_magnitude_curve.h \
+    qwt_phase_curve.h
 FORMS += mainwindow.ui \
     vardialog.ui \
     bodedialog.ui \

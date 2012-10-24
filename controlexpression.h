@@ -30,10 +30,12 @@ public:
     bool getState(void);
     QString cSourceString(void);
     QString getExpressionName(QString ExpressionDef);
+    QString getExpressionName(void);
     QString getExpression(QString ExpressionDef);
     QString latexString(void);
     ControlExpression(QString ExpressionDef, QString IndepVar=QString());
     QImage picture(void);
+    void setIndependentVarName(QString IndependentVarNameA);
 };
 
 #endif // CONTROLEXPRESSION_H

@@ -2,7 +2,7 @@
 #define PARAMETERSLIDERDIALOG_H
 #include "qparameterslider.h"
 
-
+#include <qwt_slider.h>
 #include <QDialog>
 
 namespace Ui {
@@ -19,10 +19,10 @@ public:
     void addSlider(QString VarNameA, QPointF RangeA, double InitialValue=0.0);
 private:
     Ui::ParameterSliderDialog *ui;
-    QList <QParameterSlider*> SliderList;
+    QList <QwtSlider*> SliderList;
 public slots:
     void sliderPressed(void);
-    void valueChanged ( int value );
+    void valueChanged ( double value );
     void sliderReleased(void);
 signals:
     void parameterChange(QString VarName, double Value);

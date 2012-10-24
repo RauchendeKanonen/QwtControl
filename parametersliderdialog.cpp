@@ -1,7 +1,7 @@
 #include "parametersliderdialog.h"
 #include "ui_parametersliderdialog.h"
 #include <QLabel>
-
+#include <qwt_slider.h>
 
 ParameterSliderDialog::ParameterSliderDialog(QWidget *parent) :
     QDialog(parent),
@@ -19,35 +19,31 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
 {
     for(int i = 0 ; i < SliderList.count() ; i ++ )
     {
-        if(SliderList.at(i)->GetName() == VarNameA)
+        if(SliderList.at(i)->objectName() == VarNameA)
         {
-            SliderList.at(i)->setRange(RangeA.x()*10e6, RangeA.y()*10e6);
+            SliderList.at(i)->setRange(RangeA.x(), RangeA.y());
             return;
         }
     }
-
-    QParameterSlider *Slider = new QParameterSlider(this, VarNameA);
+    QwtSlider *pSlider = new QwtSlider(this, Qt::Vertical, QwtSlider::LeftScale, QwtSlider::BgBoth);
+    pSlider->setObjectName(VarNameA);
+    pSlider->setRange(RangeA.x(), RangeA.y());
     QVBoxLayout *Layout = new QVBoxLayout(this);
     ui->horizontalLayout->addLayout(Layout);
-    Layout->addWidget(Slider);
+    Layout->addWidget(pSlider);
     QLabel *Label = new QLabel(this);
     Label->setText(VarNameA);
     Layout->addWidget(Label);
 
 
-    SliderList.append(Slider);
-    Slider->setMaximum(RangeA.y()*10e6);
-    Slider->setMinimum(RangeA.x()*10e6);
-    Slider->setValue(InitialValue*10e6);
+    SliderList.append(pSlider);
+    pSlider->setValue(InitialValue);
 
-    connect(Slider, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int )));
-    connect(Slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
-    connect(Slider, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()));
+    connect(pSlider, SIGNAL(valueChanged(double)), this, SLOT(valueChanged(double )));
+    connect(pSlider, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
+    connect(pSlider, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()));
 
-    QLabel *ValueLabel = Slider->getLabel();
-    ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
-    Layout->addWidget(ValueLabel);
-    emit parameterChange(VarNameA, Slider->value()/10e6);
+    emit parameterChange(VarNameA, pSlider->value());
     adjustSize();
 }
 
@@ -58,26 +54,21 @@ void ParameterSliderDialog::sliderPressed(void)
 
 void ParameterSliderDialog::sliderReleased(void)
 {
-    QParameterSlider *Slider = (QParameterSlider*)QObject::sender();
+    QwtSlider *Slider = (QwtSlider*)QObject::sender();
 
-    QLabel *ValueLabel = Slider->getLabel();
-    ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
 
-    QString VarName = Slider->GetName();
-    int value = Slider->value();
-    double Parameter = value/10e6;
+    QString VarName = Slider->objectName();
+    double value = Slider->value();
+    double Parameter = value;
     emit parameterChange(VarName, Parameter);
 
 }
 
-void ParameterSliderDialog::valueChanged ( int value )
+void ParameterSliderDialog::valueChanged ( double value )
 {
-    QParameterSlider *Slider = (QParameterSlider*)QObject::sender();
+    QwtSlider *Slider = (QwtSlider*)QObject::sender();
 
-    QLabel *ValueLabel = Slider->getLabel();
-    ValueLabel->setText(QString().sprintf("%f", Slider->value()/10e6));
-
-    QString VarName = Slider->GetName();
-    double Parameter = value/10e6;
+    QString VarName = Slider->objectName();
+    double Parameter = value;
     emit parameterChange(VarName, Parameter);
 }

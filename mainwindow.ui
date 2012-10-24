@@ -113,6 +113,7 @@
     <addaction name="actionExpression"/>
     <addaction name="actionVariable"/>
     <addaction name="actionCurve_from_DataSet"/>
+    <addaction name="actionResponse_Plot"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -162,6 +163,11 @@
   <action name="actionCurve_from_DataSet">
    <property name="text">
     <string>Curve from DataSet</string>
+   </property>
+  </action>
+  <action name="actionResponse_Plot">
+   <property name="text">
+    <string>Response Plot</string>
    </property>
   </action>
  </widget>
