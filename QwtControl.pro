@@ -53,7 +53,6 @@ HEADERS += mainwindow.h \
     csvdialog.h \
     qwt_root_locus_curve.h \
     qwt_response_curve.h \
-    qwtcontrolplotitem.h \
     qwt_control_plot_item.h \
     qwt_zeta_curve.h \
     qwt_dataset_curve.h \
