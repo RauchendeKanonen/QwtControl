@@ -259,9 +259,16 @@ void QwtRootLocusCurve::dataReadySlot(QPolygonF Polygon)
     Pair.first = QString();
     Pair.second = MarkerPos;
     markerChangeSlot(Pair);
-    if(plot())
-        plot()->replot();
+    if(first_eval)
+    {
+        if(plot())
+        {
+            plot()->replot();
+            first_eval = false;
+        }
+    }
 }
+
 void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 {
     QwtPlot *Plot = plot();
@@ -293,7 +300,7 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
         Marker->attach(Plot);
         RootLocation->attach(Plot);
         PoleLocation->attach(Plot);
-        Plot->replot();
+
     }
 }
 
@@ -388,7 +395,7 @@ void QwtRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
     setZ(20.0);
     qRegisterMetaType<QPolygonF>("QPolygonF");
 
-
+    first_eval = true;
     PoleLocation = new QwtPlotMarker();
     RootLocation = new QwtPlotMarker();
 

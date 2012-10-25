@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "varmodel.h"
 #include <QColor>
 

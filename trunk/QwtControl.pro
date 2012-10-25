@@ -16,7 +16,6 @@ SOURCES += main.cpp \
     varmodel.cpp \
     rangeselectordialog.cpp \
     parametersliderdialog.cpp \
-    qparameterslider.cpp \
     numericallaplace.cpp \
     curvemodel.cpp \
     mathFunction/mathfunctionevaluator.cpp \
@@ -41,7 +40,6 @@ HEADERS += mainwindow.h \
     varmodel.h \
     rangeselectordialog.h \
     parametersliderdialog.h \
-    qparameterslider.h \
     numericallaplace.h \
     curvemodel.h \
     definitions.h \
@@ -71,6 +69,6 @@ INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qt4
 LIBS += -L/usr/lib/ \
     -L. \
-    -lqwt \
+    -lqwt-qt4 \
     -lm \
     -lginac
