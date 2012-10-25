@@ -60,7 +60,7 @@ signals:
     void dataReadySig(QPolygonF);
 public slots:
     void dataReadySlot(QPolygonF Polygon);
-    void valueChangeSlot(QPair <QString, double> VarPair);
+    void valueChangeSlot(QPair <QString, double> VarPair, bool Restart);
     void markerChangeSlot(QPair<QString,double> MarkerPair);
 public:
     /*!
@@ -189,7 +189,7 @@ public:
     }
     QString typeName(void)
     {
-        return QString("Response");
+        return QString("Response ")+pExpression->getExpressionName();
     }
     void   setColor(QColor Col)
     {

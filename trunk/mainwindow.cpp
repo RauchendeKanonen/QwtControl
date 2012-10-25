@@ -11,6 +11,7 @@
 #include "QTextStream"
 #include "qwt_dataset_curve.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -64,11 +65,28 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(QString("untittled"));
 
     ZetaCurve = new QwtZetaCurve();
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), ZetaCurve, SLOT(markerChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), ZetaCurve, SLOT(markerChangeSlot(QPair<QString,double>, bool)));
     ZetaCurve->enable(true);
     ZetaCurve->attach(ui->qwtPlot);
     insertVariable(QString("zeta = 0.5"));
 
+
+    d_zoomer = new QwtPlotZoomer (ui->qwtPlot->canvas());
+    d_zoomer->setTrackerMode(QwtPicker::AlwaysOn);
+    d_zoomer->setTrackerPen(QColor(Qt::black));
+    d_zoomer->setResizeMode(QwtPlotZoomer::KeepSize);
+    d_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+                              Qt::NoButton, Qt::ControlModifier);
+
+    QwtPlotPanner *Panner = new QwtPlotPanner(ui->qwtPlot->canvas());
+    Panner->setAxisEnabled(QwtPlot::yRight, false);
+    Panner->setMouseButton(Qt::RightButton);
+    connect(Panner, SIGNAL(panned(int, int)), ui->qwtPlot, SIGNAL(panned(int, int)));
+
+    QwtPlotMagnifier *Magnifier = new QwtPlotMagnifier(ui->qwtPlot->canvas());
+    Magnifier->setMouseButton(Qt::RightButton, Qt::NoButton);
+    Magnifier->setMouseButton(Qt::LeftButton, Qt::NoButton);
+    Magnifier->setMouseButton(Qt::MidButton, Qt::NoButton);
 }
 
 MainWindow::~MainWindow()
@@ -139,7 +157,7 @@ void MainWindow::insertVariable(QString Definition)
 
 void MainWindow::enqueueCurve(QwtResponseCurve *Item)
 {
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Item, SLOT(valueChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
     connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
     CurveList.append(Item);
     CurveMdl->valueChange();
@@ -147,7 +165,7 @@ void MainWindow::enqueueCurve(QwtResponseCurve *Item)
 
 void MainWindow::enqueueCurve(QwtPhaseCurve *Item)
 {
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Item, SLOT(valueChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
     connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
     CurveList.append(Item);
     CurveMdl->valueChange();
@@ -155,7 +173,7 @@ void MainWindow::enqueueCurve(QwtPhaseCurve *Item)
 
 void MainWindow::enqueueCurve(QwtMagnitudeCurve *Item)
 {
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Item, SLOT(valueChangeSlot(QPair<QString,double>)));
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
     connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
     CurveList.append(Item);
     CurveMdl->valueChange();
@@ -244,12 +262,13 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         QwtRootLocusCurve *Curve = new QwtRootLocusCurve(Expression, Evinfo);
 
         Curve->setSymbol(QwtSymbol());
-        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Curve, SLOT(valueChangeSlot(QPair<QString,double>)));
+        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
         connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
         Curve->attach(ui->qwtPlot);
         Curve->setPen(QPen(Color));
         Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
                                               QColor(Color), QColor(Color), QSize( 2, 2 ) ));
+        emitAllValues();
         Curve->start();
 
         CurveList.append((QwtRootLocusCurve*)Curve);
@@ -283,11 +302,13 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
         QwtMagnitudeCurve *MagCurve = new QwtMagnitudeCurve(MagExpression, Evinfo);
         MagCurve->attach(MagnitudePlot);
+        emitAllValues();
         MagCurve->start();
         MagnitudePlot->replot();
 
         QwtPhaseCurve *PhaCurve = new QwtPhaseCurve(PhaExpression, Evinfo);
         PhaCurve->attach(PhasePlot);
+        emitAllValues();
         PhaCurve->start();
         PhasePlot->replot();
         enqueueCurve(PhaCurve);
@@ -335,15 +356,15 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
 
 
-        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>)), Curve, SLOT(valueChangeSlot(QPair<QString,double>)));
+        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
         connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
         Curve->attach(StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
+        emitAllValues();
         Curve->start();
 
         CurveList.append((QwtControlPlotItem*)Curve);
     }
-    emitAllValues();
     CurveMdl->valueChange();
 }
 
@@ -391,10 +412,25 @@ void MainWindow::emitAllValues(void)
         QModelIndex Index = VariabelMdl->index(i);
         QString VarName = VariabelMdl->getVarName(Index);
         double *Val = VariabelMdl->getVarValuePtr(VarName);
-        parameterChange(VarName, *Val);
+        parameterInit(VarName, *Val);
     }
 }
 
+void MainWindow::parameterInit(QString VarName, double DblVal)
+{
+    double *Val = VariabelMdl->getVarValuePtr(VarName);
+
+    if(Val != NULL)
+    {
+        *Val = DblVal;
+        VariabelMdl->valueChange();
+        QPair<QString,double> VarPair;
+        VarPair.first = VarName;
+        VarPair.second = DblVal;
+        IndependentMarkerSliderDialog->setSlider(VarName, DblVal);
+        emit valueChangeSignal(VarPair, false);
+    }
+}
 
 void MainWindow::parameterChange(QString VarName, double DblVal)
 {
@@ -407,7 +443,8 @@ void MainWindow::parameterChange(QString VarName, double DblVal)
         QPair<QString,double> VarPair;
         VarPair.first = VarName;
         VarPair.second = DblVal;
-        emit valueChangeSignal(VarPair);
+        IndependentMarkerSliderDialog->setSlider(VarName, DblVal);
+        emit valueChangeSignal(VarPair, true);
     }
 }
 
@@ -422,8 +459,9 @@ void MainWindow::markerChange(QString VarName, double DblVal)
         QPair<QString,double> VarPair;
         VarPair.first = VarName;
         VarPair.second = DblVal;
+        VariableSliderDialog->setSlider(VarName, DblVal);
         emit markerChangeSignal(VarPair);
-        emit valueChangeSignal(VarPair);
+        emit valueChangeSignal(VarPair, true);
     }
 }
 
@@ -702,4 +740,19 @@ void MainWindow::on_actionResponse_Plot_triggered()
 {
     StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
     StepRespDialog->show();
+}
+
+void MainWindow::on_actionAutoscale_triggered()
+{
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
+
+    delete d_zoomer;
+    d_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft,  ui->qwtPlot->canvas());
+    d_zoomer->setTrackerMode(QwtPicker::AlwaysOn);
+    d_zoomer->setTrackerPen(QColor(Qt::black));
+    d_zoomer->setResizeMode(QwtPlotZoomer::KeepSize);
+    d_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+                              Qt::NoButton, Qt::ControlModifier);
+
 }

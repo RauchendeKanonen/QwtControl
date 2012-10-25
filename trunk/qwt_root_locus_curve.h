@@ -57,7 +57,7 @@ signals:
     void dataReadySig(QPolygonF);
 public slots:
     void dataReadySlot(QPolygonF Polygon);
-    void valueChangeSlot(QPair <QString, double> VarPair);
+    void valueChangeSlot(QPair <QString, double> VarPair, bool Restart);
     void markerChangeSlot(QPair<QString,double> MarkerPair);
 public:
     /*!
@@ -200,7 +200,7 @@ public:
     }
     QString typeName(void)
     {
-        return QString("Root Locus");
+        return QString("Root Locus ")+pExpression->getExpressionName();
     }
     void stopThread(void)
     {

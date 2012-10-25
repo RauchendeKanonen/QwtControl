@@ -228,7 +228,7 @@ void QwtDataSetCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 
 }
 
-void QwtDataSetCurve::valueChangeSlot(QPair <QString, double> VarPair)
+void QwtDataSetCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
 
 }

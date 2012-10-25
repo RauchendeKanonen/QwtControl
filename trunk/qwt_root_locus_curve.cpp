@@ -297,7 +297,7 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
     }
 }
 
-void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair)
+void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
     bool Changed = false;
 

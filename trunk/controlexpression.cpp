@@ -96,6 +96,7 @@ ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
     try
     {
         exExpression = new GiNaC::ex(ExpressionString.toStdString().c_str(), VarList);
+        exExpression->evalf();
     }
     catch (exception &p)
     {
@@ -132,7 +133,7 @@ QString ControlExpression::cSourceStringRealPart(void)
     try
     {
         LatexOStream << GiNaC::csrc_double;
-        LatexOStream << exExpression->real_part() ;
+        LatexOStream << exExpression->real_part();
     }
     catch (exception &p)
     {
