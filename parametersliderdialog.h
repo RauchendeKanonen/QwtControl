@@ -1,6 +1,6 @@
 #ifndef PARAMETERSLIDERDIALOG_H
 #define PARAMETERSLIDERDIALOG_H
-#include "qparameterslider.h"
+
 
 #include <qwt_slider.h>
 #include <QDialog>
@@ -21,6 +21,7 @@ public:
 private:
     Ui::ParameterSliderDialog *ui;
     QList <QwtSlider*> SliderList;
+    QWidget *pParent;
 public slots:
     void sliderPressed(void);
     void valueChanged ( double value );

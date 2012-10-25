@@ -322,6 +322,7 @@ private:
     QwtPlotMarker *RootLocation;
     QwtPlotMarker *Marker;
     class PrivateData;
+    bool first_eval;
     PrivateData *d_data;
 };
 

@@ -39,7 +39,7 @@
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot_magnifier.h"
 #include "qwt_plot_panner.h"
-
+#include <QTimer>
 namespace Ui {
 class MainWindow;
 }
@@ -61,6 +61,9 @@ public:
     void closeEvent(QCloseEvent *event);
     void insertVariable(QString Definition);
 public slots:
+    void timerEvent(void);
+    void markerPress(void);
+    void markerRelease(void);
     void parameterChange(QString VarName, double DblVal);
     void markerChange(QString VarName, double DblVal);
 private slots:
@@ -100,7 +103,7 @@ private:
     ExpressionModel *ExpressionMdl;
     VarModel *VariabelMdl;
     CurveModel *CurveMdl;
-
+    QTimer *UpdateTimer;
     QList <QwtControlPlotItem*> CurveList;
 
     ParameterSliderDialog *VariableSliderDialog;

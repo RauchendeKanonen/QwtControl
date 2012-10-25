@@ -49,10 +49,7 @@ void QwtZetaCurve::markerChangeSlot(QPair<QString,double> MarkerPair, bool Resta
     if(MarkerPair.first == QString("zeta"))
     {
         d_data->Zeta = MarkerPair.second;
-        if(plot())
-        {
-            plot()->replot();
-        }
+
     }
 
 }

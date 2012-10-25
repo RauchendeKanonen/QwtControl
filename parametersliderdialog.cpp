@@ -9,6 +9,7 @@ ParameterSliderDialog::ParameterSliderDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ParameterSliderDialog)
 {
+    pParent = parent;
     ui->setupUi(this);
 }
 
@@ -57,9 +58,10 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     pSlider->setValue(InitialValue);
 
     connect(pSlider, SIGNAL(valueChanged(double)), this, SLOT(valueChanged(double )));
+    connect(pSlider, SIGNAL(sliderReleased()), pParent, SLOT(markerRelease()));
+    connect(pSlider, SIGNAL(sliderPressed()), pParent, SLOT(markerPress()));
     connect(pSlider, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
     connect(pSlider, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()));
-
     emit parameterChange(VarNameA, pSlider->value());
     setMinimumWidth(SliderList.count()*70);
     adjustSize();

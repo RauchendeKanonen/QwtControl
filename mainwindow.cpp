@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     insertVariable(QString("zeta = 0.5"));
 
 
-    d_zoomer = new QwtPlotZoomer (ui->qwtPlot->canvas());
+    d_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft,  ui->qwtPlot->canvas());
     d_zoomer->setTrackerMode(QwtPicker::AlwaysOn);
     d_zoomer->setTrackerPen(QColor(Qt::black));
     d_zoomer->setResizeMode(QwtPlotZoomer::KeepSize);
@@ -87,7 +87,29 @@ MainWindow::MainWindow(QWidget *parent) :
     Magnifier->setMouseButton(Qt::RightButton, Qt::NoButton);
     Magnifier->setMouseButton(Qt::LeftButton, Qt::NoButton);
     Magnifier->setMouseButton(Qt::MidButton, Qt::NoButton);
+
+    UpdateTimer = new QTimer(this);
+    UpdateTimer->setInterval(500);
+    connect(UpdateTimer, SIGNAL(timeout()), this, SLOT(timerEvent()));
 }
+
+
+void MainWindow::markerPress(void)
+{
+    UpdateTimer->start();
+}
+
+void MainWindow::timerEvent(void)
+{
+    ui->qwtPlot->replot();
+}
+
+void MainWindow::markerRelease(void)
+{
+    ui->qwtPlot->replot();
+    UpdateTimer->stop();
+}
+
 
 MainWindow::~MainWindow()
 {
