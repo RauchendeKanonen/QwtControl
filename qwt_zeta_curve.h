@@ -37,7 +37,7 @@ class QWT_EXPORT QwtZetaCurve: public QObject, public QwtPlotItem
 {
     Q_OBJECT
 public slots:
-    void markerChangeSlot(QPair<QString,double> MarkerPair);
+    void markerChangeSlot(QPair<QString,double> MarkerPair, bool Restart);
 public:
     explicit QwtZetaCurve();
     virtual ~QwtZetaCurve();

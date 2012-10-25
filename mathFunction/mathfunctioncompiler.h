@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <QStringList>
-#define CFLAGS "-fPIC -O3 "
+#define CFLAGS "-fPIC -g "
 
 
 class mathFunctionCompiler

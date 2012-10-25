@@ -62,7 +62,7 @@ signals:
     void amplitudeMarkerChangeSignal(double);
 public slots:
     void dataReadySlot(QPolygonF Polygon);
-    void valueChangeSlot(QPair <QString, double> VarPair);
+    void valueChangeSlot(QPair <QString, double> VarPair, bool Restart);
     void markerChangeSlot(QPair<QString,double> MarkerPair);
 public:
     /*!
@@ -191,7 +191,7 @@ public:
     }
     QString typeName(void)
     {
-        return QString("Magnitude");
+        return QString("Magnitude ")+pExpression->getExpressionName();
     }
     void   setColor(QColor Col)
     {

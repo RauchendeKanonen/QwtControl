@@ -268,8 +268,9 @@ void QwtMagnitudeCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
     }
 }
 
-void QwtMagnitudeCurve::valueChangeSlot(QPair <QString, double> VarPair)
+void QwtMagnitudeCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
+    bool Changed = false;
     if(isRunning())
         return;
 
@@ -279,6 +280,7 @@ void QwtMagnitudeCurve::valueChangeSlot(QPair <QString, double> VarPair)
         if(reVars.at(i) == VarPair.first)
         {
             pRealEval->setVar(VarPair.first, VarPair.second);
+            Changed = true;
         }
     }
     QStringList imVars = pImagEval->getExpressionVars();
@@ -287,9 +289,11 @@ void QwtMagnitudeCurve::valueChangeSlot(QPair <QString, double> VarPair)
         if(imVars.at(i) == VarPair.first)
         {
             pImagEval->setVar(VarPair.first, VarPair.second);
+            Changed = true;
         }
     }
-    start();
+    if(isFinished() && Changed)
+        start();
 }
 
 

@@ -245,17 +245,20 @@ void QwtResponseCurve::dataReadySlot(QPolygonF Polygon)
     if(plot())
         plot()->replot();
 }
+
 void QwtResponseCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 {
     QwtPlot *Plot = plot();
     if(Plot)
     {
 
+
     }
 }
 
-void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair)
+void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
+    bool Changed = false;
     if(isRunning())
         return;
 
@@ -265,9 +268,11 @@ void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair)
         if(reVars.at(i) == VarPair.first)
         {
             pRealEval->setVar(VarPair.first, VarPair.second);
+            Changed = true;
         }
     }
-    start();
+    if(isFinished() && Changed)
+        start();
 }
 
 

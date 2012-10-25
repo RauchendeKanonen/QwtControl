@@ -2,6 +2,8 @@
 #include "ui_parametersliderdialog.h"
 #include <QLabel>
 #include <qwt_slider.h>
+#include <QRect>
+#include <QFont>
 
 ParameterSliderDialog::ParameterSliderDialog(QWidget *parent) :
     QDialog(parent),
@@ -13,6 +15,18 @@ ParameterSliderDialog::ParameterSliderDialog(QWidget *parent) :
 ParameterSliderDialog::~ParameterSliderDialog()
 {
     delete ui;
+}
+
+void ParameterSliderDialog::setSlider(QString VarNameA, double InitialValue)
+{
+    for(int i = 0 ; i < SliderList.count() ; i ++ )
+    {
+        if(SliderList.at(i)->objectName() == VarNameA)
+        {
+            SliderList.at(i)->setValue(InitialValue);
+            return;
+        }
+    }
 }
 
 void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double InitialValue)
@@ -33,6 +47,9 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     Layout->addWidget(pSlider);
     QLabel *Label = new QLabel(this);
     Label->setText(VarNameA);
+    QFont Font = Label->font();
+    Font.setPixelSize(20);
+    Label->setFont(Font);
     Layout->addWidget(Label);
 
 
@@ -44,6 +61,7 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     connect(pSlider, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()));
 
     emit parameterChange(VarNameA, pSlider->value());
+    setMinimumWidth(SliderList.count()*70);
     adjustSize();
 }
 

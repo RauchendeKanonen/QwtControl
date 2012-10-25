@@ -61,7 +61,7 @@ signals:
     void dataReadySig(QPolygonF);
 public slots:
     void dataReadySlot(QPolygonF Polygon);
-    void valueChangeSlot(QPair <QString, double> VarPair);
+    void valueChangeSlot(QPair <QString, double> VarPair, bool Restart);
     void markerChangeSlot(QPair<QString,double> MarkerPair);
     void phaseMarkerChangeSlot(double);
 public:
@@ -191,7 +191,7 @@ public:
     }
     QString typeName(void)
     {
-        return QString("Phase");
+        return QString("Phase ")+pExpression->getExpressionName();
     }
     void   setColor(QColor Col)
     {

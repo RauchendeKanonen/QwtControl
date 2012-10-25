@@ -36,6 +36,10 @@
 #include <QPair>
 #include "qwt_magnitude_curve.h"
 #include "qwt_phase_curve.h"
+#include "qwt_plot_zoomer.h"
+#include "qwt_plot_magnifier.h"
+#include "qwt_plot_panner.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -44,9 +48,10 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 signals:
-    void valueChangeSignal(QPair<QString,double>);
+    void valueChangeSignal(QPair<QString,double> MarkerPair, bool Restart);
     void markerChangeSignal(QPair<QString,double>);
 public:
+    void parameterInit(QString VarName, double DblVal);
     void enqueueCurve(QwtResponseCurve *Item);
     void enqueueCurve(QwtPhaseCurve *Item);
     void enqueueCurve(QwtMagnitudeCurve *Item);
@@ -88,6 +93,8 @@ private slots:
 
     void on_actionResponse_Plot_triggered();
 
+    void on_actionAutoscale_triggered();
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
@@ -100,7 +107,7 @@ private:
     ParameterSliderDialog *IndependentMarkerSliderDialog;
     QString WorkFile;
     QwtZetaCurve *ZetaCurve;
-
+    QwtPlotZoomer *d_zoomer;
     void deleteAllCurves(void);
     void insertExpression(QString Definition);
     QStringList load(QString FilePath);
