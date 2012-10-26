@@ -105,7 +105,7 @@ private:
     CurveModel *CurveMdl;
     QTimer *UpdateTimer;
     QList <QwtControlPlotItem*> CurveList;
-
+    bool ProjectChanged;
     ParameterSliderDialog *VariableSliderDialog;
     ParameterSliderDialog *IndependentMarkerSliderDialog;
     QString WorkFile;
