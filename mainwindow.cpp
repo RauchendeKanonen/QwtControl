@@ -91,6 +91,9 @@ MainWindow::MainWindow(QWidget *parent) :
     UpdateTimer = new QTimer(this);
     UpdateTimer->setInterval(500);
     connect(UpdateTimer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+
+
+    ProjectChanged = false;
 }
 
 
@@ -124,6 +127,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    if(ProjectChanged != false)
+    {
+        int r = QMessageBox::question(this, QString("Wirklich beenden?"), QString("Alle daten des bestehenden ControlSystems gehen verloren"),
+        QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+        if(r == QMessageBox::No)
+        {
+            event->ignore();
+            return;
+        }
+    }
     event = event;
     deleteAllCurves();
     delete VariableSliderDialog;
@@ -135,6 +148,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_actionExpression_triggered()
 {
+    ProjectChanged = true;
     QString Expression;
     ExpressionDialog Dlg(this, &Expression);
     Dlg.setModal(true);
@@ -147,6 +161,7 @@ void MainWindow::on_actionExpression_triggered()
 
 void MainWindow::on_actionVariable_triggered()
 {
+    ProjectChanged = true;
     double Val;
     QString Name;
     VarDialog Dlg(this, &Val, &Name);
@@ -163,6 +178,7 @@ void MainWindow::on_actionVariable_triggered()
 }
 void MainWindow::insertExpression(QString Expression)
 {
+    ProjectChanged = true;
     QModelIndex index = ExpressionMdl->index(0, 0, QModelIndex());
     ExpressionMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = ExpressionMdl->index(0, 0, QModelIndex());
@@ -171,6 +187,7 @@ void MainWindow::insertExpression(QString Expression)
 
 void MainWindow::insertVariable(QString Definition)
 {
+    ProjectChanged = true;
     QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
     VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = VariabelMdl->index(0, 0, QModelIndex());
@@ -460,6 +477,7 @@ void MainWindow::parameterChange(QString VarName, double DblVal)
 
     if(Val != NULL)
     {
+        ProjectChanged = true;
         *Val = DblVal;
         VariabelMdl->valueChange();
         QPair<QString,double> VarPair;
@@ -476,6 +494,7 @@ void MainWindow::markerChange(QString VarName, double DblVal)
 
     if(Val != NULL)
     {
+        ProjectChanged = true;
         *Val = DblVal;
         VariabelMdl->valueChange();
         QPair<QString,double> VarPair;
@@ -489,6 +508,7 @@ void MainWindow::markerChange(QString VarName, double DblVal)
 
 void MainWindow::on_ExpressionListView_doubleClicked(const QModelIndex &index)
 {
+    ProjectChanged = true;
     QString Expression = ExpressionMdl->getExpressionDefinition(index);
     ExpressionDialog Dlg(this, &Expression);
     Dlg.setModal(true);
@@ -499,7 +519,7 @@ void MainWindow::on_ExpressionListView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_VariableListView_doubleClicked(const QModelIndex &index)
 {
-
+    ProjectChanged = true;
     QString Name = VariabelMdl->getVarName(index);
     double *Val = VariabelMdl->getVarValuePtr(Name);
 
@@ -517,6 +537,7 @@ void MainWindow::on_VariableListView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_actionSave_triggered()
 {
+    ProjectChanged = false;
     if(QString("") != WorkFile)
     {
         store(WorkFile, ExpressionMdl->getExpressionStringList());
@@ -534,13 +555,17 @@ void MainWindow::on_actionLoad_triggered()
     QFileDialog dlg(this, QString("Laden"),QString("data/"));
     dlg.setModal(true);
 
-    int r = QMessageBox::question(this, QString("Wirklich laden?"), QString("Alle daten des bestehenden ControlSystems gehen verloren"),
-    QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
-
-    if(r == QMessageBox::No)
+    if(ProjectChanged != false)
     {
-        return;
+        int r = QMessageBox::question(this, QString("Wirklich laden?"), QString("Alle daten des bestehenden ControlSystems gehen verloren"),
+        QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+        if(r == QMessageBox::No)
+        {
+            return;
+        }
     }
+
+
 
     deleteAllCurves();
 
@@ -559,6 +584,7 @@ void MainWindow::on_actionLoad_triggered()
                 insertVariable(Variables.at(i));
 
             WorkFile = dlg.selectedFiles().at(0);
+            ProjectChanged = false;
         }
     }
 }
@@ -572,6 +598,7 @@ void MainWindow::on_actionSave_as_triggered()
     {
         if(dlg.selectedFiles().count())
         {
+            ProjectChanged = false;
             setWindowTitle(dlg.selectedFiles().at(0));
 
             QString Filename = dlg.selectedFiles().at(0);
@@ -721,14 +748,15 @@ QStringList MainWindow::load(QString FilePath)
     QFile fIn(FilePath);
     if (fIn.open(QFile::ReadOnly | QFile::Text))
     {
-      QTextStream sIn(&fIn);
-      while (!sIn.atEnd())
-        List += sIn.readLine();
+        ProjectChanged = false;
+        QTextStream sIn(&fIn);
+        while (!sIn.atEnd())
+            List += sIn.readLine();
     }
     else
     {
-      std::cerr << "error opening output file\n";
-      return QStringList();
+        std::cerr << "error opening output file\n";
+        return QStringList();
     }
 
     return List;
@@ -741,6 +769,7 @@ bool MainWindow::store(QString FilePath, QStringList List)
 
     if (fOut.open(QFile::WriteOnly | QFile::Text))
     {
+        ProjectChanged = false;
         QTextStream s(&fOut);
         for (int i = 0; i < List.size(); ++i)
         {

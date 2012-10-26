@@ -69,6 +69,6 @@ INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qt4
 LIBS += -L/usr/lib/ \
     -L. \
-    -lqwt-qt4 \
+    -lqwt \
     -lm \
     -lginac
