@@ -6,9 +6,32 @@ RangeSelectorDialog::RangeSelectorDialog(QWidget *parent, QString VarName) :
     ui(new Ui::RangeSelectorDialog)
 {
     ui->setupUi(this);
+    VarComboBox = NULL;
     ui->VarNameLineEdit->setText(VarName);
     ColorCombo = new ColorListEditor(this);
     ui->verticalLayout->insertWidget(0, (QWidget*)ColorCombo, Qt::AlignBottom);
+}
+
+
+RangeSelectorDialog::RangeSelectorDialog(QWidget *parent, QStringList VarNames) :
+    QDialog(parent),
+    ui(new Ui::RangeSelectorDialog)
+{
+    ui->setupUi(this);
+    VarComboBox = new QComboBox();
+    for(int i = 0 ; i < VarNames.count(); i++)
+        VarComboBox->insertItem(0, VarNames.at(i));
+    ui->verticalLayout->insertWidget(1, VarComboBox, Qt::AlignBottom);
+
+    connect(VarComboBox, SIGNAL(currentIndexChanged(const QString)), this, SLOT(variableSelected(const QString)));
+
+    ColorCombo = new ColorListEditor(this);
+    ui->verticalLayout->insertWidget(0, (QWidget*)ColorCombo, Qt::AlignBottom);
+}
+
+void RangeSelectorDialog::variableSelected(const QString Index)
+{
+    ui->VarNameLineEdit->setText(Index);
 }
 
 RangeSelectorDialog::~RangeSelectorDialog()

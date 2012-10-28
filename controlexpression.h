@@ -22,6 +22,7 @@ private:
     QString IndependentVarName;
     QStringList findCharacterStrings(QString Buffer);
 public:
+    QStringList getVariables(void);
     QString independentVarName(void);
     mathFunctionEvaluator *getRealEvaluator(void);
     mathFunctionEvaluator *getImagEvaluator(void);
@@ -34,6 +35,7 @@ public:
     QString getExpression(QString ExpressionDef);
     QString latexString(void);
     ControlExpression(QString ExpressionDef, QString IndepVar=QString());
+    ~ControlExpression(void);
     QImage picture(void);
     void setIndependentVarName(QString IndependentVarNameA);
 };

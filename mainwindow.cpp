@@ -10,7 +10,7 @@
 #include "csvdialog.h"
 #include "QTextStream"
 #include "qwt_dataset_curve.h"
-
+#include "expressionclonedialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Magnifier->setMouseButton(Qt::MidButton, Qt::NoButton);
 
     UpdateTimer = new QTimer(this);
-    UpdateTimer->setInterval(500);
+    UpdateTimer->setInterval(100);
     connect(UpdateTimer, SIGNAL(timeout()), this, SLOT(timerEvent()));
 
 
@@ -109,8 +109,8 @@ void MainWindow::timerEvent(void)
 
 void MainWindow::markerRelease(void)
 {
-    ui->qwtPlot->replot();
     UpdateTimer->stop();
+    UpdateTimer->singleShot(500, this, SLOT(timerEvent()));
 }
 
 
@@ -152,7 +152,8 @@ void MainWindow::on_actionExpression_triggered()
     QString Expression;
     ExpressionDialog Dlg(this, &Expression);
     Dlg.setModal(true);
-    Dlg.exec();
+    if(!Dlg.exec())
+        return;
 
     insertExpression(Expression);
 }
@@ -166,8 +167,6 @@ void MainWindow::on_actionVariable_triggered()
     QString Name;
     VarDialog Dlg(this, &Val, &Name);
     Dlg.setModal(true);
-    Dlg.exec();
-
     if(!Dlg.exec())
         return;
 
@@ -229,18 +228,30 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     ExpressionMenu.addAction(QString("draw Root Locus"));
     ExpressionMenu.addAction(QString("draw Bode"));
     ExpressionMenu.addAction(QString("draw Response"));
+    ExpressionMenu.addAction(QString("clone and substitute"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
     if(happened == NULL)
         return;
 
-    RangeSelectorDialog Dlg(this, QString());
+    if(happened->text() == QString("clone and substitute"))
+    {
+        ExpressionCloneDialog Dlg(this, ExpressionMdl->getExpressionDefinition(Index));
+        Dlg.setModal(true);
+        if(Dlg.exec())
+           this->insertExpression(Dlg.getNewExpression());
+    }
+
+    ControlExpression *preExpression = ExpressionMdl->createExpression(Index, QString());
+
+    RangeSelectorDialog Dlg(this, preExpression->getVariables());
     RedoDlg:
     Dlg.setModal(true);
     if(!Dlg.exec())
         return;
 
+    delete preExpression;
 
     QPointF Range = Dlg.getRange();
     if(Range.x() >= Range.y())
@@ -305,8 +316,8 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
         Curve->attach(ui->qwtPlot);
         Curve->setPen(QPen(Color));
-        Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
-                                              QColor(Color), QColor(Color), QSize( 2, 2 ) ));
+        //Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
+                      //                        QColor(Color), QColor(Color), QSize( 2, 2 ) ));
         emitAllValues();
         Curve->start();
 
@@ -404,6 +415,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
         CurveList.append((QwtControlPlotItem*)Curve);
     }
+
     CurveMdl->valueChange();
 }
 
@@ -649,7 +661,8 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
         CurveItem->detach();
         CurveItem->stopThread();
         delete CurveItem;
-        Plot->replot();
+        if(Plot)
+            Plot->replot();
     }
 }
 
