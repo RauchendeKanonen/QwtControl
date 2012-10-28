@@ -30,7 +30,9 @@ SOURCES += main.cpp \
     qwt_zeta_curve.cpp \
     qwt_dataset_curve.cpp \
     qwt_magnitude_curve.cpp \
-    qwt_phase_curve.cpp
+    qwt_phase_curve.cpp \
+    qwt_curve_fitter.cpp \
+    expressionclonedialog.cpp
 HEADERS += mainwindow.h \
     vardialog.h \
     stepresponsedialog.h \
@@ -55,7 +57,9 @@ HEADERS += mainwindow.h \
     qwt_zeta_curve.h \
     qwt_dataset_curve.h \
     qwt_magnitude_curve.h \
-    qwt_phase_curve.h
+    qwt_phase_curve.h \
+    qwt_curve_fitter.h \
+    expressionclonedialog.h
 FORMS += mainwindow.ui \
     vardialog.ui \
     bodedialog.ui \
@@ -63,12 +67,13 @@ FORMS += mainwindow.ui \
     stepresponsedialog.ui \
     rangeselectordialog.ui \
     parametersliderdialog.ui \
-    csvdialog.ui
+    csvdialog.ui \
+    expressionclonedialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4
 LIBS += -L/usr/lib/ \
     -L. \
-    -lqwt \
+    -lqwt-qt4 \
     -lm \
     -lginac

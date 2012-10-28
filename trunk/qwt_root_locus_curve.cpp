@@ -221,8 +221,9 @@ void QwtRootLocusCurve::run (void)
     int dots = (EvaluationInfo.IndepEnd - EvaluationInfo.IndepStart)/EvaluationInfo.Resolution;
 
     double Inval = EvaluationInfo.IndepStart;
-    int SplitDot;
+    int SplitDot = 0, SplitCorrector=0;
     double re_1, im_1, RangeMax = 0;
+    bool _1_init = false;
 
     for(int i = 0 ; i < dots ; i ++ )
     {
@@ -233,21 +234,33 @@ void QwtRootLocusCurve::run (void)
         Inval +=  EvaluationInfo.Resolution;
 
         if(isinf(re) || isinf(im))
-            continue;
-        if(isnan(im) || isnan(re))
-            continue;
-        Polygon.append(QPointF(re, im));
-
-        double Range = sqrt(pow(re-re_1,2)+pow(im-im_1,2));
-        if(i > 0 && RangeMax < Range)
         {
-            RangeMax = Range;
-            SplitDot = i;
+            SplitCorrector++;
+            continue;
         }
+        if(isnan(im) || isnan(re))
+        {
+            SplitCorrector++;
+            continue;
+        }
+        Polygon.append(QPointF(re, im));
+        if(_1_init)
+        {
+            double Range = sqrt(pow(re-re_1,2)+pow(im-im_1,2));
+            if(_1_init && RangeMax < Range)
+            {
+                RangeMax = Range;
+                SplitDot = i;
+            }
+        }
+        _1_init = true;
         re_1 = re;
         im_1 = im;
     }
-    setSplit(SplitDot);
+    if(SplitDot > SplitCorrector)
+        setSplit(SplitDot-SplitCorrector);
+    else
+        setSplit(0);
 
     emit dataReadySig(Polygon);
 }
@@ -281,7 +294,43 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
         im = pImagEval->eval(InVal);
         re = pRealEval->eval(InVal);
 
+        if(isinf(im) || isinf(re))
+        {
+            const QwtScaleMap xMap = plot()->canvasMap(xAxis());
+            const QwtScaleMap yMap = plot()->canvasMap(yAxis());
+            if(plot())
+            {
+                QwtPlotItemList  List = plot()->itemList();
+                int Idx = List.indexOf(this);
 
+                re = xMap.invTransform(100);
+                im = yMap.invTransform((Idx-1) * 20);
+                QString emptystr;
+                emptystr.fill(' ', 2*(typeName().count() + 7)+2);
+                Marker->setLabel( QwtText(emptystr +typeName() + QString(" is Inf")));
+            }
+        }
+        else
+            Marker->setLabel(QwtText(QString("")));
+
+        if(isnan(im) || isnan(re))
+        {
+            const QwtScaleMap xMap = plot()->canvasMap(xAxis());
+            const QwtScaleMap yMap = plot()->canvasMap(yAxis());
+            if(plot())
+            {
+                QwtPlotItemList  List = plot()->itemList();
+                int Idx = List.indexOf(this);
+
+                re = xMap.invTransform(100);
+                im = yMap.invTransform((Idx-1) * 20);
+                QString emptystr;
+                emptystr.fill(' ', 2*(typeName().count() + 7)+2);
+                Marker->setLabel( QwtText(emptystr +typeName() + QString(" is Nan")));
+            }
+        }
+        else
+            Marker->setLabel(QwtText(QString("")));
         Marker->setYValue(im);
         Marker->setXValue(re);
 
@@ -307,7 +356,8 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
     bool Changed = false;
-
+    if(!isFinished())
+        return;
     QStringList imVars = pImagEval->getExpressionVars();
     for(int i = 0 ; i < imVars.count() ;  i ++ )
     {
@@ -327,7 +377,7 @@ void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Re
             Changed = true;
         }
     }
-    if(isFinished() && Changed)
+    if(Changed)
         start();
 }
 
@@ -371,6 +421,8 @@ QwtRootLocusCurve::~QwtRootLocusCurve()
     delete PoleLocation;
     RootLocation->detach();
     delete RootLocation;
+    Marker->detach();
+    delete Marker;
     delete pExpression;
     delete pImagEval;
     delete pRealEval;
@@ -977,7 +1029,6 @@ void QwtRootLocusCurve::drawLines(QPainter *painter,
             Polygon2.append(polyline.at(i));
         }
         polyline.resize(DrawSplitted);
-
         QwtPainter::drawPolyline(painter, polyline);
         QwtPainter::drawPolyline(painter, Polygon2);
     }

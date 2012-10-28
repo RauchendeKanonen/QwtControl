@@ -10,10 +10,12 @@ class RangeSelectorDialog;
 class RangeSelectorDialog : public QDialog
 {
     Q_OBJECT
-    
+public slots:
+    void variableSelected(const QString Index);
 public:
     QPointF getRange(void);
     explicit RangeSelectorDialog(QWidget *parent, QString VarName);
+    RangeSelectorDialog(QWidget *parent, QStringList VarNames);
     ~RangeSelectorDialog();
     QString getVarName(void);
     double getResolution(void);
@@ -22,6 +24,7 @@ public:
     void setColor(QColor Color);
     QColor getColor(void);
 private:
+    QComboBox *VarComboBox;
     ColorListEditor *ColorCombo;
     Ui::RangeSelectorDialog *ui;
 };

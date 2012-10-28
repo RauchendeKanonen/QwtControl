@@ -4,8 +4,7 @@
 #include <QTextStream>
 #include <QProcess>
 #include <QStringList>
-
-
+#include <math.h>
 
 QStringList ControlExpression::findCharacterStrings(QString Buffer)
 {
@@ -17,14 +16,54 @@ QStringList ControlExpression::findCharacterStrings(QString Buffer)
             ActString.append(Buffer.at(i));
         else if(ActString.count())
         {
+            if(ActString == QString("e"))
+            {
+                if(i > 1 && Buffer.at(i-2).isDigit())
+                {
+                    ActString.clear();
+                    continue;
+                }
+
+            }
             Strings.append(ActString);
             ActString.clear();
         }
     }
     if(ActString.count())
         Strings.append(ActString);
+    Strings.removeDuplicates();
+    Strings.removeOne(QString("sin"));
+    Strings.removeOne(QString("cos"));
+    Strings.removeOne(QString("sinh"));
+    Strings.removeOne(QString("cosh"));
+    Strings.removeOne(QString("tanh"));
+    Strings.removeOne(QString("atanh"));
+    Strings.removeOne(QString("sqrt"));
+    Strings.removeOne(QString("log"));
+    Strings.removeOne(QString("log2"));
+    Strings.removeOne(QString("sign"));
+    Strings.removeOne(QString("logb"));
+    Strings.removeOne(QString("log10"));
+    Strings.removeOne(QString("atan"));
+    Strings.removeOne(QString("exp"));
+    Strings.removeOne(QString("exp2"));
+    Strings.removeOne(QString("acos"));
+    Strings.removeOne(QString("asin"));
+    Strings.removeOne(QString("tan"));
+    Strings.removeOne(QString("cotan"));
+    Strings.removeOne(QString("fabs"));
+    Strings.removeOne(QString("pow"));
+    Strings.removeOne(QString("atan2"));
+
     return Strings;
 }
+
+QStringList ControlExpression::getVariables(void)
+{
+    return findCharacterStrings(ExpressionString);
+
+}
+
 
 mathFunctionEvaluator *ControlExpression::getRealEvaluator(void)
 {
@@ -73,7 +112,10 @@ QString ControlExpression::independentVarName(void)
 {
     return IndependentVarName;
 }
-
+ControlExpression::~ControlExpression(void)
+{
+    delete exExpression;
+}
 
 ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
 {
@@ -96,7 +138,6 @@ ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
     try
     {
         exExpression = new GiNaC::ex(ExpressionString.toStdString().c_str(), VarList);
-        exExpression->evalf();
     }
     catch (exception &p)
     {
@@ -134,6 +175,17 @@ QString ControlExpression::cSourceStringRealPart(void)
     {
         LatexOStream << GiNaC::csrc_double;
         LatexOStream << exExpression->real_part();
+//        GiNaC::ex realEx = exExpression->real_part();
+//        cout << exExpression->real_part() << endl;
+//        for (size_t i = 0; i != realEx.nops(); ++i)
+//        {
+//            cout << realEx.op(i) << endl << endl;
+//            for (size_t k = 0; k != realEx.op(i).nops() ; ++k)
+//            {
+//                cout << realEx.op(i).op(k) << endl << endl;
+//            }
+//
+//        }
     }
     catch (exception &p)
     {
