@@ -32,4 +32,5 @@ void VarDialog::on_buttonBox_accepted()
         *pVal = Value;
         *pName = QString(ui->ExpressionEdit->text().toStdString().c_str());
     }
+    accept();
 }
