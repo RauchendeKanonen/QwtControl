@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;
+      charset=ISO-8859-1">
+    <title>Magazine Template</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="branding">
+        <h1 class="logo"><a href="#" title="&lt; Magazine /&gt;">&lt;
+            Magazine /&gt;</a></h1>
+        <ul class="topNav">
+          <li><a href="./home.html" class="topNavAct">Overview</a></li>
+          <li><a href="./tutorial.html">Tutorial</a></li>
+          <li><br>
+          </li>
+          <li><a href="#">Installation</a></li>
+          <li><a href="#">QwtControl @ SourceForge<br>
+            </a></li>
+          <li><a href="#">Other Projects<br>
+            </a></li>
+          <li><a href="#">ONLINE ONLY</a></li>
+          <li><a href="#">SUBSCRIBE</a></li>
+          <li><a href="#">ABOUT US</a></li>
+          <li><a href="#">ARCHIVE</a></li>
+          <li><a href="#" class="topNavLast">VIEDO</a></li>
+        </ul>
+        <br class="clear">
+      </div>
+      <div id="contant">
+        <div class="contant_1">
+          <div class="contant_1_left">
+            <h2> QwtControl - The Control-Explorer <span>September 1,
+                2009 | (0) Comments</span> </h2>
+            <br>
+            <h3>Drawing the response of a Control-System<br>
+            </h3>
+            <br>
+            <p>Consider the following transfer-function of the plant:<br>
+              <br>
+            </p>
+            <img alt="second order transfer function"
+              src="images/2.ordertf.png" height="66" width="164">
+            <p><br>
+            </p>
+            <p><br>
+            </p>
+            <p><br>
+            </p>
+            <p><br>
+              <font color="#000099">1.</font> Open QwtControl and insert
+              the expression with add-&gt;expression.<br>
+              In the Exprssion-Dialog write down the expression. <br>
+            </p>
+            <p><br>
+            </p>
+            <p>Place a name for the expression before the expression
+              itself:<br>
+              <br>
+            </p>
+            <p><font color="#000099">Name:K*w0^2/(s^2+2*zeta*w0*s+w0^2)</font></p>
+            <p><br>
+              All C math lib calls, such as sqrt(x), pow(x,y), fabs(x)
+              and so on can be <br>
+              used. Potences can be written x^y. The imaginary unit has
+              to be expressed <br>
+              as <font color="#cc0000">upper-case I&nbsp; !!!</font>&nbsp;
+              <font color="#cc0000">Be sure to apply also a input to the
+                transfer-function <br>
+                such as the step response (1/s).</font><br>
+            </p>
+            <p>If the picture below the Line-Edit shows a valid
+              expression, click OK.<br>
+            </p>
+            <p><br>
+              <font color="#3333ff">2. </font>Add the Variables by
+              using add-&gt;Variable.<br>
+              In the Variable-Dialog type its name and its Value. Then
+              click OK.<br>
+            </p>
+            <p><br>
+              Be sure to add <font color="#ff0000">K, w0, zeta</font>
+              with its initial values.<br>
+            </p>
+            <p><br>
+            </p>
+            <p><font color="#3333ff">3. <font color="#000000">Do a
+                  right-mouse-click onto the expression. In the
+                  drop-down-menu</font></font><br>
+              select "draw response". In the following Dialog, select
+              the range and<br>
+              resolution an s as the depending variable. Then click OK.<br>
+              A new window opens with the response of the function.<br>
+            </p>
+            <p><br>
+            </p>
+            <p><font color="#000099">4.</font> Do <font color="#000000">a
+              </font><font color="#3333ff"><font color="#000000">right-mouse-click
+                  onto the variable zeta. </font></font><font
+                color="#3333ff"><font color="#000000">In the
+                  drop-down-menu</font></font><br>
+              select "add Slider". A Dialog for the range of the slider
+              opens. For zeta</p>
+            <p>set the range to 0-1. Then click OK.<br>
+            </p>
+            <p>A new window with the slider opens.<br>
+            </p>
+            <p><br>
+              <font color="#000099">5.</font> Move the slider by
+              clicking with the mouse and dragging it. Observe<br>
+              the changing response.<br>
+            </p>
+            <p><br>
+              Same as above applies to Closed-Loop transfer-functions.<br>
+            </p>
+            <p><br>
+            </p>
+            <p>Look <a href="videos/response.mpg">this</a> video for
+              drawing a step response.<br>
+            </p>
+            <p><br>
+            </p>
+            <p><br>
+            </p>
+            <h3>Drawing the Root-Locus of a Control-System</h3>
+            <p><font color="#000099"><br>
+              </font><br>
+            </p>
+            <p>Consider the following transfer-function of the plant:<br>
+              <br>
+            </p>
+            <img alt="second order transfer function"
+src="file:///home/florian/dev/svnqwtcon/qwtcontrol/trunk/website/magazine/images/2.ordertf.png"
+              height="66" width="164"><font color="#000099"><br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              1.</font> Solve the characteristic equation for the
+            complex variable s:<br>
+            <p><font color="#000099"><br>
+              </font></p>
+            <p><font color="#000099">s=-w0*sqrt(zeta^2-1)-w0*zeta<br>
+                s=w0*sqrt(zeta^2-1)-w0*zeta<br>
+              </font></p>
+            <p><font color="#000099"><br>
+                Note: <font color="#000000">This expressions are quite
+                  simple. The solutions of a third order <br>
+                  characteristic equation can be much bigger.<br>
+                  Usually the output of maxima (cas) can be pasted into
+                  the Line-Edit of<br>
+                  the Expression-Dialog.</font><br>
+              </font></p>
+            <p><font color="#000099"><br>
+                2.</font> Insert the expression with add-&gt;expression.<br>
+              In the Exprssion-Dialog write down the expression. <br>
+            </p>
+            <p><br>
+            </p>
+            <p>Place a name for the expression before the expression
+              itself:<br>
+            </p>
+            <p><font color="#000099">root1:</font><font color="#000099">-w0*sqrt(zeta^2-1)-w0*zeta</font></p>
+            <p><br>
+              For the second root:<br>
+            </p>
+            <p><font color="#000099">root2:w0*sqrt(zeta^2-1)-w0*zeta</font></p>
+            <p><br>
+              All C math lib calls, such as sqrt(x), pow(x,y), fabs(x)
+              and so on can be <br>
+              used. Potences can be written x^y. The imaginary unit has
+              to be expressed <br>
+              as <font color="#cc0000">upper-case I&nbsp; !!!</font>&nbsp;
+              <br>
+            </p>
+            <p>If the picture below the Line-Edit shows a valid
+              expression, click OK.<br>
+            </p>
+            <p><br>
+              <font color="#3333ff">3. </font>Add the Variables by
+              using add-&gt;Variable.<br>
+              In the Variable-Dialog type its name and its Value. Then
+              click OK.<br>
+            </p>
+            <p><br>
+              Be sure to add <font color="#ff0000">w0, zeta</font> with
+              its initial values. Kp must not be added,<br>
+              since it will be defined as the independent Variable of
+              the locus's.<br>
+            </p>
+            <p><br>
+            </p>
+            <p><font color="#3333ff">4. <font color="#000000">Do a
+                  right-mouse-click onto the expressions. In the
+                  drop-down-menu</font></font><br>
+              select "draw root locus". In the following Dialog, select
+              the range and<br>
+              resolution and Kp as the depending variable. Then click
+              OK.<br>
+              The new curves are drawn in complex plane. You can see <br>
+              the root-locus of the plant, depending on Kp. A red filled
+              circle<br>
+              shows the root-location of the transfer-function, A
+              X-cross shows<br>
+              the pole-location at the beginning of the interval of Kp.
+              An<br>
+              a cross shows the position of the pole at actual Kp.<br>
+            </p>
+            <p><br>
+            </p>
+            <p><font color="#000099">5.</font> In the independent
+              Variable-Slider-Dialog move the slider for Kp<br>
+              and observe the actual pole location change.<br>
+            </p>
+            <p><br>
+            </p>
+            <p>Same as above applies to Closed-Loop transfer-functions.</p>
+            <p><br>
+              Look <a
+href="file:///home/florian/dev/svnqwtcon/qwtcontrol/trunk/website/magazine/videos/response.mpg">this</a>
+              video for drawing a step response.<br>
+            </p>
+            <p><br>
+            </p>
+            <p></p>
+          </div>
+          <div class="sideBar">
+            <div class="sideBarListBox"> <img
+                src="images/sideBarListBoxTop.png" alt="" height="10"
+                width="240">
+              <ul>
+                <li><a href="#">What is Lorem Ipsum?</a></li>
+                <li><a href="#">Why Do We Use It?</a></li>
+                <li><a href="#">Where Does It Come From?</a></li>
+                <li><a href="#">Where Can I Get Some?</a></li>
+                <li><a href="#">There are many variations of passages of
+                    Lorem Ipsum available</a></li>
+                <li><a href="#">Alteration In Some Form</a></li>
+                <li><a href="#">If you are going to use a passage</a></li>
+                <li><a href="#">You Need To Be Sure There</a></li>
+                <li><a href="#">The generated Lorem Ipsum is</a></li>
+              </ul>
+              <img src="images/sideBarListBoxBottom.png" alt=""
+                height="10" width="240"> </div>
+            <div class="sideBarItem">
+              <h3>Blogroll</h3>
+              <ul>
+                <li><a href="#">Category One</a></li>
+                <li class="cat002"><a href="#">There are many</a></li>
+                <li class="cat003"><a href="#">Lorem Ipsum available</a></li>
+                <li class="cat003"><a href="#">If you are going</a></li>
+                <li class="cat003"><a href="#">All the Lorem Ipsum</a></li>
+                <li class="cat003"><a href="#">200 Latin words</a></li>
+                <li class="cat003"><a href="#">It uses a dictionary</a></li>
+                <li class="cat003"><a href="#">Lorem ipsum dolor</a></li>
+                <li class="cat003"><a href="#">Latin professor at</a></li>
+              </ul>
+            </div>
+            <div> </div>
+          </div>
+          <br class="clear">
+        </div>
+      </div>
+      <div class="midBox1"> <span><img src="images/c2_i6.png" alt=""
+            height="420" width="303"></span>
+        <div class="midBox1Top">
+          <h3>Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna
+            aliqua.</h3>
+          <p>Duis aute irure dolor in reprehenderit in voluptate velit
+            esse cillum<br>
+            dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+            cupidatat non<br>
+            proident, sunt in culpa qui officia deserunt mollit anim id
+            est laborum.</p>
+          <a href="#"><img src="images/c2_i2.png" alt="" height="40"
+              width="133"></a> <a href="#"><img src="images/c2_i3.png"
+              alt="" height="40" width="84"></a> <a href="#"><img
+              src="images/c2_i4.png" alt="" height="40" width="93"></a>
+          <a href="#"><img src="images/c2_i5.png" alt="" height="38"
+              width="101"></a> </div>
+        <div class="midBox1Bottom">
+          <h4>Neque porro quisquam?</h4>
+          <ul>
+            <li class="cat002"><a href="#">Lorem Ipsum is simply dummy
+                text of the printing</a></li>
+            <li class="cat002"><a href="#">It is a long established fact
+                that a reader</a></li>
+            <li class="cat002"><a href="#">There are many variations of
+                passages of Lorem Ipsum</a></li>
+            <li class="cat002"><a href="#">Contrary to popular belief,
+                Lorem Ipsum is not simply random text</a></li>
+          </ul>
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br class="clear">
+      </div>
+      <div class="midBox2">
+        <div class="midBox2L">
+          <h2>Where Does It Come From?</h2>
+          <h3>Contrary to popular belief, Lorem Ipsum is not<br>
+            simply random text.</h3>
+          <p>It is a long established fact that a reader will be
+            distracted by the <br>
+            readable content of a page when looking at its layout.</p>
+        </div>
+        <img src="images/c3_i7.png" alt="" height="237" width="460"> </div>
+      <div id="footer">
+        <div class="footerForm">
+          <h3>Lorem Ipsum passages</h3>
+          <h4>more recently with desktop publishing</h4>
+          <div class="footerFormR">
+            <p><label>Name*:</label><input name="Name"
+                class="footerInputArea" type="text"></p>
+            <p><label>Email*:</label><input name="Email"
+                class="footerInputArea" type="text"></p>
+            <p><label>Phone Number:</label><input name="Number"
+                class="footerInputArea" type="text"></p>
+          </div>
+          <div class="footerFormR">
+            <p><label>Message:</label> <textarea name=""
+                class="footertextarea" rows="2" cols="3"></textarea> </p>
+            <input name="" class="footerSubmit" type="button"> </div>
+          <br class="clear">
+        </div>
+        <p>All the Lorem Ipsum generators on the<br>
+          Internet tend to repeat predefined chunks as<br>
+          necessary, making this the first true generator<br>
+          on the Internet. It uses a dictionary of over<br>
+          200 Latin words, combined with a handful of<br>
+          model sentence structures, to generate Lorem<br>
+          Ipsum which looks reasonable. The generated<br>
+          Lorem Ipsum is therefore always free from<br>
+          repetition, injected humour, or<br>
+          non-characteristic words etc.</p>
+        <br class="clear">
+      </div>
+    </div>
+    <div id="footerContainer">
+      <p> <label>Designed by <a href="http://vectorart.org">VectorArt</a></label>
+        <span>Copyright 2009 Lorem Ipsum. All Rights Reserved</span> </p>
+    </div>
+  </body>
+</html>
