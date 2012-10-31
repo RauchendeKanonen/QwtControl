@@ -11,6 +11,7 @@
 #include "QTextStream"
 #include "qwt_dataset_curve.h"
 #include "expressionclonedialog.h"
+#include <qwt_data.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -229,6 +230,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     ExpressionMenu.addAction(QString("draw Bode"));
     ExpressionMenu.addAction(QString("draw Response"));
     ExpressionMenu.addAction(QString("clone and substitute"));
+    ExpressionMenu.addAction(QString("scan function"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -415,7 +417,53 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
         CurveList.append((QwtControlPlotItem*)Curve);
     }
+    if(happened->text() == QString("scan function"))
+    {
+        /*QString FunctionName = ExpressionMdl->getExpressionName(Index);
+        ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
 
+        if(FunctionName == QString())
+        {
+            QMessageBox Box;
+            Box.setText(QString("Unnamed Functions are not allowed!!!"));
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+        EvalInfo Evinfo;
+        Evinfo.IndepStart = Range.x();
+        Evinfo.IndepEnd = Range.y();
+        Evinfo.Resolution = Resolution;
+
+        mathFunctionEvaluator *Eval = Expression->getRealEvaluator();
+        QPolygonF ScannedPolygon;
+        QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
+
+        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
+        connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
+        emitAllValues();
+
+        Curve->start();
+        while(Curve->isRunning())
+                usleep(1000);
+
+
+        for(int i = 0 ; i < Curve->dataSize() ; i ++)
+        {
+            ScannedPolygon.append(QPointF(Curve->x(i), Curve->y(i)));
+        }
+
+        EvalInfo EvalI;
+        EvalI.IndepStart = ScannedPolygon.first().x();
+        EvalI.IndepEnd   = ScannedPolygon.last().x();
+
+        delete Curve;
+
+        QwtDataSetCurve *SetCurve = new QwtDataSetCurve(ScannedPolygon, EvalI);
+        CurveList.append((QwtControlPlotItem*)SetCurve);
+        CurveMdl->valueChange();*/
+
+    }
     CurveMdl->valueChange();
 }
 
