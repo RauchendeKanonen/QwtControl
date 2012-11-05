@@ -9,68 +9,88 @@
 
 
 
-
-double *convolve(double *Kernel, int KernelLenght, double *Signal, int SignalLength)
+double *convolve(const double *Signal, size_t SignalLen,
+                 const double *Kernel, size_t KernelLen)
 {
-    double *OutSig = (double*)malloc(sizeof(double)*(SignalLength+KernelLenght));
+    double *Result = (double*)malloc(sizeof(double)*(SignalLen + KernelLen));
+    size_t n;
 
-    for(int f = 0 ; f < (SignalLength+KernelLenght) ; f ++)
-        OutSig[f] = 0;
+    for (n = 0; n < SignalLen + KernelLen - 1; n++)
+    {
+        size_t kmin, kmax, k;
 
-    for(int i = 0 ; i < SignalLength ; i ++)
-        for(int y = 0; y < KernelLenght ; y ++)
-            OutSig[i+y] += Signal[i] * Kernel[y];
+        Result[n] = 0;
+
+        kmin = (n >= KernelLen - 1) ? n - (KernelLen - 1) : 0;
+        kmax = (n < SignalLen - 1) ? n : SignalLen - 1;
+
+        for (k = kmin; k <= kmax; k++)
+        {
+            Result[n] += Signal[k] * Kernel[n - k];
+        }
+
+    }
+    return Result;
+}
+double *removeTimeConstant(double *y, int len, double TimeConst, double SampelInterval)
+{
+    double *x = (double*) malloc(len*sizeof(double));
+    double a = TimeConst, T = SampelInterval;
 
 
-    return OutSig;
+    for(int i = 1 ; i < len ; i ++)
+    {
+        x[i] = y[i]-pow(e, -T/a)*y[i-1];
+    }
+    return x;
+}
+
+#define STEPRESPLEN 10000
+#define IMPRESPLEN  10000
+int main(int argc, char *argv[])
+{
+    double IResponseSensor[IMPRESPLEN];
+    double StepResponseX[STEPRESPLEN];
+    double IResSum = 0;
+    double T = 0.01, tau = 10, tausen = 5;
+
+    double inval = 0;
+    for(int i = 0 ; i < STEPRESPLEN ; i ++, inval += T)
+    {
+        StepResponseX[i] = 1-pow(e, -inval/tau);
+    }
+
+    inval = 0;
+    for(int i = 0 ; i < IMPRESPLEN ; i ++, inval += T)
+    {
+        IResponseSensor[i] = pow(e, -inval/tausen);
+        IResSum += IResponseSensor[i];
+    }
+
+    double *pSig = convolve( IResponseSensor, IMPRESPLEN, StepResponseX, STEPRESPLEN);
+
+
+    for(int i = 0 ; i < IMPRESPLEN+STEPRESPLEN ; i ++)
+    {
+        pSig[i]/=IResSum;
+        printf("%f\n", pSig[i]);
+    }
+
+    printf("\n");
+
+
+    for(int i = 0 ; i < STEPRESPLEN ; i ++)
+        printf("%f\n", StepResponseX[i]);
+
+    printf("\n");
+
+    double *OrigSig = removeTimeConstant(pSig, IMPRESPLEN+STEPRESPLEN, 12 ,T);
+
+    for(int i = 0 ; i < IMPRESPLEN+STEPRESPLEN ; i ++)
+        printf("%f\n", OrigSig[i]);
+
 }
 
 
-int main(int argc, char *argv[])
-{
-    double IResponseSensor[100];
-    double StepResponseX[100];
-
-    double a = 10, T = 0.01, tau = 0.1, tausen = 0.1;
 
 
-    for(int i = 1 ; i < 100 ; i ++)
-    {
-        StepResponseX[i] = 1-pow(e, -i*T*1/tau);
-    }
-
-    for(int i = 1 ; i < 100 ; i ++)
-    {
-        IResponseSensor[i] = pow(e, -i*T*1/tausen);
-    }
-
-    double *pSig = convolve(StepResponseX, 100, IResponseSensor, 100);
-
-    for(int i = 1 ; i < 100 ; i ++)
-    {
-
-        if(IResponseSensor[i-1]<0.632 && IResponseSensor[i]>0.632)
-            printf("\n");
-        printf("%f\n", IResponseSensor[i]);
-    }
-}
-
-
-/*
-int main(int argc, char *argv[])
-{
-    double y[100], x[100];
-    double a = 10, T = 0.01, tau = 0.1;
-
-    y[0] = 0;
-    for(int i = 1 ; i < 100 ; i ++)
-    {
-
-        y[i] = 1-pow(e, -i*T*1/tau);
-        x[i] = y[i]-pow(e, -a*T)*y[i-1];
-
-        if(y[i-1]<0.632 && y[i]>0.632)
-            printf("\n");
-        printf("%f\n", y[i]);
-    }
-}*/
