@@ -4,8 +4,8 @@
 #include <math.h>
 
 
-#define pi 3.141
-#define e 2.781
+#define pi 3.1416
+#define e 2.7183
 
 
 
@@ -37,10 +37,11 @@ double *removeTimeConstant(double *y, int len, double TimeConst, double SampelIn
     double *x = (double*) malloc(len*sizeof(double));
     double a = TimeConst, T = SampelInterval;
 
+    double sum = 0;
 
     for(int i = 1 ; i < len ; i ++)
     {
-        x[i] = y[i]-pow(e, -T/a)*y[i-1];
+        x[i] = (y[i]-pow(e, -T/a)*y[i-1])*1/(T/a);
     }
     return x;
 }
@@ -52,12 +53,14 @@ int main(int argc, char *argv[])
     double IResponseSensor[IMPRESPLEN];
     double StepResponseX[STEPRESPLEN];
     double IResSum = 0;
-    double T = 0.01, tau = 10, tausen = 5;
+    double T = 0.01, tau = 0.10, tausen = 5;
 
     double inval = 0;
     for(int i = 0 ; i < STEPRESPLEN ; i ++, inval += T)
     {
-        StepResponseX[i] = 1-pow(e, -inval/tau);
+        //StepResponseX[i] = 1-pow(e, -inval/tau);
+        StepResponseX[i] = sin(inval/tau)+(double)rand()/((double)RAND_MAX*10.0);
+        //StepResponseX[i] = 1-pow(e, -inval/tau)+(double)rand()/((double)RAND_MAX*10.0);
     }
 
     inval = 0;
@@ -84,7 +87,7 @@ int main(int argc, char *argv[])
 
     printf("\n");
 
-    double *OrigSig = removeTimeConstant(pSig, IMPRESPLEN+STEPRESPLEN, 12 ,T);
+    double *OrigSig = removeTimeConstant(pSig, IMPRESPLEN+STEPRESPLEN, 5 ,T);
 
     for(int i = 0 ; i < IMPRESPLEN+STEPRESPLEN ; i ++)
         printf("%f\n", OrigSig[i]);
