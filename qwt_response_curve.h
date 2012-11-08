@@ -194,8 +194,6 @@ public:
     void   setColor(QColor Col)
     {
         setPen(QPen(Col));
-        setSymbol(QwtSymbol( QwtSymbol::Rect,
-                                              QColor(Col), QColor(Col), QSize( 2, 2 ) ));
     }
     void stopThread(void)
     {

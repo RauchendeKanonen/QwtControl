@@ -55,6 +55,7 @@ public:
     void enqueueCurve(QwtResponseCurve *Item);
     void enqueueCurve(QwtPhaseCurve *Item);
     void enqueueCurve(QwtMagnitudeCurve *Item);
+    void enqueueCurve(QwtZetaCurve *Item);
     void emitAllValues(void);
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();

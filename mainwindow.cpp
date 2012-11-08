@@ -65,11 +65,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowTitle(QString("untittled"));
 
-    ZetaCurve = new QwtZetaCurve();
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), ZetaCurve, SLOT(markerChangeSlot(QPair<QString,double>, bool)));
-    ZetaCurve->enable(true);
-    ZetaCurve->attach(ui->qwtPlot);
     insertVariable(QString("zeta = 0.5"));
+    ZetaCurve = new QwtZetaCurve();
+    ZetaCurve->enable(true);
+    ZetaCurve->setVisible(false);
+    ZetaCurve->attach(ui->qwtPlot);
+    enqueueCurve(ZetaCurve);
 
 
     d_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft,  ui->qwtPlot->canvas());
@@ -117,7 +118,9 @@ void MainWindow::markerRelease(void)
 
 MainWindow::~MainWindow()
 {
-
+    delete VariabelMdl;
+    delete ExpressionMdl;
+    delete CurveMdl;
     delete ui;
     if(VariableSliderDialog)
         delete VariableSliderDialog;
@@ -192,6 +195,14 @@ void MainWindow::insertVariable(QString Definition)
     VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = VariabelMdl->index(0, 0, QModelIndex());
     VariabelMdl->setData(index, Definition,Qt::EditRole);
+}
+
+void MainWindow::enqueueCurve(QwtZetaCurve *Item)
+{
+    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
+    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
+    CurveList.append(Item);
+    CurveMdl->valueChange();
 }
 
 void MainWindow::enqueueCurve(QwtResponseCurve *Item)
@@ -590,6 +601,10 @@ void MainWindow::on_VariableListView_doubleClicked(const QModelIndex &index)
     QString ValueString;
     ValueString.sprintf("%f", *Val);
     VariabelMdl->setData(index, QString(Name + QString(" = ") + ValueString),Qt::EditRole);
+    QPair <QString, double> Pair;
+    Pair.first = Name;
+    Pair.second = *Val;
+    emit valueChangeSignal(Pair, true);
 }
 
 
@@ -695,6 +710,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 
     QMenu ExpressionMenu;
     ExpressionMenu.addAction(QString("delete"));
+    ExpressionMenu.addAction(QString("toggle visability"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -712,6 +728,15 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
         if(Plot)
             Plot->replot();
     }
+
+    if(happened->text() == QString("toggle visability"))
+    {
+        CurveItem->setVisible(!CurveItem->isVisible());
+        QwtPlot *Plot = CurveItem->plot();
+        if(Plot)
+            Plot->replot();
+    }
+
 }
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)

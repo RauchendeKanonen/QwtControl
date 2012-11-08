@@ -15,6 +15,8 @@
 #include "qwt_scale_div.h"
 #include "QPair"
 #include <qwt_plot.h>
+#include <QThread>
+#include "qwt_control_plot_item.h"
 
 class QPainter;
 class QPen;
@@ -33,7 +35,7 @@ class QwtScaleDiv;
   rectangle.
 */
 
-class QWT_EXPORT QwtZetaCurve: public QObject, public QwtPlotItem
+class QWT_EXPORT QwtZetaCurve: public QThread, public QwtControlPlotItem
 {
     Q_OBJECT
 public slots:
@@ -52,6 +54,35 @@ public:
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &rect) const;
+
+    EvalInfo *getEvalInfoPtr(void)
+    {
+        return NULL;
+    }
+
+    ControlExpression *getExpressionPtr(void)
+    {
+        return NULL;
+    }
+
+    QColor getColor(void)
+    {
+        return pen().color();
+    }
+    void   setColor(QColor Col)
+    {
+
+    }
+    QString typeName(void)
+    {
+        return QString("S-Plane zeta");
+    }
+
+    void stopThread()
+    {
+
+    }
+
 
 private:
     void drawLines(QPainter *painter, const QRect &,
