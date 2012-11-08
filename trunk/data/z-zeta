@@ -1,0 +1,2 @@
+zt2:e^(-a*T*cos(-zeta))*(cos(-a*T*sin(-zeta))+I*sin(-a*T*sin(-zeta)))
+zt4:e^(-a*T*cos(-pi*zeta/2))*(cos(-a*T*sin(-pi*zeta/2))+I*sin(-a*T*sin(-pi*zeta/2)))
