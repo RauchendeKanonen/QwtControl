@@ -8,6 +8,7 @@
 #include <string>
 #include <ginac/ginac.h>
 #include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include "controlexpression.h"
 using namespace std;
 using namespace GiNaC;

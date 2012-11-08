@@ -17,6 +17,8 @@
 #include "definitions.h"
 #include "qwt_control_plot_item.h"
 #include "qwt_symbol.h"
+#include <QThread>
+#include "qwt_control_plot_item.h"
 class QPainter;
 class QwtScaleMap;
 class QwtSymbol;
@@ -195,8 +197,6 @@ public:
     void   setColor(QColor Col)
     {
         setPen(QPen(Col));
-        setSymbol(QwtSymbol( QwtSymbol::Rect,
-                                              QColor(Col), QColor(Col), QSize( 2, 2 ) ));
     }
     QString typeName(void)
     {

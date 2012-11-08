@@ -285,7 +285,7 @@ void QwtRootLocusCurve::dataReadySlot(QPolygonF Polygon)
 void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 {
     QwtPlot *Plot = plot();
-    if(Plot)
+    if(Plot && MarkerPair.first == this->pImagEval->indepVarName())
     {
         MarkerPos = MarkerPair.second;
         double InVal = MarkerPair.second;

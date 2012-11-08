@@ -114,6 +114,8 @@ QString ControlExpression::independentVarName(void)
 }
 ControlExpression::~ControlExpression(void)
 {
+    if(exExpression)
+        delete exExpression;
 }
 
 ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
@@ -140,6 +142,7 @@ ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
     }
     catch (exception &p)
     {
+        exExpression = NULL;
         state = false;
         cerr << p.what() << endl;
     }

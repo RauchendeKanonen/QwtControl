@@ -24,6 +24,7 @@ ExpressionDialog::ExpressionDialog(QWidget *parent, QString *ExpressionA) :
 ExpressionDialog::~ExpressionDialog()
 {
     delete ui;
+    delete Scene;
 }
 
 void ExpressionDialog::on_buttonBox_accepted()
@@ -43,6 +44,13 @@ void ExpressionDialog::on_ExpressionEdit_textChanged(const QString &arg1)
     ControlExpression Exp(arg1);
 
     QImage Img = Exp.picture();
-    Scene->clear();
-    Scene->addPixmap(QPixmap::fromImage(Img));
+    QGraphicsPixmapItem *oldItem = Item;
+    Scene->removeItem(oldItem);
+    Item = Scene->addPixmap(QPixmap::fromImage(Img));
+
+    if(oldItem)
+        delete oldItem;
+
+
+
 }

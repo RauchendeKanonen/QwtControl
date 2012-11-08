@@ -66,6 +66,29 @@
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="label_4">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Difference Equations</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="DifferenceEqationListView">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="label_3">
           <property name="maximumSize">
            <size>
