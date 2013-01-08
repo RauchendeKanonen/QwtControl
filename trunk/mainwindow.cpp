@@ -259,12 +259,14 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     ControlExpression *preExpression = ExpressionMdl->createExpression(Index, QString());
 
     RangeSelectorDialog Dlg(this, preExpression->getVariables());
-    RedoDlg:
+    delete preExpression;
+
+RedoDlg:
     Dlg.setModal(true);
     if(!Dlg.exec())
         return;
 
-    delete preExpression;
+
 
     QPointF Range = Dlg.getRange();
     if(Range.x() >= Range.y())
@@ -295,6 +297,16 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
         ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
+
+        if(Expression->getImagEvaluator() == NULL || Expression->getRealEvaluator() == NULL)
+        {
+            QMessageBox Box;
+            Box.setText(QString("Could not compile Function c-code!!!"));
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+
 
         if(FunctionName == QString())
         {

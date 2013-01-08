@@ -17,7 +17,7 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
 #include "qwt_root_locus_curve.h"
-
+#include <QMessageBox>
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
 #else
@@ -437,6 +437,16 @@ void QwtRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
     pExpression = Expression;
     pImagEval = Expression->getImagEvaluator();
     pRealEval = Expression->getRealEvaluator();
+
+    if(pImagEval == NULL || pRealEval == NULL)
+    {
+        QMessageBox Box;
+        Box.setText(QString("Could not Compile mathmatial function c-code!! Have to exit now!"));
+        Box.setModal(true);
+        Box.exec();
+    }
+
+
     DrawSplitted = 0;
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);

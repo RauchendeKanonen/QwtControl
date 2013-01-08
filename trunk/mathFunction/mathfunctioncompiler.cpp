@@ -1,5 +1,6 @@
 #include "mathfunctioncompiler.h"
 #include <QFile>
+#include <errno.h>
 
 mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString IndependentVarName, QString FunctionName)
 {
@@ -307,8 +308,11 @@ bool mathFunctionCompiler::writeFile(QString Path, QString *Buffer)
     bool ret = false;
 
     if((OUTFILE = ::open(Path.toStdString().c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRWXU|S_IRWXG|S_IRWXO))<=0)
+    {
+        int i = errno;
+        char *p = strerror(i);
         return false;
-
+    }
 
     if(::write(OUTFILE, (char*)Buffer->toStdString().c_str(), Buffer->size()) == Buffer->size())
         ret = true;
