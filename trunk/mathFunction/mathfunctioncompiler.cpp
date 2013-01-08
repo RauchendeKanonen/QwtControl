@@ -78,12 +78,6 @@ mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString I
     insertLocalIncludeStatement(&HeaderBuffer, QString("string.h"));
 
     WriteRet = writeFile(SourceFile, &SourceBuffer);
-
-
-
-
-
-
     WriteRet = writeFile(HeaderFile, &HeaderBuffer);
 
     CompileRet = compile(SourceFile, ObjectFile);
