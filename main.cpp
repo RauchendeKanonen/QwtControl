@@ -3,6 +3,10 @@
 
 int main(int argc, char *argv[])
 {
+    //variable update
+    //insert pi and e as constant
+    //z - to - difference equation
+
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
