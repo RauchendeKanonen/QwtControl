@@ -53,13 +53,13 @@ int main(int argc, char *argv[])
     double IResponseSensor[IMPRESPLEN];
     double StepResponseX[STEPRESPLEN];
     double IResSum = 0;
-    double T = 0.01, tau = 0.10, tausen = 5;
+    double T = 0.01, tau = 10, tausen = 10;
 
     double inval = 0;
     for(int i = 0 ; i < STEPRESPLEN ; i ++, inval += T)
     {
-        //StepResponseX[i] = 1-pow(e, -inval/tau);
-        StepResponseX[i] = sin(inval/tau)+(double)rand()/((double)RAND_MAX*10.0);
+        StepResponseX[i] = 1-pow(e, -inval/tau);
+        //StepResponseX[i] = sin(inval/tau)+(double)rand()/((double)RAND_MAX*10.0);
         //StepResponseX[i] = 1-pow(e, -inval/tau)+(double)rand()/((double)RAND_MAX*10.0);
     }
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 
     printf("\n");
 
-    double *OrigSig = removeTimeConstant(pSig, IMPRESPLEN+STEPRESPLEN, 5 ,T);
+    double *OrigSig = removeTimeConstant(pSig, IMPRESPLEN+STEPRESPLEN, 10 ,T);
 
     for(int i = 0 ; i < IMPRESPLEN+STEPRESPLEN ; i ++)
         printf("%f\n", OrigSig[i]);
