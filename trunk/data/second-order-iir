@@ -1,0 +1,7 @@
+fr:(e^I*w*T^4+c*e^I*w*T^3+e^I*w*T^2+a*e^I*w*T+b)/(e^I*w*T^4+a*e^I*w*T^3+b*e^I*w*T^2)
+tf:(z^2+c*z+d)/(z^2+a*z+b)
+p1:-(sqrt(a^2-4*b)+a)/2
+p2:(sqrt(a^2-4*b)-a)/2
+z1:-(sqrt(c^2-4*d)+c)/2
+z2:(sqrt(c^2-4*d)-c)/2
+fresp:(e^((I*w*T)^2)+c*e^(I*w*T)+d)/(e^((I*w*T)^2)+a*e^(I*w*T)+b)
