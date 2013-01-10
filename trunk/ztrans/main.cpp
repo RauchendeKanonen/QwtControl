@@ -22,9 +22,9 @@ ex assembleDifferenceEquation(ex Rational, symbol s)
     {
         QString SymbolStr;
         if(i!=0)
-            SymbolStr.sprintf("%s[i%d]",y.get_name().c_str(),i);
+            SymbolStr.sprintf("%s(i%d)",y.get_name().c_str(),i);
         else
-            SymbolStr.sprintf("%s[i]",y.get_name().c_str());
+            SymbolStr.sprintf("%s(i)",y.get_name().c_str());
 
         symbol *ydq = new symbol(SymbolStr.toStdString());
         if(i==0)
@@ -44,9 +44,9 @@ ex assembleDifferenceEquation(ex Rational, symbol s)
 
 
         if(i!=0)
-            SymbolStr.sprintf("%s[i%d]",x.get_name().c_str(),i);
+            SymbolStr.sprintf("%s(i%d)",x.get_name().c_str(),i);
         else
-            SymbolStr.sprintf("%s[i]",x.get_name().c_str());
+            SymbolStr.sprintf("%s(i)",x.get_name().c_str());
 
         symbol *xdq = new symbol(SymbolStr.toStdString());
         XTerm += *xdq*Poly.coeff(s,i);
