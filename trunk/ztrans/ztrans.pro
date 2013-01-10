@@ -11,7 +11,7 @@ QT       -= gui
 TARGET = ztrans
 CONFIG   += console
 CONFIG   -= app_bundle
-
+CONFIG += debug
 TEMPLATE = app
 
 
