@@ -32,7 +32,8 @@ SOURCES += main.cpp \
     Curves/qwt_phase_curve.cpp \
     Curves/qwt_curve_fitter.cpp \
     Dialogs/expressionclonedialog.cpp \
-    Curves/qwt_control_plot_item.cpp
+    Curves/qwt_control_plot_item.cpp \
+    Curves/qwt_discrete_response_curve.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -59,7 +60,8 @@ HEADERS += mainwindow.h \
     Curves/qwt_magnitude_curve.h \
     Curves/qwt_phase_curve.h \
     Curves/qwt_curve_fitter.h \
-    Dialogs/expressionclonedialog.h
+    Dialogs/expressionclonedialog.h \
+    Curves/qwt_discrete_response_curve.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -73,9 +75,12 @@ INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \
     Curves \
+    muparserx_v2_1_6/parser \
     Dialogs
 LIBS += -L/usr/lib/ \
     -L. \
+    -L muparserx_v2_1_6/bin \
+    -lmuparserx \
     -lqwt \
     -lm \
     -lginac

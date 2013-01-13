@@ -94,7 +94,6 @@ MainWindow::MainWindow(QWidget *parent) :
     UpdateTimer->setInterval(100);
     connect(UpdateTimer, SIGNAL(timeout()), this, SLOT(timerEvent()));
 
-
     ProjectChanged = false;
 }
 
@@ -241,7 +240,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     ExpressionMenu.addAction(QString("draw Bode"));
     ExpressionMenu.addAction(QString("draw Response"));
     ExpressionMenu.addAction(QString("clone and substitute"));
-    ExpressionMenu.addAction(QString("scan function"));
+    ExpressionMenu.addAction(QString("draw discrete Response"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -343,7 +342,9 @@ RedoDlg:
         Curve->setPen(QPen(Color));
         //Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
                       //                        QColor(Color), QColor(Color), QSize( 2, 2 ) ));
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         emitAllValues();
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         Curve->start();
 
         CurveList.append((QwtRootLocusCurve*)Curve);
@@ -383,7 +384,9 @@ RedoDlg:
 
         QwtPhaseCurve *PhaCurve = new QwtPhaseCurve(PhaExpression, Evinfo);
         PhaCurve->attach(PhasePlot);
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         emitAllValues();
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         PhaCurve->start();
         PhasePlot->replot();
         enqueueCurve(PhaCurve);
@@ -435,57 +438,32 @@ RedoDlg:
         connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
         Curve->attach(StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         emitAllValues();
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         Curve->start();
 
         CurveList.append((QwtControlPlotItem*)Curve);
     }
-    if(happened->text() == QString("scan function"))
+    if(happened->text() == QString("draw discrete Response"))
     {
-        /*QString FunctionName = ExpressionMdl->getExpressionName(Index);
-        ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
+        StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
+        StepRespDialog->show();
 
-        if(FunctionName == QString())
-        {
-            QMessageBox Box;
-            Box.setText(QString("Unnamed Functions are not allowed!!!"));
-            Box.setModal(true);
-            Box.exec();
-            return;
-        }
-        EvalInfo Evinfo;
-        Evinfo.IndepStart = Range.x();
-        Evinfo.IndepEnd = Range.y();
-        Evinfo.Resolution = Resolution;
 
-        mathFunctionEvaluator *Eval = Expression->getRealEvaluator();
-        QPolygonF ScannedPolygon;
-        QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
-
+        EvalInfo EvInfo;
+        EvInfo.Dots = 100;
+        QwtDiscreteResponseCurve *Curve = new QwtDiscreteResponseCurve(ExpressionMdl->getExpressionDefinition(Index),EvInfo);
         connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
         connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
+        Curve->attach(StepRespDialog->getPlot());
+        Curve->setPen(QPen(Color));
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         emitAllValues();
-
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         Curve->start();
-        while(Curve->isRunning())
-                usleep(1000);
 
-
-        for(int i = 0 ; i < Curve->dataSize() ; i ++)
-        {
-            ScannedPolygon.append(QPointF(Curve->x(i), Curve->y(i)));
-        }
-
-        EvalInfo EvalI;
-        EvalI.IndepStart = ScannedPolygon.first().x();
-        EvalI.IndepEnd   = ScannedPolygon.last().x();
-
-        delete Curve;
-
-        QwtDataSetCurve *SetCurve = new QwtDataSetCurve(ScannedPolygon, EvalI);
-        CurveList.append((QwtControlPlotItem*)SetCurve);
-        CurveMdl->valueChange();*/
-
+        CurveList.append((QwtControlPlotItem*)Curve);
     }
     CurveMdl->valueChange();
 }
