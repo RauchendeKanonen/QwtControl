@@ -25,6 +25,7 @@ typedef struct
     double IndepStart;
     double IndepEnd;
     double Resolution;
+    int Dots;
 }EvalInfo;
 
 #define Rtti_PlotRootLocus 1

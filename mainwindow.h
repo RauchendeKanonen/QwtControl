@@ -35,6 +35,7 @@
 #include "qwt_zeta_curve.h"
 #include <QPair>
 #include "qwt_magnitude_curve.h"
+#include "qwt_discrete_response_curve.h"
 #include "qwt_phase_curve.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot_magnifier.h"

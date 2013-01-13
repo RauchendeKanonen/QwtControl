@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     //bode log - log
     //bode marker
     //improve error handling for equation/compilation errors
+    //solve problems with linkage of libs (function changed, new compiled but not linked)
 
     QApplication a(argc, argv);
     MainWindow w;

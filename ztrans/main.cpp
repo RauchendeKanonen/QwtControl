@@ -76,6 +76,11 @@ int main(int argc, char *argv[])
     ex DifferenceEquation = assembleDifferenceEquation(Rational, z);
     cout << DifferenceEquation << endl;
     //DifferenceEquation = lsolve(DifferenceEquation, y_next);
+
+    ex NullEx = 0;
+    ex Quadratic = pow(x,2)+x+1;
+    cout << Quadratic << endl;
+    cout << lsolve(NullEx==Quadratic, x) << endl;
 }
 
 
