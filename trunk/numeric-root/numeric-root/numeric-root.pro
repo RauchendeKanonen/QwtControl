@@ -10,6 +10,7 @@ QT       -= gui
 
 TARGET = numeric-root
 CONFIG   += console
+CONFIG += debug
 CONFIG   -= app_bundle
 
 TEMPLATE = app
