@@ -315,24 +315,28 @@ int main(int argc, char *argv[])
     complex<double> results[20];
 
     double coeff[20];
-    coeff = {1.13,2,-700,0.001,700,5,4,19000,2,5002,3,1};
-    int n = 10;
+    coeff = {1, -2, 1, 3};
+    int n = 3;
 
 
-    struct timespec OperationStartTime;
-    clock_gettime(CLOCK_REALTIME, &OperationStartTime);
+    //struct timespec OperationStartTime;
+    //clock_gettime(CLOCK_REALTIME, &OperationStartTime);
 
-    for(int i = 0 ; i < 1000 ; i++)
+    for(int i = 0 ; i < 1000 ; i ++ )
+    {
+        coeff[1]=-(double)i/(double)100;
         int ret = newton_real( n, coeff, results );
+        printf("%f %f\n", results[3].real(), results[3].imag());
+    }
 
-    struct timespec OperationEndTime;
-    clock_gettime(CLOCK_REALTIME, &OperationEndTime);
-    double dt = TIMSPEFORMAT(OperationEndTime) - TIMSPEFORMAT(OperationStartTime);
+    //struct timespec OperationEndTime;
+    //clock_gettime(CLOCK_REALTIME, &OperationEndTime);
+    //double dt = TIMSPEFORMAT(OperationEndTime) - TIMSPEFORMAT(OperationStartTime);
 
-    for(int i = 0 ; i < n ; i ++ )
+    /*for(int i = 1 ; i <= n ; i ++ )
     {
         printf("%f + %f*i\n", results[i].real(), results[i].imag());
-    }
-    printf("Iteration took:%fs\n", dt);
+    }*/
+    //printf("Iteration took:%fs\n", dt);
 
 }
