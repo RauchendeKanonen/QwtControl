@@ -20,8 +20,12 @@ private:
     QString ExpressionName, ExpressionString;
     GiNaC::ex *exExpression;
     QString IndependentVarName;
-    QStringList findCharacterStrings(QString Buffer);
 public:
+    GiNaC::ex *getGiNaCEx(void)
+    {
+        return new GiNaC::ex(*exExpression);
+    }
+    QString getExpression(void);
     QStringList getVariables(void);
     QString independentVarName(void);
     mathFunctionEvaluator *getRealEvaluator(void);

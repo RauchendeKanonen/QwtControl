@@ -44,14 +44,12 @@ QwtZetaCurve::~QwtZetaCurve()
     delete d_data;
 }
 
-void QwtZetaCurve::markerChangeSlot(QPair<QString,double> MarkerPair, bool Restart)
+void QwtZetaCurve::valueChangeSlot(QPair<QString,double> MarkerPair, bool Restart)
 {
     if(MarkerPair.first == QString("zeta"))
     {
         d_data->Zeta = MarkerPair.second;
-
     }
-
 }
 
 //! \return QwtPlotItem::setZeta

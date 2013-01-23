@@ -18,6 +18,14 @@ ParameterSliderDialog::~ParameterSliderDialog()
     delete ui;
 }
 
+void ParameterSliderDialog::getSliders(QMap <QString, QPointF> *SliderMap)
+{
+    for(int i = 0 ; i < SliderList.count() ; i ++)
+    {
+        SliderMap->insert(SliderList.at(i)->objectName(), SliderRangeMapping.value(SliderList.at(i)));
+    }
+}
+
 void ParameterSliderDialog::setSlider(QString VarNameA, double InitialValue)
 {
     for(int i = 0 ; i < SliderList.count() ; i ++ )
@@ -25,6 +33,7 @@ void ParameterSliderDialog::setSlider(QString VarNameA, double InitialValue)
         if(SliderList.at(i)->objectName() == VarNameA)
         {
             SliderList.at(i)->setValue(InitialValue);
+
             return;
         }
     }
@@ -37,12 +46,18 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
         if(SliderList.at(i)->objectName() == VarNameA)
         {
             SliderList.at(i)->setRange(RangeA.x(), RangeA.y());
+            if(SliderRangeMapping.contains(SliderList.at(i)))
+                SliderRangeMapping.remove(SliderList.at(i));
+            SliderRangeMapping.insert(SliderList.at(i), RangeA);
             return;
         }
     }
     QwtSlider *pSlider = new QwtSlider(this, Qt::Vertical, QwtSlider::LeftScale, QwtSlider::BgBoth);
     pSlider->setObjectName(VarNameA);
     pSlider->setRange(RangeA.x(), RangeA.y());
+    if(SliderRangeMapping.contains(pSlider))
+        SliderRangeMapping.remove(pSlider);
+    SliderRangeMapping.insert(pSlider, RangeA);
     QVBoxLayout *Layout = new QVBoxLayout(this);
     ui->horizontalLayout->addLayout(Layout);
     Layout->addWidget(pSlider);
@@ -63,7 +78,7 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     connect(pSlider, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
     connect(pSlider, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()));
     emit parameterChange(VarNameA, pSlider->value());
-    setMinimumWidth(SliderList.count()*70);
+    setMinimumWidth(SliderList.count()*100);
     adjustSize();
 }
 

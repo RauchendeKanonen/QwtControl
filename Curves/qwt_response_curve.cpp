@@ -271,7 +271,7 @@ void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Res
             Changed = true;
         }
     }
-    if(isFinished() && Changed)
+    if(Restart && Changed)
         start();
 }
 

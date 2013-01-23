@@ -3,8 +3,8 @@
 #include <qwt_plot_item.h>
 #include "controlexpression.h"
 #include "definitions.h"
-
-class QwtControlPlotItem : virtual public QwtPlotItem
+#include <QThread>
+class QwtControlPlotItem : public QThread, virtual public QwtPlotItem
 {
 public:
     QwtControlPlotItem();

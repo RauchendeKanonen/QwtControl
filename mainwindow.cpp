@@ -12,6 +12,8 @@
 #include "qwt_dataset_curve.h"
 #include "expressionclonedialog.h"
 #include <qwt_data.h>
+#include "systemdialog.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -69,9 +71,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ZetaCurve = new QwtZetaCurve();
     ZetaCurve->enable(true);
     ZetaCurve->setVisible(false);
-    ZetaCurve->attach(ui->qwtPlot);
-    enqueueCurve(ZetaCurve);
 
+    enqueueCurve(ZetaCurve, ui->qwtPlot);
+
+    ZZetaCurve = new QwtZZetaCurve();
+    ZZetaCurve->enable(true);
+    ZZetaCurve->setVisible(false);
+
+    enqueueCurve(ZZetaCurve, ui->qwtPlot);
+
+
+    insertVariable(QString("e = 2.71828182846"));
+    insertVariable(QString("pi = 3.14159265359"));
 
     d_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft,  ui->qwtPlot->canvas());
     d_zoomer->setTrackerMode(QwtPicker::AlwaysOn);
@@ -79,9 +90,13 @@ MainWindow::MainWindow(QWidget *parent) :
     d_zoomer->setResizeMode(QwtPlotZoomer::KeepSize);
     d_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
                               Qt::NoButton, Qt::ControlModifier);
+    d_zoomer->setZoomBase( true );
+    connect(d_zoomer, SIGNAL(selected(QwtDoubleRect)), this, SLOT(rlZoomerSelected(QwtDoubleRect)));
+
 
     QwtPlotPanner *Panner = new QwtPlotPanner(ui->qwtPlot->canvas());
-    Panner->setAxisEnabled(QwtPlot::yRight, false);
+    Panner->setAxisEnabled(QwtPlot::yRight, true);
+    Panner->setAxisEnabled(QwtPlot::xBottom, true);
     Panner->setMouseButton(Qt::RightButton);
     connect(Panner, SIGNAL(panned(int, int)), ui->qwtPlot, SIGNAL(panned(int, int)));
 
@@ -97,6 +112,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ProjectChanged = false;
 }
 
+void  MainWindow::rlZoomerSelected(QwtDoubleRect Rect)
+{
+    d_zoomer->setZoomBase(Rect);
+}
 
 void MainWindow::markerPress(void)
 {
@@ -196,36 +215,18 @@ void MainWindow::insertVariable(QString Definition)
     VariabelMdl->setData(index, Definition,Qt::EditRole);
 }
 
-void MainWindow::enqueueCurve(QwtZetaCurve *Item)
+void MainWindow::enqueueCurve(QwtControlPlotItem *Item, QwtPlot *Plot)
 {
     connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
     connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
-    CurveList.append(Item);
-    CurveMdl->valueChange();
-}
-
-void MainWindow::enqueueCurve(QwtResponseCurve *Item)
-{
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
-    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
-    CurveList.append(Item);
-    CurveMdl->valueChange();
-}
-
-void MainWindow::enqueueCurve(QwtPhaseCurve *Item)
-{
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
-    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
-    CurveList.append(Item);
-    CurveMdl->valueChange();
-}
-
-void MainWindow::enqueueCurve(QwtMagnitudeCurve *Item)
-{
-    connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Item, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
-    connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Item, SLOT(markerChangeSlot(QPair<QString,double>)));
-    CurveList.append(Item);
-    CurveMdl->valueChange();
+    CurveMdl->appendCurve(Item);
+    Item->attach(Plot);
+    Plot->replot();
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+    emitAllValues();
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+    Item->terminate();
+    Item->start();
 }
 
 void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &pos)
@@ -241,6 +242,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     ExpressionMenu.addAction(QString("draw Response"));
     ExpressionMenu.addAction(QString("clone and substitute"));
     ExpressionMenu.addAction(QString("draw discrete Response"));
+    ExpressionMenu.addAction(QString("draw numeric Root Locus"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -310,7 +312,7 @@ RedoDlg:
         if(FunctionName == QString())
         {
             QMessageBox Box;
-            Box.setText(QString("Unnamed Functions are not allowed!!!"));
+            Box.setText(QString("Unnamed Functions are not allowed!!!\nPlease use 'Name:expr'."));
             Box.setModal(true);
             Box.exec();
             return;
@@ -336,19 +338,15 @@ RedoDlg:
         QwtRootLocusCurve *Curve = new QwtRootLocusCurve(Expression, Evinfo);
 
         Curve->setSymbol(QwtSymbol());
-        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
-        connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
-        Curve->attach(ui->qwtPlot);
+        enqueueCurve(Curve, ui->qwtPlot);
         Curve->setPen(QPen(Color));
+        ui->qwtPlot->setAxisAutoScale( QwtPlot::xBottom );
+        ui->qwtPlot->setAxisAutoScale( QwtPlot::yLeft );
+        ui->qwtPlot->updateAxes();
+
+
         //Curve->setSymbol(QwtSymbol( QwtSymbol::Rect,
                       //                        QColor(Color), QColor(Color), QSize( 2, 2 ) ));
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        emitAllValues();
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        Curve->start();
-
-        CurveList.append((QwtRootLocusCurve*)Curve);
-
         IndependentMarkerSliderDialog->addSlider(VarName, Range);
         IndependentMarkerSliderDialog->show();
         IndependentMarkerSliderDialog->setVisible(true);
@@ -360,15 +358,19 @@ RedoDlg:
 
     if(happened->text() == QString("draw Bode"))
     {
+        QString FunctionName = ExpressionMdl->getExpressionName(Index);
+        if(FunctionName == QString())
+        {
+            QMessageBox Box;
+            Box.setText(QString("Unnamed Functions are not allowed!!!\nPlease use 'Name:expr'."));
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
         BodeDialog *BodeDiagram;
         BodeDiagram = new BodeDialog(this);
         BodeDiagram->show();
 
-        QwtPlot *MagnitudePlot = BodeDiagram->getAmplitudePlot();
-        QwtPlot *PhasePlot = BodeDiagram->getPhasePlot();
-
-
-        QString FunctionName = ExpressionMdl->getExpressionName(Index);
         ControlExpression *MagExpression = ExpressionMdl->createExpression(Index, VarName);
         ControlExpression *PhaExpression = ExpressionMdl->createExpression(Index, VarName);
         EvalInfo Evinfo;
@@ -377,24 +379,11 @@ RedoDlg:
         Evinfo.Resolution = Resolution;
 
         QwtMagnitudeCurve *MagCurve = new QwtMagnitudeCurve(MagExpression, Evinfo);
-        MagCurve->attach(MagnitudePlot);
-        emitAllValues();
-        MagCurve->start();
-        MagnitudePlot->replot();
-
         QwtPhaseCurve *PhaCurve = new QwtPhaseCurve(PhaExpression, Evinfo);
-        PhaCurve->attach(PhasePlot);
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        emitAllValues();
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        PhaCurve->start();
-        PhasePlot->replot();
-        enqueueCurve(PhaCurve);
-        enqueueCurve(MagCurve);
+        enqueueCurve(PhaCurve, BodeDiagram->getPhasePlot());
+        enqueueCurve(MagCurve, BodeDiagram->getAmplitudePlot());
 
         connect(MagCurve, SIGNAL(amplitudeMarkerChangeSignal(double)), PhaCurve, SLOT(phaseMarkerChangeSlot(double)));
-
-
     }
 
     if(happened->text() == QString("draw Response"))
@@ -432,18 +421,9 @@ RedoDlg:
         StepRespDialog->show();
 
         QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
-
-
-        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
-        connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
-        Curve->attach(StepRespDialog->getPlot());
+        enqueueCurve(Curve, ui->qwtPlot);
         Curve->setPen(QPen(Color));
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        emitAllValues();
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        Curve->start();
 
-        CurveList.append((QwtControlPlotItem*)Curve);
     }
     if(happened->text() == QString("draw discrete Response"))
     {
@@ -454,18 +434,30 @@ RedoDlg:
         EvalInfo EvInfo;
         EvInfo.Dots = 100;
         QwtDiscreteResponseCurve *Curve = new QwtDiscreteResponseCurve(ExpressionMdl->getExpressionDefinition(Index),EvInfo);
-        connect(this, SIGNAL(valueChangeSignal(QPair<QString,double>, bool)), Curve, SLOT(valueChangeSlot(QPair<QString,double>, bool)));
-        connect(this, SIGNAL(markerChangeSignal(QPair<QString,double>)), Curve, SLOT(markerChangeSlot(QPair<QString,double>)));
-        Curve->attach(StepRespDialog->getPlot());
+        enqueueCurve(Curve, StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        emitAllValues();
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        Curve->start();
-
-        CurveList.append((QwtControlPlotItem*)Curve);
     }
-    CurveMdl->valueChange();
+    if(happened->text() == QString("draw numeric Root Locus"))
+    {
+        EvalInfo EvInfo;
+        EvInfo.IndepStart = Range.x();
+        EvInfo.IndepEnd = Range.y();
+        EvInfo.Resolution = Resolution;
+        QwtNumericRootLocusCurve *Curve = new QwtNumericRootLocusCurve(ExpressionMdl->createExpression(Index, VarName),EvInfo);
+        enqueueCurve(Curve, ui->qwtPlot);
+        Curve->setPen(QPen(Color));
+
+
+        ui->qwtPlot->setAxisAutoScale( QwtPlot::xBottom );
+        ui->qwtPlot->setAxisAutoScale( QwtPlot::yLeft );
+        ui->qwtPlot->updateAxes();
+        IndependentMarkerSliderDialog->addSlider(VarName, Range);
+        IndependentMarkerSliderDialog->show();
+        IndependentMarkerSliderDialog->setVisible(true);
+        IndependentMarkerSliderDialog->setFocus();
+        IndependentMarkerSliderDialog->activateWindow();
+        IndependentMarkerSliderDialog->raise();
+    }
 }
 
 void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &pos)
@@ -490,16 +482,20 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
         Dlg.setModal(true);
         Dlg.exec();
         QPointF Range = Dlg.getRange();
-
-        double *ActValue = VariabelMdl->getVarValuePtr(VariableName);
-
-        VariableSliderDialog->addSlider(VariableName, Range, *ActValue);
-        VariableSliderDialog->show();
-        VariableSliderDialog->setVisible(true);
-        VariableSliderDialog->setFocus();
-        VariableSliderDialog->activateWindow();
-        VariableSliderDialog->raise();
+        insertSlider(VariableName, Range);
     }
+}
+
+void MainWindow::insertSlider(QString VariableName, QPointF Range)
+{
+    double *ActValue = VariabelMdl->getVarValuePtr(VariableName);
+
+    VariableSliderDialog->addSlider(VariableName, Range, *ActValue);
+    VariableSliderDialog->show();
+    VariableSliderDialog->setVisible(true);
+    VariableSliderDialog->setFocus();
+    VariableSliderDialog->activateWindow();
+    VariableSliderDialog->raise();
 }
 
 
@@ -605,13 +601,30 @@ void MainWindow::on_actionSave_triggered()
     ProjectChanged = false;
     if(QString("") != WorkFile)
     {
-        store(WorkFile, ExpressionMdl->getExpressionStringList());
-        store(WorkFile+QString(".var"), VariabelMdl->getVarStringList());
+
     }
     else
     {
         on_actionSave_as_triggered();
     }
+
+    store(WorkFile, ExpressionMdl->getExpressionStringList());
+    store(WorkFile+QString(".var"), VariabelMdl->getVarStringList());
+    QMap <QString, QPointF> SliderMap;
+
+    VariableSliderDialog->getSliders( &SliderMap);
+    QStringList SliderList = SliderMap.keys();
+    store(WorkFile+QString(".slder"), SliderList);
+    QStringList RangeStrings;
+
+    for(int i = 0 ; i < SliderList.count() ; i ++)
+    {
+        QPointF Range = SliderMap.value(SliderList.at(i));
+        QString RangeString;
+        RangeString.sprintf("%f %f", Range.x(), Range.y());
+        RangeStrings.append(RangeString);
+    }
+    store(WorkFile+QString(".sldra"), RangeStrings);
 }
 
 
@@ -630,10 +643,6 @@ void MainWindow::on_actionLoad_triggered()
         }
     }
 
-
-
-    deleteAllCurves();
-
     if(dlg.exec())
     {
         if(dlg.selectedFiles().count())
@@ -649,6 +658,19 @@ void MainWindow::on_actionLoad_triggered()
                 insertVariable(Variables.at(i));
 
             WorkFile = dlg.selectedFiles().at(0);
+
+            QStringList SliderVariables = load(dlg.selectedFiles().at(0)+QString(".slder"));
+            QStringList SliderRanges = load(dlg.selectedFiles().at(0)+QString(".sldra"));
+            for(int i = 0 ; i < SliderVariables.count() ; i ++ )
+            {
+                QPointF Range;
+                Range.setX(SliderRanges.at(i).toDouble());
+                int idx = SliderRanges.at(i).indexOf(" ");
+                QString YString = SliderRanges.at(i).right(SliderRanges.at(i).length()-idx);
+                Range.setY(YString.toDouble());
+                insertSlider(SliderVariables.at(i), Range);
+            }
+
             ProjectChanged = false;
         }
     }
@@ -669,9 +691,7 @@ void MainWindow::on_actionSave_as_triggered()
             QString Filename = dlg.selectedFiles().at(0);
             setWindowTitle(dlg.selectedFiles().at(0));
             WorkFile = Filename;
-            store(WorkFile, ExpressionMdl->getExpressionStringList());
-            store(WorkFile+QString(".var"), VariabelMdl->getVarStringList());
-
+            on_actionSave_triggered();
         }
     }
 }
@@ -679,11 +699,10 @@ void MainWindow::on_actionSave_as_triggered()
 
 void MainWindow::deleteAllCurves(void)
 {
-    for(; CurveList.count() ; )
+    for(; CurveMdl->rowCount() ; )
     {
-        QwtControlPlotItem *CurveItem = CurveList.first();
-        CurveList.removeOne(CurveItem);
-        QwtPlot *Plot = CurveItem->plot();
+        QwtControlPlotItem *CurveItem = CurveMdl->at(0);
+        CurveMdl->removeCurve(CurveItem);
         CurveItem->detach();
         CurveItem->stopThread();
         delete CurveItem;
@@ -696,7 +715,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     QModelIndex index = ui->CurveListView->indexAt(pos);
     if(!index.isValid())
         return;
-    QwtControlPlotItem *CurveItem = CurveList.at(index.row());
+    QwtControlPlotItem *CurveItem = CurveMdl->at(index.row());
 
     QMenu ExpressionMenu;
     ExpressionMenu.addAction(QString("delete"));
@@ -709,8 +728,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 
     if(happened->text() == QString("delete"))
     {
-        CurveList.removeOne(CurveItem);
-        CurveMdl->valueChange();
+        CurveMdl->removeCurve(CurveItem);
         QwtPlot *Plot = CurveItem->plot();
         CurveItem->detach();
         CurveItem->stopThread();
@@ -731,10 +749,14 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)
 {
-    QwtControlPlotItem *Curve = CurveList.at(index.row());
+    QwtControlPlotItem *Curve = CurveMdl->at(index.row());
     EvalInfo *EvInfo;
     ControlExpression *pExpression;
     pExpression = Curve->getExpressionPtr();
+
+    if(pExpression == NULL)
+        return;
+
     EvInfo = Curve->getEvalInfoPtr();
 
     QwtPlot *Plot = Curve->plot();
@@ -761,7 +783,7 @@ void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_CurveListView_clicked(const QModelIndex &index)
 {
-    QwtPlot *Plot =  CurveList.at(index.row())->plot();
+    QwtPlot *Plot =  CurveMdl->at(index.row())->plot();
     if(Plot)
     {
         QWidget *Wdg = (QWidget*) Plot->parent();
@@ -810,8 +832,7 @@ void MainWindow::on_actionCurve_from_DataSet_triggered()
     EvalI.IndepEnd   = Dataset.last().x();
 
     QwtDataSetCurve *Curve = new QwtDataSetCurve(Dataset, EvalI);
-    CurveList.append((QwtControlPlotItem*)Curve);
-    CurveMdl->valueChange();
+    CurveMdl->appendCurve((QwtControlPlotItem*)Curve);
 }
 
 
@@ -882,4 +903,14 @@ void MainWindow::on_actionAutoscale_triggered()
     d_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
                               Qt::NoButton, Qt::ControlModifier);
 
+    ui->qwtPlot->updateAxes();
+    ui->qwtPlot->replot();
+}
+
+void MainWindow::on_actionSystem_triggered()
+{
+    QString Expression;
+    SystemDialog Dlg((QWidget*)this, &Expression);
+    Dlg.setModal(true);
+    Dlg.exec();
 }

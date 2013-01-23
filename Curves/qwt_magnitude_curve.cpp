@@ -292,7 +292,7 @@ void QwtMagnitudeCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Re
             Changed = true;
         }
     }
-    if(isFinished() && Changed)
+    if(Restart && Changed)
         start();
 }
 

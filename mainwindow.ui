@@ -114,6 +114,7 @@
     <addaction name="actionVariable"/>
     <addaction name="actionCurve_from_DataSet"/>
     <addaction name="actionResponse_Plot"/>
+    <addaction name="actionSystem"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -180,6 +181,11 @@
   <action name="actionAutoscale">
    <property name="text">
     <string>autoscale</string>
+   </property>
+  </action>
+  <action name="actionSystem">
+   <property name="text">
+    <string>System</string>
    </property>
   </action>
  </widget>

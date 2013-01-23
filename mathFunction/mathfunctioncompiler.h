@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <QStringList>
+#include "util/tools.h"
 #define CFLAGS "-fPIC -O3 "
 
 
@@ -27,7 +28,6 @@ public:
     }
     void insertGlobalVariable(QString *SourceBuffer, QString VariableDeclaration);
     QString ifStatement(QString Expression);
-    QStringList findCharacterStrings(QString Buffer);
     bool appendFunctionStatement(QString *SourceBuffer, QString FunctionName, QString Statement);
     void insertFunctionPrototype(QString *SourceBuffer, QString FunctionName, QStringList Parameters, QString ReturnType);
     bool compile(QString Source, QString Dest);

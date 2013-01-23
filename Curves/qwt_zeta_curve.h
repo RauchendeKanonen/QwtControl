@@ -35,11 +35,11 @@ class QwtScaleDiv;
   rectangle.
 */
 
-class QWT_EXPORT QwtZetaCurve: public QThread, public QwtControlPlotItem
+class QWT_EXPORT QwtZetaCurve: public QwtControlPlotItem
 {
     Q_OBJECT
 public slots:
-    void markerChangeSlot(QPair<QString,double> MarkerPair, bool Restart);
+    void valueChangeSlot(QPair<QString,double> MarkerPair, bool Restart);
 public:
     explicit QwtZetaCurve();
     virtual ~QwtZetaCurve();

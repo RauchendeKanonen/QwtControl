@@ -23,6 +23,10 @@ public:
 
     ~VarModel()
     {
+        for(int i = 0 ; i < ValueList.count() ; i ++ )
+        {
+            delete ValueList.at(i);
+        }
     }
     QStringList getVarStringList(void) const;
     bool setData(const QModelIndex &index,

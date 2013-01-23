@@ -286,7 +286,7 @@ void QwtPhaseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restar
             Changed = true;
         }
     }
-    if(isFinished() && Changed)
+    if(Restart && Changed)
         start();
 }
 
