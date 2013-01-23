@@ -54,7 +54,7 @@ class QwtCurveFitter;
 
   \sa QwtPlot, QwtData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtMagnitudeCurve: public QThread, public QwtControlPlotItem
+class QWT_EXPORT QwtMagnitudeCurve: public QwtControlPlotItem
 {
     Q_OBJECT
 signals:

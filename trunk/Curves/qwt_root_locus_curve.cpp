@@ -356,7 +356,7 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
     bool Changed = false;
-    if(!isFinished())
+    if(isRunning())
         return;
     QStringList imVars = pImagEval->getExpressionVars();
     for(int i = 0 ; i < imVars.count() ;  i ++ )
@@ -377,7 +377,7 @@ void QwtRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Re
             Changed = true;
         }
     }
-    if(Changed)
+    if(Restart && Changed)
         start();
 }
 

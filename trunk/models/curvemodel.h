@@ -19,11 +19,12 @@ public:
     explicit CurveModel(QObject *parent = 0);
     void setCurveList(QList<QwtControlPlotItem *> *CurveListA);
     void valueChange(void);
-
+    QwtControlPlotItem *at(int row);
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QStringList mimeTypes() const;
     QMimeData* mimeData(const QModelIndexList &indexes)const;
-
+    void removeCurve(QwtControlPlotItem *Item);
+    void appendCurve(QwtControlPlotItem *Item);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent) const;

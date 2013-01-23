@@ -12,8 +12,8 @@ mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString Func
 
 
     char libstr[1024];
-    char *ptr =  (char*)LibFile.toStdString().c_str();
-    strcpy(libstr, ptr);
+
+    strcpy(libstr, LibFile.toStdString().c_str());
     libhandle = dlopen(libstr, RTLD_LAZY);
 
 

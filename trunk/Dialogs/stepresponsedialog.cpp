@@ -107,8 +107,7 @@ void StepResponseDialog::dropEvent ( QDropEvent * event )
         Curve->setPen(QPen(Color));
         Curve->start();
 
-        ((MainWindow*)pParent)->enqueueCurve(Curve);
-        Curve->attach(ui->qwtPlot);
+        ((MainWindow*)pParent)->enqueueCurve(Curve, ui->qwtPlot);
         ui->qwtPlot->replot();
     }
 

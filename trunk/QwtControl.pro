@@ -12,12 +12,8 @@ SOURCES += main.cpp \
     Dialogs/stepresponsedialog.cpp \
     Dialogs/bodedialog.cpp \
     Dialogs/expressiondialog.cpp \
-    expressionmodel.cpp \
-    varmodel.cpp \
     Dialogs/rangeselectordialog.cpp \
     Dialogs/parametersliderdialog.cpp \
-    numericallaplace.cpp \
-    curvemodel.cpp \
     mathFunction/mathfunctionevaluator.cpp \
     mathFunction/mathfunctioncompiler.cpp \
     colorlisteditor.cpp \
@@ -33,18 +29,19 @@ SOURCES += main.cpp \
     Curves/qwt_curve_fitter.cpp \
     Dialogs/expressionclonedialog.cpp \
     Curves/qwt_control_plot_item.cpp \
-    Curves/qwt_discrete_response_curve.cpp
+    Curves/qwt_discrete_response_curve.cpp \
+    Curves/qwt_numeric_root_locus_curve.cpp \
+    numeric/newton.cpp \
+    util/tools.cpp \
+    Dialogs/systemdialog.cpp \
+    Curves/qwt_z_zeta_curve.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
     Dialogs/bodedialog.h \
     Dialogs/expressiondialog.h \
-    expressionmodel.h \
-    varmodel.h \
     Dialogs/rangeselectordialog.h \
     Dialogs/parametersliderdialog.h \
-    numericallaplace.h \
-    curvemodel.h \
     definitions.h \
     mathFunction/mathfunctionevaluator.h \
     mathFunction/mathfunctioncompiler.h \
@@ -61,7 +58,12 @@ HEADERS += mainwindow.h \
     Curves/qwt_phase_curve.h \
     Curves/qwt_curve_fitter.h \
     Dialogs/expressionclonedialog.h \
-    Curves/qwt_discrete_response_curve.h
+    Curves/qwt_discrete_response_curve.h \
+    Curves/qwt_numeric_root_locus_curve.h \
+    numeric/newton.h \
+    util/tools.h \
+    Dialogs/systemdialog.h \
+    Curves/qwt_z_zeta_curve.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -70,7 +72,8 @@ FORMS += mainwindow.ui \
     Dialogs/rangeselectordialog.ui \
     Dialogs/parametersliderdialog.ui \
     Dialogs/csvdialog.ui \
-    Dialogs/expressionclonedialog.ui
+    Dialogs/expressionclonedialog.ui \
+    Dialogs/systemdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \

@@ -52,7 +52,7 @@ class QwtCurveFitter;
 
   \sa QwtPlot, QwtData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtRootLocusCurve: public QThread, public QwtControlPlotItem
+class QWT_EXPORT QwtRootLocusCurve: public QwtControlPlotItem
 {
     Q_OBJECT
 signals:

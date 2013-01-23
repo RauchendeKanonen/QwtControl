@@ -33,9 +33,11 @@
 #include "csv.h"
 #include "qwt_root_locus_curve.h"
 #include "qwt_zeta_curve.h"
+#include "qwt_z_zeta_curve.h"
 #include <QPair>
 #include "qwt_magnitude_curve.h"
 #include "qwt_discrete_response_curve.h"
+#include "qwt_numeric_root_locus_curve.h"
 #include "qwt_phase_curve.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot_magnifier.h"
@@ -52,17 +54,19 @@ signals:
     void valueChangeSignal(QPair<QString,double> MarkerPair, bool Restart);
     void markerChangeSignal(QPair<QString,double>);
 public:
+
+
+    void insertSlider(QString VariableName, QPointF Range);
     void parameterInit(QString VarName, double DblVal);
-    void enqueueCurve(QwtResponseCurve *Item);
-    void enqueueCurve(QwtPhaseCurve *Item);
-    void enqueueCurve(QwtMagnitudeCurve *Item);
-    void enqueueCurve(QwtZetaCurve *Item);
-    void emitAllValues(void);
+    void enqueueCurve(QwtControlPlotItem *Item, QwtPlot *Plot);
+
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void closeEvent(QCloseEvent *event);
     void insertVariable(QString Definition);
 public slots:
+    void rlZoomerSelected(QwtDoubleRect Rect);
+    void emitAllValues(void);
     void timerEvent(void);
     void markerPress(void);
     void markerRelease(void);
@@ -100,6 +104,8 @@ private slots:
 
     void on_actionAutoscale_triggered();
 
+    void on_actionSystem_triggered();
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
@@ -112,6 +118,7 @@ private:
     ParameterSliderDialog *IndependentMarkerSliderDialog;
     QString WorkFile;
     QwtZetaCurve *ZetaCurve;
+    QwtZZetaCurve *ZZetaCurve;
     QwtPlotZoomer *d_zoomer;
     void deleteAllCurves(void);
     void insertExpression(QString Definition);

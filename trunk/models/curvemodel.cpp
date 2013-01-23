@@ -27,6 +27,22 @@ int CurveModel::rowCount(const QModelIndex &parent) const
     }
     return 0;
 }
+QwtControlPlotItem *CurveModel::at(int row)
+{
+    return CurveList->at(row);
+}
+
+void CurveModel::appendCurve(QwtControlPlotItem *Item)
+{
+    CurveList->append(Item);
+    valueChange();
+}
+
+void CurveModel::removeCurve(QwtControlPlotItem *Item)
+{
+    CurveList->removeOne(Item);
+    valueChange();
+}
 
 int CurveModel::columnCount(const QModelIndex &parent) const
 {
@@ -92,3 +108,5 @@ QMimeData* CurveModel::mimeData(const QModelIndexList &indexes)const
     }
     return NULL;
 }
+
+
