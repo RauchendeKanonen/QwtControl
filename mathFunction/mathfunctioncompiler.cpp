@@ -2,9 +2,103 @@
 #include <QFile>
 #include <errno.h>
 
-mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString IndependentVarName, QString FunctionName)
+mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString IndependentVarName, QString FunctionName, bool Complex)
 {
+    if(Complex)
+        compileComplex(FunctionDefinition, IndependentVarName, FunctionName);
+    else
+        compileReal(FunctionDefinition, IndependentVarName, FunctionName);
+}
 
+void mathFunctionCompiler::compileComplex(QString FunctionDefinition, QString IndependentVarName, QString FunctionName)
+{
+    QString SourceBuffer;
+    QString HeaderBuffer;
+    QString SourceFile("mathFunction/compile/");
+    SourceFile.append(FunctionName+QString(".c"));
+
+    QFile SourceF(SourceFile);
+    SourceF.remove();
+
+    QString HeaderFile("mathFunction/compile/");
+    HeaderFile.append(FunctionName+QString(".h"));
+
+    QFile SourceH(HeaderFile);
+    SourceH.remove();
+
+    QString ObjectFile("mathFunction/compile/");
+    ObjectFile.append(FunctionName+QString(".o"));
+
+    QFile ObjectF(ObjectFile);
+    ObjectF.remove();
+
+    QString OutputLib;
+    OutputLib.append(QString("mathFunction/compile/") + FunctionName+QString(".so.0.1"));
+
+    QStringList Parameters;
+    Parameters.append(QString("complex <long double> ") + IndependentVarName);
+
+    QFile LibF(OutputLib);
+    LibF.remove();
+
+    QStringList Variables = findCharacterStrings(FunctionDefinition);
+    Variables.removeDuplicates();
+    Variables.removeOne(IndependentVarName);
+
+    castConstTo(&FunctionDefinition, QString("(complex <long double>)"));
+
+
+
+    insertFunction(&SourceBuffer, FunctionName+QString("_complex"), Parameters, QString("extern \"C\" complex <long double> "));
+    insertFunctionPrototype(&HeaderBuffer, FunctionName, Parameters, QString("extern \"C\" complex <long double> "));
+    appendFunctionStatement(&SourceBuffer, FunctionName, QString("return ") + FunctionDefinition + QString(";"));
+
+    Parameters.clear();
+    Parameters.append(QString("void"));
+    insertFunction(&SourceBuffer, QString("getVar"), Parameters, QString("extern \"C\" char** "));
+    appendFunctionStatement(&SourceBuffer, QString("getVar"), QString("return ") + QString("VarNames") + QString(";"));
+
+
+
+    QString VarList;
+    VarList = QString("{");
+    for(int i = 0 ; i < Variables.count() ; i ++ )
+    {
+        VarList += QString("\"") + Variables.at(i) + QString("\", ");
+    }
+    VarList += QString("NULL ");
+    VarList += QString("}");
+
+    insertGlobalVariable(&SourceBuffer,QString("char *VarNames[] = ") + VarList);
+
+
+    Parameters.clear();
+    Parameters.append(QString("char *Varname"));
+    Parameters.append(QString("long double Value"));
+    insertFunction(&SourceBuffer, QString("setVar"), Parameters, QString("extern \"C\" int "));
+    insertFunctionPrototype(&HeaderBuffer, QString("setVar"), Parameters, QString("extern \"C\" int "));
+    for(int i = 0 ; i < Variables.count() ; i ++ )
+    {
+        insertGlobalVariable(&SourceBuffer,QString("long double ") + Variables.at(i));
+        QString If = ifStatement(QString("strcmp(Varname, ") + QString("\"") + Variables.at(i) + QString("\"") + QString(") == 0"));
+        appendFunctionStatement(&SourceBuffer, QString("setVar"),If);
+        appendFunctionStatement(&SourceBuffer, QString("setVar"),QString("       ") + Variables.at(i)  + QString(" = Value;"));
+    }
+    insertLocalIncludeStatement(&SourceBuffer, FunctionName+QString(".h"));
+    insertLine(&HeaderBuffer, "using namespace std");
+    insertLocalIncludeStatement(&HeaderBuffer, QString("complex"));
+    insertLocalIncludeStatement(&HeaderBuffer, QString("math.h"));
+    insertLocalIncludeStatement(&HeaderBuffer, QString("string.h"));
+
+    WriteRet = writeFile(SourceFile, &SourceBuffer);
+    WriteRet = writeFile(HeaderFile, &HeaderBuffer);
+
+    CompileRet = compilegpp(SourceFile, ObjectFile);
+    LinkRet = linkgpp(ObjectFile, OutputLib);
+}
+
+void mathFunctionCompiler::compileReal(QString FunctionDefinition, QString IndependentVarName, QString FunctionName)
+{
     QString SourceBuffer;
     QString HeaderBuffer;
     QString SourceFile("mathFunction/compile/");
@@ -101,6 +195,38 @@ bool mathFunctionCompiler::link(QString Object, QString Dest)
     return false;
 }
 
+bool mathFunctionCompiler::linkgpp(QString Object, QString Dest)
+{
+    QString LinkerCommand;
+    LinkerCommand.append(QString("g++ -shared -Wl,-soname,"));
+    LinkerCommand.append(Dest);
+    LinkerCommand.append(QString(" -o "));
+    LinkerCommand.append(Dest);
+    LinkerCommand.append(QString(" "));
+    LinkerCommand.append(Object);
+
+    if(0 == system(LinkerCommand.toStdString().c_str()))
+        return true;
+
+    return false;
+}
+
+bool mathFunctionCompiler::compilegpp(QString Source, QString Dest)
+{
+    QString CompilerCommand;
+    CompilerCommand.append(QString("g++ "));
+    CompilerCommand.append(QString(CXXFLAGS));
+    CompilerCommand.append(QString(" "));
+    CompilerCommand.append(Source + QString(" "));
+    CompilerCommand.append(QString("-o "));
+    CompilerCommand.append(Dest + QString(" "));
+
+    if(0 == system(CompilerCommand.toStdString().c_str()))
+        return true;
+
+    return false;
+}
+
 bool mathFunctionCompiler::compile(QString Source, QString Dest)
 {
     QString CompilerCommand;
@@ -159,6 +285,10 @@ void mathFunctionCompiler::insertFunction(QString *SourceBuffer, QString Functio
     SourceBuffer->append(FunctionOutline);
 }
 
+void mathFunctionCompiler::insertLine(QString *SourceBuffer, QString LineDeclaration)
+{
+    SourceBuffer->insert(0, LineDeclaration + QString(";\n"));
+}
 
 void mathFunctionCompiler::insertGlobalVariable(QString *SourceBuffer, QString VariableDeclaration)
 {

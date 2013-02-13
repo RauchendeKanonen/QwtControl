@@ -15,7 +15,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
-
+#include "QMessageBox"
 
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
@@ -216,26 +216,9 @@ public:
 void QwtResponseCurve::run (void)
 {
     QPolygonF Polygon;
+    NumericalLaplace Laplace(pRealEval, TRANSFORM_WEEKS);// TRANSFORM_GAVER_STEHFEST);
 
-    int dots = (EvaluationInfo.IndepEnd - EvaluationInfo.IndepStart)/EvaluationInfo.Resolution;
-
-    double t = EvaluationInfo.IndepStart;
-    double y;
-    NumericalLaplace Laplace;
-
-    for(int i = 0 ; i < dots ; i ++ )
-    {
-        t +=  EvaluationInfo.Resolution;
-
-        y = Laplace.InverseTransform(pRealEval, t);
-
-        if(isinf(y))
-            continue;
-        if(isnan(y))
-            continue;
-        Polygon.append(QPointF(t, y));
-    }
-
+    Polygon = Laplace.InverseTransform(EvaluationInfo.Resolution, EvaluationInfo.IndepEnd);
     emit dataReadySig(Polygon);
 }
 
@@ -322,7 +305,15 @@ void QwtResponseCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 {
     EvaluationInfo = EvInfo;
     pExpression = Expression;
-    pRealEval = Expression->getRealEvaluator();
+    pRealEval = Expression->getComplexEvaluator();
+    if(pRealEval == NULL)
+    {
+        QMessageBox Box;
+        Box.setText(QString("Could not Compile mathmatial function c-code!! Have to exit now!"));
+        Box.setModal(true);
+        Box.exec();
+    }
+
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);
 

@@ -1,8 +1,8 @@
 #include "mathfunctionevaluator.h"
 #include "mathfunctioncompiler.h"
-
-
-
+#include <complex>
+#include <errno.h>
+using namespace std;
 
 mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString FunctionName)
 {
@@ -17,7 +17,7 @@ mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString Func
     libhandle = dlopen(libstr, RTLD_LAZY);
 
 
-
+    dlerror();
 
     if(!libhandle)
     {
@@ -28,8 +28,11 @@ mathFunctionEvaluator::mathFunctionEvaluator(QString IndepVarNameA, QString Func
     }
 
     state=true;
-    pf = (double (*)(double))dlsym(libhandle, FunctionName.toStdString().c_str());
-    pSetVar = (void (*)(char *, double))dlsym(libhandle, "setVar");
+    realpf = (double (*)(double))dlsym(libhandle, FunctionName.toStdString().c_str());
+    complexpf = (std::complex <long double>(*)(std::complex <long double>))dlsym(libhandle, (FunctionName+QString("_complex")).toStdString().c_str());
+    char *est  = dlerror();
+    printf(est);
+    pSetVar = (void (*)(char *, long double))dlsym(libhandle, "setVar");
     pGetVar = (char** (*)(void))dlsym(libhandle, "getVar");
 }
 
@@ -65,8 +68,13 @@ void mathFunctionEvaluator::setVar(QString VarName, double Arg)
 
 double mathFunctionEvaluator::eval(double Arg)
 {
-    if(state)
-        return pf(Arg);
+    if(state && realpf)
+        return realpf(Arg);
     return 0.0;
 }
 
+complex <long double> mathFunctionEvaluator::eval(complex <long double> Arg)
+{
+    if(state && complexpf)
+        return complexpf(Arg);
+}

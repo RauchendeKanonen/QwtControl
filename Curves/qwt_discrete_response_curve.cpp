@@ -230,7 +230,9 @@ void QwtDiscreteResponseCurve::run (void)
         try
         {
             Y->At(i) = DiscreteEvaluator->Eval();
-            Polygon.append(QPointF((double)i-Grade+1, (double)Y->At(i).GetFloat()));
+
+
+            Polygon.append(QPointF((double)(i-Grade+1)*SamplingRate, (double)Y->At(i).GetFloat()));
         }
         catch(mup::ParserError e)
         {
@@ -271,6 +273,8 @@ void QwtDiscreteResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, 
             DiscreteEvaluator->DefineVar(VarPair.first.toStdString(), Variable(new Value(VarPair.second)));
             Changed = true;
         }
+        if(VarPair.first =="T")
+            SamplingRate = VarPair.second;
     }
 
     if(Restart && Changed)
@@ -326,8 +330,8 @@ void QwtDiscreteResponseCurve::init(QString Expression, EvalInfo EvInfo)
     d_data = new PrivateData;
     d_xy = new QwtPolygonFData(QwtArray<QwtDoublePoint>());
     DiscreteEvaluator = new ParserX();
-    X = new Value(1000,0);
-    Y = new Value(1000,0);
+    X = new Value(EvInfo.Dots*2,0);
+    Y = new Value(EvInfo.Dots*2,0);
     DiscreteEvaluator->DefineVar("x", Variable(X));
     DiscreteEvaluator->DefineVar("y", Variable(Y));
 

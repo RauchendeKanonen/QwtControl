@@ -5,6 +5,7 @@
 #include <qwt_slider.h>
 #include <QDialog>
 #include <QMap>
+#include <QLabel>
 namespace Ui {
 class ParameterSliderDialog;
 }
@@ -19,9 +20,12 @@ public:
     void addSlider(QString VarNameA, QPointF RangeA, double InitialValue=0.0);
     void setSlider(QString VarNameA, double InitialValue);
     void getSliders(QMap<QString, QPointF> *SliderMap);
+    void removeSlider(QString VarName);
 private:
     Ui::ParameterSliderDialog *ui;
     QList <QwtSlider*> SliderList;
+    QList <QLayout*> LayoutList;
+    QList <QLabel *> LableList;
     QMap <QwtSlider*, QPointF> SliderRangeMapping;
     QWidget *pParent;
 public slots:

@@ -42,6 +42,8 @@
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot_magnifier.h"
 #include "qwt_plot_panner.h"
+#include "qwt_z_wd_curve.h"
+#include "Dialogs/closeloopdialog.h"
 #include <QTimer>
 namespace Ui {
 class MainWindow;
@@ -55,7 +57,7 @@ signals:
     void markerChangeSignal(QPair<QString,double>);
 public:
 
-
+    void deleteVariable(QString Name);
     void insertSlider(QString VariableName, QPointF Range);
     void parameterInit(QString VarName, double DblVal);
     void enqueueCurve(QwtControlPlotItem *Item, QwtPlot *Plot);
@@ -106,6 +108,8 @@ private slots:
 
     void on_actionSystem_triggered();
 
+    void on_actionClosedLoop_System_triggered();
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
@@ -119,6 +123,7 @@ private:
     QString WorkFile;
     QwtZetaCurve *ZetaCurve;
     QwtZZetaCurve *ZZetaCurve;
+    QwtZWdCurve  *ZWdCurve;
     QwtPlotZoomer *d_zoomer;
     void deleteAllCurves(void);
     void insertExpression(QString Definition);

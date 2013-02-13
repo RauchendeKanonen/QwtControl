@@ -13,13 +13,17 @@
 #include "expressionclonedialog.h"
 #include <qwt_data.h>
 #include "systemdialog.h"
-
+#include <QColor>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
+
+    ui->qwtPlot->setCanvasBackground(QColor(0x50,0x80,0xf3));
     ExpressionMdl = new ExpressionModel();
     ui->ExpressionListView->setModel(ExpressionMdl);
     VariabelMdl = new VarModel();
@@ -67,22 +71,27 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowTitle(QString("untittled"));
 
+
+    insertVariable(QString("e = 2.71828182846"));
+    insertVariable(QString("pi = 3.14159265359"));
+    insertVariable(QString("Wd = 3.14159265359"));
     insertVariable(QString("zeta = 0.5"));
+
     ZetaCurve = new QwtZetaCurve();
     ZetaCurve->enable(true);
     ZetaCurve->setVisible(false);
-
     enqueueCurve(ZetaCurve, ui->qwtPlot);
 
     ZZetaCurve = new QwtZZetaCurve();
     ZZetaCurve->enable(true);
     ZZetaCurve->setVisible(false);
-
     enqueueCurve(ZZetaCurve, ui->qwtPlot);
 
+    ZWdCurve = new QwtZWdCurve();
+    ZWdCurve->enable(true);
+    ZWdCurve->setVisible(false);
+    enqueueCurve(ZWdCurve, ui->qwtPlot);
 
-    insertVariable(QString("e = 2.71828182846"));
-    insertVariable(QString("pi = 3.14159265359"));
 
     d_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft,  ui->qwtPlot->canvas());
     d_zoomer->setTrackerMode(QwtPicker::AlwaysOn);
@@ -185,7 +194,7 @@ void MainWindow::on_actionExpression_triggered()
 void MainWindow::on_actionVariable_triggered()
 {
     ProjectChanged = true;
-    double Val;
+    double Val = 0.0;
     QString Name;
     VarDialog Dlg(this, &Val, &Name);
     Dlg.setModal(true);
@@ -206,8 +215,20 @@ void MainWindow::insertExpression(QString Expression)
     ExpressionMdl->setData(index, Expression,Qt::EditRole);
 }
 
+void MainWindow::deleteVariable(QString Name)
+{
+    VariabelMdl->deleteVar(Name);
+}
+
 void MainWindow::insertVariable(QString Definition)
 {
+    QString Name;
+    Name = Definition.left(Definition.indexOf(" "));
+
+
+    if(VariabelMdl->getVarValuePtr(Name) != NULL)
+        return;
+
     ProjectChanged = true;
     QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
     VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
@@ -237,17 +258,25 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         return;
 
     QMenu ExpressionMenu;
-    ExpressionMenu.addAction(QString("draw Root Locus"));
-    ExpressionMenu.addAction(QString("draw Bode"));
-    ExpressionMenu.addAction(QString("draw Response"));
-    ExpressionMenu.addAction(QString("clone and substitute"));
-    ExpressionMenu.addAction(QString("draw discrete Response"));
+    ExpressionMenu.addAction(QString("draw Complex"));
     ExpressionMenu.addAction(QString("draw numeric Root Locus"));
+    ExpressionMenu.addAction(QString("draw Response"));
+    ExpressionMenu.addAction(QString("draw discrete step Response"));
+    ExpressionMenu.addAction(QString("draw Bode"));
+    ExpressionMenu.addAction(QString("clone and substitute"));
+    ExpressionMenu.addAction(QString("delete"));
+
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
     if(happened == NULL)
         return;
+
+    if(happened->text() == QString("delete"))
+    {
+        ExpressionMdl->removeRow(Index.row());
+        return;
+    }
 
     if(happened->text() == QString("clone and substitute"))
     {
@@ -255,21 +284,31 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
         Dlg.setModal(true);
         if(Dlg.exec())
            this->insertExpression(Dlg.getNewExpression());
+        return;
     }
 
     ControlExpression *preExpression = ExpressionMdl->createExpression(Index, QString());
 
-    RangeSelectorDialog Dlg(this, preExpression->getVariables());
+    RangeSelectorDialog *Dlg;
+
+    if(happened->text() == QString("draw discrete step Response"))
+        Dlg = new RangeSelectorDialog(this, "n.a.");
+    else
+    {
+        Dlg = new RangeSelectorDialog(this, preExpression->getVariables());
+        if(happened->text() == QString("draw Response"))
+            Dlg->variableSelected("sel. Compl. e.g. s");
+    }
     delete preExpression;
 
 RedoDlg:
-    Dlg.setModal(true);
-    if(!Dlg.exec())
+    Dlg->setModal(true);
+    if(!Dlg->exec())
         return;
 
 
 
-    QPointF Range = Dlg.getRange();
+    QPointF Range = Dlg->getRange();
     if(Range.x() >= Range.y())
     {
         QMessageBox Box;
@@ -279,8 +318,8 @@ RedoDlg:
         goto RedoDlg;
     }
 
-    QString VarName = Dlg.getVarName();
-    if(VarName.count() == 0)//|| VariabelMdl->getVarValuePtr(VarName) == NULL)
+    QString VarName = Dlg->getVarName();
+    if(VarName.count() == 0)
     {
         QMessageBox Box;
         Box.setText(QString("Variabel Name incorrect!!"));
@@ -290,10 +329,47 @@ RedoDlg:
     }
 
 
-    double Resolution = Dlg.getResolution();
-    QColor Color = Dlg.getColor();
+    if(VariabelMdl->getVarValuePtr(VarName) == NULL)
+    {
+        if(VarName != "n.a.")
+            insertVariable(VarName+QString(" = 0.0"));
+    }
+    preExpression = ExpressionMdl->createExpression(Index, QString());
 
-    if(happened->text() == QString("draw Root Locus"))
+    QStringList VarStrings = preExpression->getVariables();
+    QStringList MissingVars;
+    for(int i = 0 ; i < VarStrings.count() ; i++)
+    {
+        if(NULL == VariabelMdl->getVarValuePtr(VarStrings.at(i)))
+        {
+            if(VarStrings.at(i) != "I" && VarStrings.at(i) != "i" &&
+                    VarStrings.at(i) != "S" && VarStrings.at(i) != "s" &&
+                    VarStrings.at(i) != "Z" && VarStrings.at(i) != "z"&&
+                    VarStrings.at(i) != "x" && VarStrings.at(i) != "y")
+
+                MissingVars.append(VarStrings.at(i));
+        }
+    }
+    if(MissingVars.count())
+    {
+        QString Message = "Variables Missing: ";
+        for(int i = 0 ; i < MissingVars.count() ; i ++ )
+        {
+            Message += MissingVars.at(i);
+            Message += " ";
+        }
+        QMessageBox Box;
+        Box.setText(Message);
+        Box.setModal(true);
+        Box.exec();
+        return;
+    }
+
+
+    double Resolution = Dlg->getResolution();
+    QColor Color = Dlg->getColor();
+    delete Dlg;
+    if(happened->text() == QString("draw Complex"))
     {
 
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
@@ -421,18 +497,18 @@ RedoDlg:
         StepRespDialog->show();
 
         QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
-        enqueueCurve(Curve, ui->qwtPlot);
+        enqueueCurve(Curve, StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
 
     }
-    if(happened->text() == QString("draw discrete Response"))
+    if(happened->text() == QString("draw discrete step Response"))
     {
         StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
         StepRespDialog->show();
 
 
         EvalInfo EvInfo;
-        EvInfo.Dots = 100;
+        EvInfo.Dots = Range.y();
         QwtDiscreteResponseCurve *Curve = new QwtDiscreteResponseCurve(ExpressionMdl->getExpressionDefinition(Index),EvInfo);
         enqueueCurve(Curve, StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
@@ -469,6 +545,8 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
     QString VariableName = VariabelMdl->getVarName(t);
     QMenu SliderMenu;
     SliderMenu.addAction(QString("add Slider"));
+    SliderMenu.addAction(QString("remove Slider"));
+    SliderMenu.addAction(QString("delete Var"));
     QAction *happened = SliderMenu.exec(globalPos);
 
     if(happened == NULL)
@@ -483,6 +561,16 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
         Dlg.exec();
         QPointF Range = Dlg.getRange();
         insertSlider(VariableName, Range);
+    }
+    if(happened->text() == QString("remove Slider"))
+    {
+        VariableSliderDialog->removeSlider(VariableName);
+    }
+
+    if(happened->text() == QString("delete Var"))
+    {
+        VariableSliderDialog->removeSlider(VariableName);
+        VariabelMdl->deleteVar(VariableName);
     }
 }
 
@@ -508,6 +596,8 @@ void MainWindow::emitAllValues(void)
         QModelIndex Index = VariabelMdl->index(i);
         QString VarName = VariabelMdl->getVarName(Index);
         double *Val = VariabelMdl->getVarValuePtr(VarName);
+        if(Val == NULL)
+            return;
         parameterInit(VarName, *Val);
     }
 }
@@ -896,12 +986,17 @@ void MainWindow::on_actionAutoscale_triggered()
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
 
     delete d_zoomer;
+
     d_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft,  ui->qwtPlot->canvas());
+
     d_zoomer->setTrackerMode(QwtPicker::AlwaysOn);
     d_zoomer->setTrackerPen(QColor(Qt::black));
     d_zoomer->setResizeMode(QwtPlotZoomer::KeepSize);
     d_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
                               Qt::NoButton, Qt::ControlModifier);
+    d_zoomer->setZoomBase( true );
+    connect(d_zoomer, SIGNAL(selected(QwtDoubleRect)), this, SLOT(rlZoomerSelected(QwtDoubleRect)));
+
 
     ui->qwtPlot->updateAxes();
     ui->qwtPlot->replot();
@@ -913,4 +1008,13 @@ void MainWindow::on_actionSystem_triggered()
     SystemDialog Dlg((QWidget*)this, &Expression);
     Dlg.setModal(true);
     Dlg.exec();
+}
+
+void MainWindow::on_actionClosedLoop_System_triggered()
+{
+    CloseLoopDialog Dlg(this);
+    Dlg.setModal(true);
+    if(!Dlg.exec())
+        return;
+    QString Expression = Dlg.getEquation();
 }

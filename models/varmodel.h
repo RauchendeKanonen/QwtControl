@@ -31,7 +31,7 @@ public:
     QStringList getVarStringList(void) const;
     bool setData(const QModelIndex &index,
                  const QVariant &value, int role);
-
+    void deleteVar(QString VarName);
     void valueChange(void);
     QString getVarName(const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -6,12 +6,30 @@ double *VarModel::getVarValuePtr(QString VarName)
 {
     for(int i = 0 ; i < VarList.count() ; i ++ )
     {
-        if(VarList.at(i).contains(VarName + QString(" = ")))
+        QString ListName = VarList.at(i).left(VarList.at(i).indexOf(" "));
+
+
+        if(VarName == ListName)
         {
             return ValueList.at(i);
         }
     }
     return NULL;
+}
+
+void VarModel::deleteVar(QString VarName)
+{
+    for(int i = 0 ; i < VarList.count() ; i ++ )
+    {
+        QString ListName = VarList.at(i).left(VarList.at(i).indexOf(" "));
+
+
+        if(VarName == ListName)
+        {
+            removeRow(i);
+            break;
+        }
+    }
 }
 
 void VarModel::valueChange(void)
@@ -131,8 +149,9 @@ bool VarModel::removeRows(int position, int rows, const QModelIndex &parent)
     for (int row = 0; row < rows; ++row)
     {
         if(VarList.count() < position)
-            return true;
-        VarList.removeAt(position);
+            return false;
+        VarList.takeAt(position);
+        delete ValueList.takeAt(position);
     }
     endRemoveRows();
 
