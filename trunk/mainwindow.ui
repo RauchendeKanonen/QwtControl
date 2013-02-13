@@ -115,6 +115,7 @@
     <addaction name="actionCurve_from_DataSet"/>
     <addaction name="actionResponse_Plot"/>
     <addaction name="actionSystem"/>
+    <addaction name="actionClosedLoop_System"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -186,6 +187,11 @@
   <action name="actionSystem">
    <property name="text">
     <string>System</string>
+   </property>
+  </action>
+  <action name="actionClosedLoop_System">
+   <property name="text">
+    <string>ClosedLoop System</string>
    </property>
   </action>
  </widget>

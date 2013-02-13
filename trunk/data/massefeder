@@ -1,0 +1,4 @@
+(a-b)^(-1)*(G*y[i-1]*e^(-a*T)+e^(-a*T)*e^(-T*b)*b*y[i-2]-y[i-1]*e^(-a*T)*b+G*e^(-T*b)*x[i]+a*y[i-1]*e^(-T*b)+a*y[i-1]*e^(-a*T)-G*e^(-a*T)*x[i]-a*e^(-a*T)*e^(-T*b)*y[i-2]-y[i-1]*e^(-T*b)*b-G*y[i-1]*e^(-T*b))
+t:G*z*(e^(-a*T)-e^(-b*T))/((b-a)*(z-e^(-a*T))*(z-e^(-b*T)))/(G*z*(e^(-a*T)-e^(-b*T))/((b-a)*(z-e^(-a*T))*(z-e^(-b*T)))+1)
+z*(e^(-a*T)-e^(-b*T))/((b-a)*(z-e^(-a*T))*(z-e^(-b*T)))
+t:G/(G+1)

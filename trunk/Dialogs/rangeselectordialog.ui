@@ -34,7 +34,7 @@
     <rect>
      <x>50</x>
      <y>10</y>
-     <width>160</width>
+     <width>164</width>
      <height>271</height>
     </rect>
    </property>
@@ -59,10 +59,13 @@
     <item>
      <widget class="QDoubleSpinBox" name="doubleSpinBoxRes">
       <property name="decimals">
-       <number>5</number>
+       <number>10</number>
       </property>
       <property name="minimum">
        <double>0.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>100.000000000000000</double>
       </property>
       <property name="singleStep">
        <double>0.000001000000000</double>
@@ -81,6 +84,9 @@
     </item>
     <item>
      <widget class="QDoubleSpinBox" name="doubleSpinBoxMax">
+      <property name="decimals">
+       <number>10</number>
+      </property>
       <property name="minimum">
        <double>-1000000.000000000000000</double>
       </property>
@@ -101,6 +107,9 @@
     </item>
     <item>
      <widget class="QDoubleSpinBox" name="doubleSpinBoxMin">
+      <property name="decimals">
+       <number>10</number>
+      </property>
       <property name="minimum">
        <double>-1000000.000000000000000</double>
       </property>

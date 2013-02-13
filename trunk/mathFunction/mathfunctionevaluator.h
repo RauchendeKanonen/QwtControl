@@ -11,7 +11,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <dlfcn.h>
-
+#include <complex>
 
 
 class mathFunctionEvaluator
@@ -27,12 +27,14 @@ public:
     QString indepVarName(void);
     QStringList getExpressionVars(void);
     double eval(double Arg);
+    std::complex<long double> eval(std::complex<long double> Arg);
     bool getState(void);
 private:
     void* libhandle;
     bool state;
-    double(*pf)(double);
-    void (*pSetVar)(char *, double);
+    double(*realpf)(double);
+    std::complex <long double>(*complexpf)(std::complex <long double>);
+    void (*pSetVar)(char *, long double);
     char** (*pGetVar)(void);
     QString IndepVarName;
 };

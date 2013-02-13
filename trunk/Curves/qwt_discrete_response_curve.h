@@ -308,6 +308,7 @@ protected:
         QwtPolygon &) const;
 
 private:
+    double SamplingRate;
     QwtData *d_xy;
     EvalInfo EvaluationInfo;
     ParserX *DiscreteEvaluator;

@@ -38,6 +38,21 @@ void ParameterSliderDialog::setSlider(QString VarNameA, double InitialValue)
         }
     }
 }
+void ParameterSliderDialog::removeSlider(QString VarName)
+{
+    for(int i = 0 ; i < SliderList.count() ; i ++ )
+    {
+        if(SliderList.at(i)->objectName() == VarName)
+        {
+            if(SliderRangeMapping.contains(SliderList.at(i)))
+                SliderRangeMapping.remove(SliderList.at(i));
+            QwtSlider *pSlider = SliderList.takeAt(i);
+            delete pSlider;
+            delete LableList.takeAt(i);
+            delete LayoutList.takeAt(i);
+        }
+    }
+}
 
 void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double InitialValue)
 {
@@ -68,7 +83,8 @@ void ParameterSliderDialog::addSlider(QString VarNameA, QPointF RangeA, double I
     Label->setFont(Font);
     Layout->addWidget(Label);
 
-
+    LableList.append(Label);
+    LayoutList.append(Layout);
     SliderList.append(pSlider);
     pSlider->setValue(InitialValue);
 

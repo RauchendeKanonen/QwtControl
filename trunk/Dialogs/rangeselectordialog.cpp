@@ -23,7 +23,7 @@ RangeSelectorDialog::RangeSelectorDialog(QWidget *parent, QStringList VarNames) 
         VarComboBox->insertItem(0, VarNames.at(i));
     ui->verticalLayout->insertWidget(1, VarComboBox, Qt::AlignBottom);
 
-    connect(VarComboBox, SIGNAL(currentIndexChanged(const QString)), this, SLOT(variableSelected(const QString)));
+    connect(VarComboBox, SIGNAL(activated(const QString)), this, SLOT(variableSelected(const QString)));
 
     ColorCombo = new ColorListEditor(this);
     ui->verticalLayout->insertWidget(0, (QWidget*)ColorCombo, Qt::AlignBottom);

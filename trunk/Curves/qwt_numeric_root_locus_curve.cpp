@@ -235,11 +235,14 @@ void QwtNumericRootLocusCurve::run (void)
         {
             try
             {
-                Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
-
+                if(ParserCoefficientMapping.values().contains(n-k-1))
+                    Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+                else
+                    Coefficients[k] = 0.0;
             }
             catch(mup::ParserError e)
             {
+                cout << e.GetMsg() << endl;
                 return;
             }
         }
@@ -287,8 +290,21 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
         mup::Value *IndepVal = NameValueMapping.value(IndependentVariable);
         *IndepVal = InVal;
         int n = ParserCoefficientMapping.count();
-        for(int k = 0 ; k < n ; k ++)
-            Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+        try
+        {
+            for(int k = 0 ; k < n ; k ++)
+            {
+                if(ParserCoefficientMapping.values().contains(n-k-1))
+                    Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+                else
+                    Coefficients[k] = 0.0;
+            }
+        }
+        catch(ParserError e)
+        {
+            cout << e.GetMsg() << endl;
+            return;
+        }
 
         complex <double> roots[n];
         newton_real( n-1, Coefficients, roots );
@@ -342,9 +358,22 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
         }
 
         *IndepVal = 0.0;
-        for(int k = 0 ; k < n ; k ++)
-            Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+        try
+        {
+            for(int k = 0 ; k < n ; k ++)
+            {
+                if(ParserCoefficientMapping.values().contains(n-k-1))
+                    Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+                else
+                    Coefficients[k] = 0.0;
+            }
+        }
+        catch(ParserError e)
+        {
+            cout << e.GetMsg() << endl;
+            return;
 
+        }
         newton_real( n-1, Coefficients, roots );
         for(int i = 0 ; i < (n-1) ; i ++ )
         {
@@ -355,9 +384,22 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
             PoleLocations.at(i)->attach(Plot);
         }
         *IndepVal = 1e200;
-        for(int k = 0 ; k < n ; k ++)
-            Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+        try
+        {
+            for(int k = 0 ; k < n ; k ++)
+            {
+                if(ParserCoefficientMapping.values().contains(n-k-1))
+                    Coefficients[k] = ParserCoefficientMapping.key(n-k-1)->Eval().GetFloat();
+                else
+                    Coefficients[k] = 0.0;
+            }
+        }
 
+        catch(ParserError e)
+        {
+            cout << e.GetMsg() << endl;
+            return;
+        }
 
         newton_real( n-1, Coefficients, roots );
         for(int i = 0 ; i < (n-1) ; i ++ )
@@ -393,7 +435,13 @@ void QwtNumericRootLocusCurve::valueChangeSlot(QPair <QString, double> VarPair, 
         }
     }
     if(Restart && Changed)
+    {
+        QPair<QString,double> MarkerPair;
+        MarkerPair.first = IndependentVariable;
+        MarkerPair.second = MarkerPos;
+        markerChangeSlot(MarkerPair);
         start();
+    }
 }
 
 
@@ -461,8 +509,34 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
     QString ExpressionString = pExpression->getExpression();
     IndependentVariable = pExpression->independentVarName();
     QStringList Symbols = pExpression->getVariables();
-    Symbols.removeOne("z");
+    QString IndepSym;
+    if(!Symbols.contains("z") && !Symbols.contains("s"))
+    {
+        QMessageBox Box;
+        Box.setText(QString("Must be a polynomal in s or z!!!\n This won't work!"));
+        Box.setModal(true);
+        Box.exec();
+    }
 
+    if(Symbols.contains("z") && Symbols.contains("s"))
+    {
+        QMessageBox Box;
+        Box.setText(QString("Must be a polynomal in s or z!!!\n This won't work!"));
+        Box.setModal(true);
+        Box.exec();
+    }
+
+    if(Symbols.contains("s"))
+    {
+        Symbols.removeOne("s");
+        IndepSym = "s";
+    }
+
+    if(Symbols.contains("z"))
+    {
+        Symbols.removeOne("z");
+        IndepSym = "z";
+    }
 
     //insert values
     for(int i = 0 ; i < Symbols.count() ; i ++ )
@@ -475,18 +549,21 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
     GiNaC::parser reader;
     GiNaC::ex gExpression = reader(ExpressionString.toStdString());
     GiNaC::ex DeNumerator = gExpression.denom();
-    GiNaC::ex Polynome = DeNumerator;
+
+
+
+    GiNaC::ex Polynome = DeNumerator.expand();
 
     GiNaC::parser reader2;
     ostringstream denstring;
     denstring << Polynome;
-    cout <<  Polynome << endl;
+    cout << endl <<  Polynome << endl;
     GiNaC::ex Poly = reader2(denstring.str());
 
     GiNaC::symtab table = reader2.get_syms();
-    GiNaC::symbol z = table.find("z") != table.end() ?
-           GiNaC::ex_to<GiNaC::symbol>(table["z"]) : GiNaC::symbol("z");
-    cout << "differ" << Poly.diff(z) << "a" << endl;
+    GiNaC::symbol z = table.find(IndepSym.toStdString().c_str()) != table.end() ?
+           GiNaC::ex_to<GiNaC::symbol>(table[IndepSym.toStdString().c_str()]) : GiNaC::symbol(IndepSym.toStdString().c_str());
+    cout << "differential " << Poly.diff(z) << " " << endl;
 
 
     //insert expressions for the coefficients
@@ -495,7 +572,7 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
         GiNaC::ex coeffexpression = Poly.coeff(z,i);
         ostringstream CoeffExStream;
         CoeffExStream << coeffexpression;
-        cout << coeffexpression << "of z^" << i << endl;
+
         ParserX *pParser = new ParserX();
         pParser->SetExpr(CoeffExStream.str());
         QList <QString> ValueNames = NameValueMapping.keys();

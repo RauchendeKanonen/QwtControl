@@ -1,11 +1,20 @@
 #include "numericallaplace.h"
+#include <complex>
 
 
 
-
-NumericalLaplace::NumericalLaplace()
+NumericalLaplace::NumericalLaplace(mathFunctionEvaluator *EvalA, int TransformTypeA)
 {
-    InitStehfest(DefaultStehfestN);
+    TransformType = TransformTypeA;
+    Eval = EvalA;
+
+    if(TRANSFORM_GAVER_STEHFEST == TransformType)
+        InitStehfest(DefaultStehfestN);
+
+    if(TRANSFORM_WEEKS == TransformType)
+    {
+
+    }
 }
 
 NumericalLaplace::~NumericalLaplace()
@@ -13,22 +22,58 @@ NumericalLaplace::~NumericalLaplace()
 
 }
 
-double NumericalLaplace::InverseTransform(mathFunctionEvaluator *Eval, double t)
+QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd)
 {
-    if(t <= 0.00001)
-        t = 00001;
-    double ln2t = ln2 / t;
+    QPolygonF Output;
 
-    double x = 0;
-    double y = 0;
-
-    for (int i = 0; i < V_Length; i++)
+    if(TransformType == TRANSFORM_GAVER_STEHFEST)
     {
-        x += ln2t;
-        y += V[i] * Eval->eval(x);
+        for(double t = dt ; t <= tEnd ; t+=dt)
+        {
+            if(t <= 0.00001)
+                t = 00001;
+            long double ln2t = ln2 / t;
+
+            long double x = 0;
+            long double y = 0;
+
+            for (int i = 0; i < V_Length; i++)
+            {
+                x += ln2t;
+
+                std::complex <long double>arg(x, 0.0);
+
+
+                y += V[i] * Eval->eval(arg).real();
+            }
+            Output.append(QPointF(t, ln2t * y));
+        }
+        return Output;
     }
-    return ln2t * y;
+
+    if(TransformType == TRANSFORM_WEEKS)
+    {
+        int m = tEnd/dt;
+        int p = 9;
+        int n = pow(2.0, p)-1;
+
+        double t[m+1];
+        double coeff[n];
+
+        int i;
+
+        for( i = 0 ; i <= m ; i ++ )
+        {
+            t[i] = dt*i;
+        }
+
+        /* (Fptr, NCoeff, convergence abzissica, convergence parm, auswetungsposition, num of points*/
+        Output  = linvweex(Eval, p, 0.1, 5, 1.0, m, t, coeff);
+        return Output;
+    }
 }
+
+
 
 double NumericalLaplace::Factorial(int N)
 {

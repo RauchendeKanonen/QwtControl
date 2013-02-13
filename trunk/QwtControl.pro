@@ -1,6 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2012-10-02T14:42:15
 # -------------------------------------------------
+#QMAKE_CXXFLAGS += -std=c99
 QT += core \
     gui
 TARGET = QwtControl
@@ -38,7 +39,10 @@ SOURCES += main.cpp \
     models/varmodel.cpp \
     models/expressionmodel.cpp \
     models/curvemodel.cpp \
-    util/csv.cpp
+    util/csv.cpp \
+    Curves/qwt_z_wd_curve.cpp \
+    Dialogs/closeloopdialog.cpp \
+    numeric/numericallaplace_weeks.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -71,7 +75,9 @@ HEADERS += mainwindow.h \
     models/varmodel.h \
     models/expressionmodel.h \
     models/curvemodel.h \
-    util/csv.h
+    util/csv.h \
+    Curves/qwt_z_wd_curve.h \
+    Dialogs/closeloopdialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -81,14 +87,17 @@ FORMS += mainwindow.ui \
     Dialogs/parametersliderdialog.ui \
     Dialogs/csvdialog.ui \
     Dialogs/expressionclonedialog.ui \
-    Dialogs/systemdialog.ui
+    Dialogs/systemdialog.ui \
+    Dialogs/closeloopdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \
     Curves \
     muparserx_v2_1_6/parser \
     Dialogs \
-    models
+    models \
+    util \
+    numeric
 LIBS += -L/usr/lib/ \
     -L. \
     -L muparserx_v2_1_6/bin \

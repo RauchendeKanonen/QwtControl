@@ -30,6 +30,7 @@ public:
     QString independentVarName(void);
     mathFunctionEvaluator *getRealEvaluator(void);
     mathFunctionEvaluator *getImagEvaluator(void);
+    mathFunctionEvaluator *getComplexEvaluator(void);
     QString cSourceStringRealPart(void);
     QString cSourceStringImagPart(void);
     bool getState(void);

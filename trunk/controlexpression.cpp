@@ -13,6 +13,25 @@ QStringList ControlExpression::getVariables(void)
 
 }
 
+mathFunctionEvaluator *ControlExpression::getComplexEvaluator(void)
+{
+    if(IndependentVarName == "")
+        return NULL;
+    mathFunctionCompiler Compiler(cSourceString(), IndependentVarName, ExpressionName+QString("complex"), true);
+    bool comState = Compiler.getState();
+    if(!comState)
+    {
+        return NULL;
+    }
+    mathFunctionEvaluator *Evaluator = new mathFunctionEvaluator(IndependentVarName, ExpressionName+QString("complex"));
+    if(!Evaluator->getState())
+    {
+        delete Evaluator;
+        return NULL;
+    }
+    return Evaluator;
+}
+
 mathFunctionEvaluator *ControlExpression::getRealEvaluator(void)
 {
     if(IndependentVarName == "")
