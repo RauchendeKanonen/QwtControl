@@ -340,8 +340,6 @@ void QwtDiscreteResponseCurve::init(QString Expression, EvalInfo EvInfo)
     {
         ExpressionName = Expression.left(index);
         Expression = Expression.right(Expression.length()-index-1);
-
-
     }
 
     QStringList VarNames = findCharacterStrings(Expression);

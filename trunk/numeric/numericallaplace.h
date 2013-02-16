@@ -3,6 +3,8 @@
 #include <math.h>
 #include <QPolygonF>
 #include "mathFunction/mathfunctionevaluator.h"
+#include "weeksetupdialog.h"
+#include <QThread>
 
 
 typedef double FunktionPrt(double t);
@@ -13,17 +15,40 @@ typedef double FunktionPrt(double t);
 
 #define DefaultStehfestN 25
 
-class NumericalLaplace
+class NumericalLaplace : public QThread
 {
+    Q_OBJECT
 private:
+    //Gaver Stehfest
     double *V;       //  Stehfest coefficients
     double ln2;       //  log of 2
     int V_Length;
+    //Weeks
+    int NumCoeffWeeks;
+    double ConvergenceAbscissaWeeks;
+    double ContourScaleWeeks;
+    double EvaluationPosWeeks;
+
+    double ThreadDt;
+    double ThreadtEnd;
+    double ThreadtStart;
+    QPolygonF ThreadOutput;
     int TransformType;
     mathFunctionEvaluator *Eval;
 public:
+    QPolygonF getThreadOutput(void)
+    {
+        return ThreadOutput;
+    }
+
+    void run(void);
+    void InverseTransformSetup(double dt, double tEnd, double tStart);
     NumericalLaplace(mathFunctionEvaluator *EvalA, int TransformType=TRANSFORM_GAVER_STEHFEST);
     ~NumericalLaplace();
+    void setup(void);
+    void setup(NumericalLaplace *pLaplace);
+
+    //Weeks algorithm
     double acosh(double x);
     double U(double x);
     double *davec(long nl, long nh);
@@ -44,7 +69,7 @@ public:
                     double c,
                     double t,
                     double grosst);
-    void umkehr(int *m,
+    inline void umkehr(int *m,
                 int n,
                 int i,
                 int *j,
@@ -58,7 +83,9 @@ public:
               double *v);
 
     double Round(double x);
-    QPolygonF InverseTransform(double dt, double tEnd);
+
+    //Gaver Stehfest
+    QPolygonF InverseTransform(double dt, double tEnd, double tStart=0);
     double Factorial(int N);
     void InitStehfest(int N);
 };

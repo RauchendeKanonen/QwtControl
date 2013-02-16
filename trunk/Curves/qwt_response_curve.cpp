@@ -216,9 +216,40 @@ public:
 void QwtResponseCurve::run (void)
 {
     QPolygonF Polygon;
-    NumericalLaplace Laplace(pRealEval, TRANSFORM_WEEKS);// TRANSFORM_GAVER_STEHFEST);
+    int NThreads = 3;
+    QList <NumericalLaplace*> SplittedLaplace;
+    SplittedLaplace.append(Laplace);
 
-    Polygon = Laplace.InverseTransform(EvaluationInfo.Resolution, EvaluationInfo.IndepEnd);
+    for(int i = 0 ; i < (NThreads-1) ; i ++)
+    {
+        NumericalLaplace *pLaplace = new NumericalLaplace(pEval, TRANSFORM_WEEKS);
+        SplittedLaplace.append(pLaplace);
+    }
+
+    double SectorT = (EvaluationInfo.IndepEnd - EvaluationInfo.IndepStart)/(double)NThreads;
+
+    for(int i = 0 ; i < SplittedLaplace.count() ; i ++)
+    {
+        SplittedLaplace.at(i)->setup(Laplace);
+        SplittedLaplace.at(i)->InverseTransformSetup(EvaluationInfo.Resolution, EvaluationInfo.IndepStart+(SectorT*((double)i+1.0)), EvaluationInfo.IndepStart+(SectorT*((double)i)));
+    }
+
+    for(int i = 0; i < SplittedLaplace.count() ; i ++)
+    {
+        if(SplittedLaplace.at(i)->isRunning())
+        {
+            i = 0;
+            usleep(10000);
+        }
+    }
+
+    for(int i = 0; i < SplittedLaplace.count() ; i ++)
+    {
+        Polygon += SplittedLaplace.at(i)->getThreadOutput();
+        if(SplittedLaplace.at(i) != Laplace)
+            delete SplittedLaplace.at(i);
+    }
+
     emit dataReadySig(Polygon);
 }
 
@@ -245,12 +276,12 @@ void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Res
     if(isRunning())
         return;
 
-    QStringList reVars = pRealEval->getExpressionVars();
+    QStringList reVars = pEval->getExpressionVars();
     for(int i = 0 ; i < reVars.count() ;  i ++ )
     {
         if(reVars.at(i) == VarPair.first)
         {
-            pRealEval->setVar(VarPair.first, VarPair.second);
+            pEval->setVar(VarPair.first, VarPair.second);
             Changed = true;
         }
     }
@@ -295,7 +326,8 @@ QwtResponseCurve::~QwtResponseCurve()
     delete d_data;
 
     delete pExpression;
-    delete pRealEval;
+    delete pEval;
+    delete Laplace;
 }
 
 /*!
@@ -305,14 +337,14 @@ void QwtResponseCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 {
     EvaluationInfo = EvInfo;
     pExpression = Expression;
-    pRealEval = Expression->getComplexEvaluator();
-    if(pRealEval == NULL)
-    {
-        QMessageBox Box;
-        Box.setText(QString("Could not Compile mathmatial function c-code!! Have to exit now!"));
-        Box.setModal(true);
-        Box.exec();
-    }
+
+
+
+    pEval = Expression->getComplexEvaluator();
+    if(pEval == NULL)
+        throw QString("Could not Compile mathmatial function c-code!! Have to exit now!");
+
+    Laplace = new NumericalLaplace(pEval, TRANSFORM_WEEKS);// TRANSFORM_GAVER_STEHFEST);
 
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);

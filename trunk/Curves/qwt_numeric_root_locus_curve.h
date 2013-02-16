@@ -211,6 +211,10 @@ public:
     {
         terminate();
     }
+    void setup(void)
+    {
+
+    }
     virtual ~QwtNumericRootLocusCurve();
 
     virtual int rtti() const;

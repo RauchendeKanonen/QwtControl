@@ -13,7 +13,10 @@ NumericalLaplace::NumericalLaplace(mathFunctionEvaluator *EvalA, int TransformTy
 
     if(TRANSFORM_WEEKS == TransformType)
     {
-
+        NumCoeffWeeks = 9;
+        ConvergenceAbscissaWeeks = 0.1;
+        ContourScaleWeeks = 1.0;
+        EvaluationPosWeeks = 1.0;
     }
 }
 
@@ -22,13 +25,37 @@ NumericalLaplace::~NumericalLaplace()
 
 }
 
-QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd)
+void NumericalLaplace::setup(void)
+{
+    if(TransformType == TRANSFORM_GAVER_STEHFEST)
+    {
+
+    }
+    if(TransformType == TRANSFORM_WEEKS)
+    {
+        WeekSetupDialog Dlg(NumCoeffWeeks, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks );
+        Dlg.setModal(true);
+        if(Dlg.exec())
+            Dlg.getParms(&NumCoeffWeeks, &ConvergenceAbscissaWeeks, &ContourScaleWeeks, &EvaluationPosWeeks);
+    }
+}
+
+void NumericalLaplace::setup(NumericalLaplace *pLaplace)
+{
+    NumCoeffWeeks = pLaplace->NumCoeffWeeks;
+    ConvergenceAbscissaWeeks = pLaplace->ConvergenceAbscissaWeeks;
+    ContourScaleWeeks = pLaplace->ContourScaleWeeks;
+    EvaluationPosWeeks = pLaplace->EvaluationPosWeeks;
+}
+
+
+QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd, double tStart)
 {
     QPolygonF Output;
 
     if(TransformType == TRANSFORM_GAVER_STEHFEST)
     {
-        for(double t = dt ; t <= tEnd ; t+=dt)
+        for(double t = tStart ; t <= tEnd ; t+=dt)
         {
             if(t <= 0.00001)
                 t = 00001;
@@ -53,8 +80,8 @@ QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd)
 
     if(TransformType == TRANSFORM_WEEKS)
     {
-        int m = tEnd/dt;
-        int p = 9;
+        int m = (tEnd-tStart)/dt;
+        int p = NumCoeffWeeks;
         int n = pow(2.0, p)-1;
 
         double t[m+1];
@@ -64,52 +91,46 @@ QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd)
 
         for( i = 0 ; i <= m ; i ++ )
         {
-            t[i] = dt*i;
+            t[i] = tStart+dt*i;
         }
 
-        /* (Fptr, NCoeff, convergence abzissica, convergence parm, auswetungsposition, num of points*/
-        Output  = linvweex(Eval, p, 0.1, 5, 1.0, m, t, coeff);
+        /* (Fptr, NCoeff, convergence abzissica, contour scale parm, auswetungsposition, num of points*/
+        Output  = linvweex(Eval, p, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks, m, t, coeff);
         return Output;
     }
+    return Output;
 }
 
 
-
-double NumericalLaplace::Factorial(int N)
+void NumericalLaplace::InverseTransformSetup(double dt, double tEnd, double tStart)
 {
-    double x = 1;
-    if (N > 1)
-    {
-        for (int i = 2; i <= N; i++)
-            x = i * x;
-    }
-    return x;
+    ThreadDt = dt;
+    ThreadtEnd = tEnd;
+    ThreadtStart = tStart;
+    start();
 }
 
-void NumericalLaplace::InitStehfest(int N)
+
+void NumericalLaplace::run(void)
 {
-    ln2 = log(2.0);
-    int N2 = N / 2;
-    int NV = 2 * N2;
-    V_Length = NV;
-    V = new double[NV];
-    int sign = 1;
-    if ((N2 % 2) != 0)
-        sign = -1;
-    for (int i = 0; i < NV; i++)
+    if(TransformType == TRANSFORM_WEEKS)
     {
-        int kmin = (i + 2) / 2;
-        int kmax = i + 1;
-        if (kmax > N2)
-            kmax = N2;
-        V[i] = 0;
-        sign = -sign;
-        for (int k = kmin; k <= kmax; k++)
+        int m = (ThreadtEnd-ThreadtStart)/ThreadDt;
+        int p = NumCoeffWeeks;
+        int n = pow(2.0, p)-1;
+
+        double t[m+1];
+        double coeff[n];
+
+        int i;
+
+        for( i = 0 ; i <= m ; i ++ )
         {
-            V[i] = V[i] + (pow(k, N2) / Factorial(k)) * (Factorial(2 * k)
-                / Factorial(2 * k - i - 1)) / Factorial(N2 - k) / Factorial(k - 1)
-                / Factorial(i + 1 - k);
+            t[i] = ThreadtStart+ThreadDt*i;
         }
-        V[i] = sign * V[i];
+
+        /* (Fptr, NCoeff, convergence abzissica, contour scale parm, auswetungsposition, num of points*/
+        ThreadOutput  = linvweex(Eval, p, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks, m, t, coeff);
     }
 }
+

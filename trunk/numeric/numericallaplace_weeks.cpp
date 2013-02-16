@@ -54,7 +54,7 @@ Literatur:  J. Stoer, Einfuehrung in die Numerische Mathematik I
 
 --------------------------------------------------------------------- */
 
-void NumericalLaplace::umkehr(int *m,
+inline void NumericalLaplace::umkehr(int *m,
                    int n,
                    int i,
                    int *j,
@@ -64,39 +64,41 @@ void NumericalLaplace::umkehr(int *m,
                    int ne)
 {
     (*m)++;
-    switch(*m) {
-    case 1:
-    case 3:
-    case 5:
-    case 7:
-        *j = (*j)+nh;
-        goto L999;
+    switch(*m)
+    {
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+            *j = (*j)+nh;
+            return;
 
-    case 2:
-    case 6:
-        *j = (*j)-nq;
-        goto L999;
+        case 2:
+        case 6:
+            *j = (*j)-nq;
+            return;
 
-    case 4:
-        *j = (*j)-ne;
-        goto L999;
+        case 4:
+            *j = (*j)-ne;
+            return;
 
-    case 8:
-        *j = 0;
-        *k = 1;
-        *m = i;
-        break;
+        case 8:
+            *j = 0;
+            *k = 1;
+            *m = i;
+            break;
     }
 
-    while(*m != 0) {
+    while(*m != 0)
+    {
         *m = 2*(*m);
-        if (*m >= n) {
+        if (*m >= n)
+        {
             *m = (*m)-n;
             *j = (*j)+(*k);
         }
         *k = 2*(*k);
     }
-L999:
     return;
 }                        /* umkehr */
 
@@ -105,12 +107,13 @@ void NumericalLaplace::xfft(int p,
          double *u,
          double *v)
 {
-    int n, i, imax, j, k, kl, kmax, l, m, nh, nq, ne;
+    int n, i, imax, j=0, k, kl, kmax, l, m, nh, nq, ne;
     double ci, si, dc, ds, h, pr, pi, qr, qi, faktor;
 
 
     n = 1;
-    for (i = 1; i <= p; i++) n *= 2;
+    for (i = 1; i <= p; i++)
+        n *= 2;
     faktor = 1/(double)n;
     nh = n/2;
     nq = nh/2;
@@ -119,50 +122,55 @@ void NumericalLaplace::xfft(int p,
     imax = 0;
     h = -4;
 
-L97:
-    if (l <= 1) goto L98;
-    l /= 2;
-    m = 7;
-    dc = h*0.5;
-    ci = 1;
-    si = 0;
-    ds = sqrt(-dc*(2+dc));
-    if (analyse) ds = -ds;
+    while(1)
+    {
+        if (l <= 1)
+            break;
+        l /= 2;
+        m = 7;
+        dc = h*0.5;
+        ci = 1;
+        si = 0;
+        ds = sqrt(-dc*(2+dc));
+        if (analyse) ds = -ds;
 
-    for(i = 0; i <= imax; i++) {
-        umkehr(&m, n, i, &j, &k, nh, nq, ne);
-        kmax = j+l-1;
-        for(k = j; k <= kmax; k++) {
-            kl = k+l;
-            pr = u[k];
-            pi = v[k];
-            qr = u[kl]*ci-v[kl]*si;
-            qi = u[kl]*si+v[kl]*ci;
-            u[k] = pr+qr;
-            v[k] = pi+qi;
-            u[kl] = pr-qr;
-            v[kl] = pi-qi;
+        for(i = 0; i <= imax; i++) {
+            umkehr(&m, n, i, &j, &k, nh, nq, ne);
+            kmax = j+l-1;
+            for(k = j; k <= kmax; k++)
+            {
+                kl = k+l;
+                pr = u[k];
+                pi = v[k];
+                qr = u[kl]*ci-v[kl]*si;
+                qi = u[kl]*si+v[kl]*ci;
+                u[k] = pr+qr;
+                v[k] = pi+qi;
+                u[kl] = pr-qr;
+                v[kl] = pi-qi;
+            }
+            ci += dc;
+            dc += h*ci;
+            si += ds;
+            ds += h*si;
         }
-        ci += dc;
-        dc += h*ci;
-        si += ds;
-        ds += h*si;
+
+        imax = imax+imax+1;
+        h = h/(2+sqrt(4+h));
     }
 
-    imax = imax+imax+1;
-    h = h/(2+sqrt(4+h));
-    goto L97;
-
-L98:
     imax = n-1;
     m = 7;
-    for(i = 0; i <= imax; i++) {
-        if (analyse) {
+    for(i = 0; i <= imax; i++)
+    {
+        if (analyse)
+        {
             u[i] *= faktor;
             v[i] *= faktor;
         }
         umkehr(&m, n, i, &j, &k, nh, nq, ne);
-        if (j < i) {
+        if (j < i)
+        {
             h = u[i];
             u[i] = u[j];
             u[j] = h;
@@ -241,14 +249,14 @@ Literatur:  W.T. Weeks, Numerical Inversion of Laplace Transforms
             Using Laguerre Functions, JACM 13(1966), 419-426
 --------------------------------------------------------------------- */
 
-QPolygonF NumericalLaplace::linvweex(mathFunctionEvaluator *EvalA,
-             int p,
-             double c,
-             double grosst,
-             double rho,
-             int m,
-             double *t,
-             double *a)
+QPolygonF NumericalLaplace::linvweex(   mathFunctionEvaluator *EvalA,
+                                        int p,
+                                        double c,
+                                        double grosst,
+                                        double rho,
+                                        int m,
+                                        double *t,
+                                        double *a)
 {
     double delta = 0.0000001;
     double pidurchnp1;
@@ -258,11 +266,12 @@ QPolygonF NumericalLaplace::linvweex(mathFunctionEvaluator *EvalA,
     double *beta;
 
     n = 1;
-    for (i = 1; i <= p; i++) n *= 2;
+    for (i = 1; i <= p; i++)
+        n *= 2;
     n -= 1;
 
     if (n <= 0 || rho <= 0 || grosst <= 0 || m <= 0)
-        return 1;
+        return QPolygonF();
 
     beta = davec(0, n);
 
@@ -341,10 +350,12 @@ QPolygonF NumericalLaplace::linvweex(mathFunctionEvaluator *EvalA,
     /* Koeffizienten a[k] mit FFT berechnen */
     xfft(p, 1, a, beta);
 
-    if (rho != 1) {
+    if (rho != 1)
+    {
         double z = 1;
 
-        for (i = 1; i <= n; i++) {
+        for (i = 1; i <= n; i++)
+        {
             z *= rho;
             a[i] = a[i]/z;
         }
@@ -420,11 +431,6 @@ double NumericalLaplace::auinvlap(int n,
         return s;
 }
 
-
-
-
-
-
 double NumericalLaplace::cotan(double i)
 {
     return(1 / tan(i));
@@ -448,5 +454,4 @@ void NumericalLaplace::aerror(char error_text[])
 {
     fprintf(stderr,"NUMLIB Runtime error...\n");
     fprintf(stderr,"%s\n", error_text);
-    exit(1);
 }

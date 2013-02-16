@@ -82,7 +82,10 @@ public:
 
     }
 
+    void setup(void)
+    {
 
+    }
 private:
     void drawLines(QPainter *painter, const QRect &,
         const QwtScaleMap & xMap, const QwtScaleMap &yMap) const;

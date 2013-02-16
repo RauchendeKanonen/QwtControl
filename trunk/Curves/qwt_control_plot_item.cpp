@@ -2,4 +2,5 @@
 
 QwtControlPlotItem::QwtControlPlotItem()
 {
+
 }

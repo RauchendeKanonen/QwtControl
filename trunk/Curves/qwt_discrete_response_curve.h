@@ -200,7 +200,10 @@ public:
     {
         terminate();
     }
+    void setup(void)
+    {
 
+    }
     void run (void);
 
     virtual ~QwtDiscreteResponseCurve();
