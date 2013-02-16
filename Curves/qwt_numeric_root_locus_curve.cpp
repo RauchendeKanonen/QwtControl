@@ -510,21 +510,18 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
     IndependentVariable = pExpression->independentVarName();
     QStringList Symbols = pExpression->getVariables();
     QString IndepSym;
+
+    if(IndependentVariable == "z" || IndependentVariable == "s")
+        throw QString("The independent variable must not be s or z!!!");
+
+
     if(!Symbols.contains("z") && !Symbols.contains("s"))
-    {
-        QMessageBox Box;
-        Box.setText(QString("Must be a polynomal in s or z!!!\n This won't work!"));
-        Box.setModal(true);
-        Box.exec();
-    }
+        throw QString("Must be a polynomal in s or z!!!\n This won't work!");
+
 
     if(Symbols.contains("z") && Symbols.contains("s"))
-    {
-        QMessageBox Box;
-        Box.setText(QString("Must be a polynomal in s or z!!!\n This won't work!"));
-        Box.setModal(true);
-        Box.exec();
-    }
+        throw QString("Must be a polynomal in s or z!!!\n This won't work!");
+
 
     if(Symbols.contains("s"))
     {
@@ -567,7 +564,7 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
 
 
     //insert expressions for the coefficients
-    for( int i=Poly.ldegree(z) ; i<=Poly.degree(z); ++i )
+    for( int i=0 ; i<=Poly.degree(z); ++i )
     {
         GiNaC::ex coeffexpression = Poly.coeff(z,i);
         ostringstream CoeffExStream;
@@ -578,8 +575,8 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
         QList <QString> ValueNames = NameValueMapping.keys();
 
         //define all vars
-        for(int i = 0 ; i < NameValueMapping.count() ; i ++)
-            pParser->DefineVar(ValueNames.at(i).toStdString(), Variable(NameValueMapping.value(ValueNames.at(i))));
+        for(int m = 0 ; m < NameValueMapping.count() ; m ++)
+            pParser->DefineVar(ValueNames.at(m).toStdString(), Variable(NameValueMapping.value(ValueNames.at(m))));
 
         ParserCoefficientMapping.insert(pParser, i);
     }

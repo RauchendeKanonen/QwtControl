@@ -8,9 +8,25 @@ StepResponseDialog::StepResponseDialog(QWidget *parent) :
     pParent = parent;
     ui->setupUi(this);
 
+    QwtLegend *legend = new QwtLegend;
+    legend->setItemMode( QwtLegend::ClickableItem );
+    ui->qwtPlot->insertLegend( legend, QwtPlot::RightLegend );
+
+    connect( ui->qwtPlot, SIGNAL(legendClicked(QwtPlotItem*)),
+             this, SLOT( legendClicked( QwtPlotItem *) ) );
+
+
 
     setAcceptDrops(true);
 }
+
+void StepResponseDialog::legendClicked(QwtPlotItem *)
+{
+
+
+
+}
+
 
 void StepResponseDialog::dragMoveEvent(QDragMoveEvent *de)
 {

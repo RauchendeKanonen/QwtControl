@@ -36,7 +36,8 @@ private:
 
     QWidget *pParent;
     Ui::StepResponseDialog *ui;
-
+public slots:
+    void legendClicked(QwtPlotItem *);
 };
 
 #endif // STEPRESPONSEDIALOG_H

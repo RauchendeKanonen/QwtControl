@@ -14,6 +14,7 @@ public:
     virtual void   setColor(QColor Col)=0;
     virtual QString typeName(void)=0;
     virtual void stopThread()=0;
+    virtual void setup(void)=0;
 };
 
 #endif // QWTCONTROLPLOTITEM_H

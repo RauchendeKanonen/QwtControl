@@ -200,6 +200,11 @@ public:
         terminate();
     }
 
+    void setup(void)
+    {
+        Laplace->setup();
+    }
+
     void run (void);
 
     virtual ~QwtResponseCurve();
@@ -310,7 +315,8 @@ private:
     QwtData *d_xy;
     EvalInfo EvaluationInfo;
     ControlExpression *pExpression;
-    mathFunctionEvaluator *pRealEval;
+    mathFunctionEvaluator *pEval;
+    NumericalLaplace *Laplace;
     class PrivateData;
     PrivateData *d_data;
 };

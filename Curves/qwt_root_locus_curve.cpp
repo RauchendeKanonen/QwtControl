@@ -439,12 +439,8 @@ void QwtRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
     pRealEval = Expression->getRealEvaluator();
 
     if(pImagEval == NULL || pRealEval == NULL)
-    {
-        QMessageBox Box;
-        Box.setText(QString("Could not Compile mathmatial function c-code!! Have to exit now!"));
-        Box.setModal(true);
-        Box.exec();
-    }
+        throw QString("Could not Compile mathmatial function c-code!! Have to exit now!");
+
 
 
     DrawSplitted = 0;

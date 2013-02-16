@@ -495,8 +495,20 @@ RedoDlg:
 
         StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
         StepRespDialog->show();
+        QwtResponseCurve *Curve;
+        try
+        {
+            Curve = new QwtResponseCurve(Expression, Evinfo);
+        }
+        catch(const QString &e)
+        {
+            QMessageBox Box;
+            Box.setText(e);
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
 
-        QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
         enqueueCurve(Curve, StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
 
@@ -519,7 +531,21 @@ RedoDlg:
         EvInfo.IndepStart = Range.x();
         EvInfo.IndepEnd = Range.y();
         EvInfo.Resolution = Resolution;
-        QwtNumericRootLocusCurve *Curve = new QwtNumericRootLocusCurve(ExpressionMdl->createExpression(Index, VarName),EvInfo);
+        QwtNumericRootLocusCurve *Curve;
+        try
+        {
+            Curve = new QwtNumericRootLocusCurve(ExpressionMdl->createExpression(Index, VarName),EvInfo);
+        }
+        catch(const QString &e)
+        {
+            QMessageBox Box;
+            Box.setText(e);
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+
+
         enqueueCurve(Curve, ui->qwtPlot);
         Curve->setPen(QPen(Color));
 
@@ -810,6 +836,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     QMenu ExpressionMenu;
     ExpressionMenu.addAction(QString("delete"));
     ExpressionMenu.addAction(QString("toggle visability"));
+    ExpressionMenu.addAction(QString("setup"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -835,6 +862,11 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
             Plot->replot();
     }
 
+    if(happened->text() == QString("setup"))
+    {
+        QwtControlPlotItem *Item = (QwtControlPlotItem *)CurveItem;
+        Item->setup();
+    }
 }
 
 void MainWindow::on_CurveListView_doubleClicked(const QModelIndex &index)
