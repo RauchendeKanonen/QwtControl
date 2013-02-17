@@ -119,6 +119,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(UpdateTimer, SIGNAL(timeout()), this, SLOT(timerEvent()));
 
     ProjectChanged = false;
+
+    HelpDlg = new TextEditDialog();
+    HelpDlg->setWindowTitle("Help Dialog");
+    ControlSystemDocDlg = new TextEditDialog();
+    ControlSystemDocDlg->setWindowTitle("Control System Documentation");
+
 }
 
 void  MainWindow::rlZoomerSelected(QwtDoubleRect Rect)
@@ -174,6 +180,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     VariableSliderDialog = NULL;
     delete IndependentMarkerSliderDialog;
     IndependentMarkerSliderDialog = NULL;
+    delete ControlSystemDocDlg;
+    delete HelpDlg;
 }
 
 
@@ -331,8 +339,10 @@ RedoDlg:
 
     if(VariabelMdl->getVarValuePtr(VarName) == NULL)
     {
-        if(VarName != "n.a.")
+        if(VarName != "n.a." && !VarName.contains("sel."))
             insertVariable(VarName+QString(" = 0.0"));
+        if(VarName.contains("sel."))
+            goto RedoDlg;
     }
     preExpression = ExpressionMdl->createExpression(Index, QString());
 
@@ -741,6 +751,8 @@ void MainWindow::on_actionSave_triggered()
         RangeStrings.append(RangeString);
     }
     store(WorkFile+QString(".sldra"), RangeStrings);
+
+    storeFile(WorkFile+QString(".doc"), ControlSystemDocDlg->getText());
 }
 
 
@@ -786,10 +798,11 @@ void MainWindow::on_actionLoad_triggered()
                 Range.setY(YString.toDouble());
                 insertSlider(SliderVariables.at(i), Range);
             }
-
+            ControlSystemDocDlg->setText(loadFile(dlg.selectedFiles().at(0)+QString(".doc")));
             ProjectChanged = false;
         }
     }
+
 }
 
 void MainWindow::on_actionSave_as_triggered()
@@ -981,6 +994,26 @@ QStringList MainWindow::load(QString FilePath)
     return List;
 }
 
+QString MainWindow::loadFile(QString FilePath)
+{
+    QString Text;
+
+
+
+    QFile fIn(FilePath);
+    if (fIn.open(QFile::ReadOnly | QFile::Text))
+    {
+        Text= QString(fIn.read(1024*1024*10));
+    }
+    else
+    {
+        std::cerr << "error opening output file\n";
+        return QString();
+    }
+
+    return Text;
+}
+
 bool MainWindow::store(QString FilePath, QStringList List)
 {
     // write data
@@ -996,6 +1029,24 @@ bool MainWindow::store(QString FilePath, QStringList List)
                 continue;
             s << List.at(i) << '\n';
         }
+    }
+    else
+    {
+        std::cerr << "error opening output file\n";
+        return false;
+    }
+    fOut.close();
+    return true;
+}
+
+bool MainWindow::storeFile(QString FilePath, QString Text)
+{
+    // write data
+    QFile fOut(FilePath);
+
+    if (fOut.open(QFile::WriteOnly | QFile::Text))
+    {
+        fOut.write(Text.toStdString().c_str());
     }
     else
     {
@@ -1049,4 +1100,26 @@ void MainWindow::on_actionClosedLoop_System_triggered()
     if(!Dlg.exec())
         return;
     QString Expression = Dlg.getEquation();
+}
+
+void MainWindow::on_actionView_Control_System_Doc_triggered()
+{
+    ControlSystemDocDlg->show();
+}
+
+void MainWindow::on_actionHelp_triggered()
+{
+    QFile fIn("help/Mainpage.txt");
+    if (fIn.open(QFile::ReadOnly | QFile::Text))
+    {
+        QString HelpText(fIn.read(1024*1024));
+        HelpDlg->setText(HelpText);
+        HelpDlg->show();
+    }
+    else
+    {
+        std::cerr << "error opening output file\n";
+        return;
+    }
+
 }

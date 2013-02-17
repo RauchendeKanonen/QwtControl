@@ -33,7 +33,8 @@ void ExpressionCloneDialog::on_buttonBox_accepted()
 
 QString ExpressionCloneDialog::getNewExpression(void)
 {
-    return Expression.replace(ui->ToReplaceLineEdit->text(),ui->WithThisLineEdit->text());
+    QString Enclosed = QString("(") + ui->WithThisLineEdit->text() + QString(")");
+    return Expression.replace(ui->ToReplaceLineEdit->text(), Enclosed);
 }
 
 

@@ -94,6 +94,9 @@ ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
 
     if(ExpressionName == QString(""))
         ExpressionName = QString("std");
+    QString Random;
+    Random.sprintf("_%d",rand());
+    ExpressionName+=Random;
     QStringList Variables = findCharacterStrings(ExpressionString);
     Variables.removeDuplicates();
     GiNaC::lst VarList;

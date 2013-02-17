@@ -249,7 +249,7 @@ Literatur:  W.T. Weeks, Numerical Inversion of Laplace Transforms
             Using Laguerre Functions, JACM 13(1966), 419-426
 --------------------------------------------------------------------- */
 
-QPolygonF NumericalLaplace::linvweex(   mathFunctionEvaluator *EvalA,
+int NumericalLaplace::linvweex(   mathFunctionEvaluator *EvalA,
                                         int p,
                                         double c,
                                         double grosst,
@@ -271,7 +271,7 @@ QPolygonF NumericalLaplace::linvweex(   mathFunctionEvaluator *EvalA,
     n -= 1;
 
     if (n <= 0 || rho <= 0 || grosst <= 0 || m <= 0)
-        return QPolygonF();
+        return 1;
 
     beta = davec(0, n);
 
@@ -363,12 +363,12 @@ QPolygonF NumericalLaplace::linvweex(   mathFunctionEvaluator *EvalA,
 
     dfvec(beta, 0, n);
 
-    QPolygonF Polygon;
+    ThreadOutput.clear();
     /* Laguerre-Entwicklung in t auswerten */
     for (i = 1; i <= m; i++)
-        Polygon.append(QPointF(t[i], auinvlap(n, a, c, t[i], grosst)));
+        ThreadOutput.append(QPointF(t[i], auinvlap(n, a, c, t[i], grosst)));
 
-    return Polygon;
+    return 0;
 }                            /* linvweex */
 /* --------------------------------------------------------------------
 

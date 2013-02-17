@@ -55,7 +55,7 @@ public:
     void dfvec(double *v, long nl, long nh);
     double cotan(double i);
     static void aerror(char error_text[]);
-    QPolygonF linvweex(mathFunctionEvaluator *EvalA,
+    int linvweex(mathFunctionEvaluator *EvalA,
                  int p,
                  double c,
                  double grosst,
