@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2012-10-02T14:42:15
 # -------------------------------------------------
-QMAKE_CXXFLAGS += -ffast-math -O2 -ftree-vectorize -msse2 -ftree-vectorizer-verbose=5
+#QMAKE_CXXFLAGS += -ffast-math -O2 -ftree-vectorize -msse2 -ftree-vectorizer-verbose=5
 QT += core \
     gui
 TARGET = QwtControl
@@ -44,7 +44,8 @@ SOURCES += main.cpp \
     Dialogs/closeloopdialog.cpp \
     numeric/numericallaplace_weeks.cpp \
     numeric/numericallaplace_gaverstehfest.cpp \
-    Dialogs/weeksetupdialog.cpp
+    Dialogs/weeksetupdialog.cpp \
+    texteditdialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -80,7 +81,8 @@ HEADERS += mainwindow.h \
     util/csv.h \
     Curves/qwt_z_wd_curve.h \
     Dialogs/closeloopdialog.h \
-    Dialogs/weeksetupdialog.h
+    Dialogs/weeksetupdialog.h \
+    texteditdialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -92,7 +94,8 @@ FORMS += mainwindow.ui \
     Dialogs/expressionclonedialog.ui \
     Dialogs/systemdialog.ui \
     Dialogs/closeloopdialog.ui \
-    Dialogs/weeksetupdialog.ui
+    Dialogs/weeksetupdialog.ui \
+    texteditdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \

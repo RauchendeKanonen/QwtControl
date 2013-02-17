@@ -131,9 +131,17 @@
     </property>
     <addaction name="actionAutoscale"/>
    </widget>
+   <widget class="QMenu" name="menuDocumentation">
+    <property name="title">
+     <string>Documentation</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="actionView_Control_System_Doc"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAdd"/>
    <addaction name="menuView"/>
+   <addaction name="menuDocumentation"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -192,6 +200,16 @@
   <action name="actionClosedLoop_System">
    <property name="text">
     <string>ClosedLoop System</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionView_Control_System_Doc">
+   <property name="text">
+    <string>View Control-System Doc.</string>
    </property>
   </action>
  </widget>

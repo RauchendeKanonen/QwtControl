@@ -45,6 +45,8 @@
 #include "qwt_z_wd_curve.h"
 #include "Dialogs/closeloopdialog.h"
 #include <QTimer>
+#include "texteditdialog.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -110,12 +112,18 @@ private slots:
 
     void on_actionClosedLoop_System_triggered();
 
+    void on_actionView_Control_System_Doc_triggered();
+
+    void on_actionHelp_triggered();
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
     VarModel *VariabelMdl;
     CurveModel *CurveMdl;
     QTimer *UpdateTimer;
+    TextEditDialog *HelpDlg;
+    TextEditDialog *ControlSystemDocDlg;
     QList <QwtControlPlotItem*> CurveList;
     bool ProjectChanged;
     ParameterSliderDialog *VariableSliderDialog;
@@ -129,6 +137,8 @@ private:
     void insertExpression(QString Definition);
     QStringList load(QString FilePath);
     bool store(QString FilePath, QStringList List);
+    QString loadFile(QString FilePath);
+    bool storeFile(QString FilePath, QString Text);
 };
 
 

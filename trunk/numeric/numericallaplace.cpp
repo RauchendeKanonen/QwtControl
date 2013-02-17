@@ -51,8 +51,7 @@ void NumericalLaplace::setup(NumericalLaplace *pLaplace)
 
 QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd, double tStart)
 {
-    QPolygonF Output;
-
+    ThreadOutput.clear();
     if(TransformType == TRANSFORM_GAVER_STEHFEST)
     {
         for(double t = tStart ; t <= tEnd ; t+=dt)
@@ -73,9 +72,9 @@ QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd, double tSta
 
                 y += V[i] * Eval->eval(arg).real();
             }
-            Output.append(QPointF(t, ln2t * y));
+            ThreadOutput.append(QPointF(t, ln2t * y));
         }
-        return Output;
+        return ThreadOutput;
     }
 
     if(TransformType == TRANSFORM_WEEKS)
@@ -95,10 +94,10 @@ QPolygonF NumericalLaplace::InverseTransform(double dt, double tEnd, double tSta
         }
 
         /* (Fptr, NCoeff, convergence abzissica, contour scale parm, auswetungsposition, num of points*/
-        Output  = linvweex(Eval, p, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks, m, t, coeff);
-        return Output;
+        linvweex(Eval, p, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks, m, t, coeff);
+        return ThreadOutput;
     }
-    return Output;
+    return ThreadOutput;
 }
 
 
@@ -113,6 +112,7 @@ void NumericalLaplace::InverseTransformSetup(double dt, double tEnd, double tSta
 
 void NumericalLaplace::run(void)
 {
+    ThreadOutput.clear();
     if(TransformType == TRANSFORM_WEEKS)
     {
         int m = (ThreadtEnd-ThreadtStart)/ThreadDt;
@@ -130,7 +130,7 @@ void NumericalLaplace::run(void)
         }
 
         /* (Fptr, NCoeff, convergence abzissica, contour scale parm, auswetungsposition, num of points*/
-        ThreadOutput  = linvweex(Eval, p, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks, m, t, coeff);
+        linvweex(Eval, p, ConvergenceAbscissaWeeks, ContourScaleWeeks, EvaluationPosWeeks, m, t, coeff);
     }
 }
 
