@@ -197,8 +197,6 @@ void MainWindow::on_actionExpression_triggered()
     insertExpression(Expression);
 }
 
-
-
 void MainWindow::on_actionVariable_triggered()
 {
     ProjectChanged = true;
@@ -212,8 +210,8 @@ void MainWindow::on_actionVariable_triggered()
     QString ValueString;
     ValueString.sprintf("%f", Val);
     insertVariable(QString(Name + QString(" = ") + ValueString));
-
 }
+
 void MainWindow::insertExpression(QString Expression)
 {
     ProjectChanged = true;
