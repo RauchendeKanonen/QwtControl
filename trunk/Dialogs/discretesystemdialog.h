@@ -1,6 +1,5 @@
-#ifndef SystemDialog_H
-#define SystemDialog_H
-
+#ifndef DISCRETESYSTEMDIALOG_H
+#define DISCRETESYSTEMDIALOG_H
 #include <QDialog>
 #include <iostream>
 
@@ -16,20 +15,23 @@ using namespace std;
 
 
 namespace Ui {
-class SystemDialog;
+class DiscreteSystemDialog;
 }
 
-class SystemDialog : public QDialog
+class DiscreteSystemDialog : public QDialog
 {
     Q_OBJECT
-    
-public:
-    explicit SystemDialog(QWidget *parent, QString *ExpressionA);
-    ~SystemDialog();
 
+public:
+    explicit DiscreteSystemDialog(QWidget *parent, QString *ExpressionA);
+    ~DiscreteSystemDialog();
+    ex assembleDifferenceEquation(ex Rational, symbol s);
 private slots:
     void on_buttonBox_accepted();
+
     void on_ExpressionEdit_textChanged(const QString &arg1);
+
+    void on_pushButton_clicked();
     void on_pushButtonGenSystem_clicked();
 
 private:
@@ -38,7 +40,7 @@ private:
     QGraphicsPixmapItem *Item;
     QGraphicsScene *Scene;
     QString *pExpression;
-    Ui::SystemDialog *ui;
+    Ui::DiscreteSystemDialog *ui;
 };
 
-#endif // SystemDialog_H
+#endif // DISCRETESYSTEMDIALOG_H

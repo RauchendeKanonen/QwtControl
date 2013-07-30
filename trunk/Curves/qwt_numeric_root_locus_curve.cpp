@@ -250,7 +250,13 @@ void QwtNumericRootLocusCurve::run (void)
         newton_real( n-1, Coefficients, roots );
 
         for(int k = 1 ; k < n ; k ++ )
-            Polygon.append(QPointF(roots[k].real(), roots[k].imag()));
+        {
+            if(isnan(roots[k].real()) || isnan(roots[k].imag()) ||
+                    isinf(roots[k].real()) || isinf(roots[k].imag()))
+                roots[k] = 0;
+            else
+                Polygon.append(QPointF(roots[k].real(), roots[k].imag()));
+        }
 
         Inval +=  EvaluationInfo.Resolution;
     }
@@ -379,9 +385,19 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
         {
             im = roots[i+1].imag();
             re = roots[i+1].real();
-            PoleLocations.at(i)->setYValue(im);
-            PoleLocations.at(i)->setXValue(re);
-            PoleLocations.at(i)->attach(Plot);
+
+            //if(fabs(im) < 10000.0 && fabs(re) < 10000.0)
+            //{
+                PoleLocations.at(i)->setYValue(im);
+                PoleLocations.at(i)->setXValue(re);
+                PoleLocations.at(i)->attach(Plot);
+            //}
+            //else
+            //{
+            //   PoleLocations.at(i)->setYValue(0);
+            //    PoleLocations.at(i)->setXValue(0);
+            //    PoleLocations.at(i)->detach();
+            //}
         }
         *IndepVal = 1e200;
         try
@@ -406,10 +422,18 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
         {
             im = roots[i+1].imag();
             re = roots[i+1].real();
-
-            RootLocations.at(i)->setYValue(im);
-            RootLocations.at(i)->setXValue(re);
-            RootLocations.at(i)->attach(Plot);
+            //if(fabs(im) < 10000.0 && fabs(re) < 10000.0)
+            //{
+                RootLocations.at(i)->setYValue(im);
+                RootLocations.at(i)->setXValue(re);
+                RootLocations.at(i)->attach(Plot);
+            //}
+            //else
+            //{
+            //    RootLocations.at(i)->setYValue(0);
+            //    RootLocations.at(i)->setXValue(0);
+            //    RootLocations.at(i)->detach();
+            //}
         }
 
     }

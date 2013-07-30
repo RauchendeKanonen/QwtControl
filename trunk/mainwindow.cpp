@@ -14,6 +14,7 @@
 #include <qwt_data.h>
 #include "systemdialog.h"
 #include <QColor>
+#include "discretesystemdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -212,13 +213,14 @@ void MainWindow::on_actionVariable_triggered()
     insertVariable(QString(Name + QString(" = ") + ValueString));
 }
 
-void MainWindow::insertExpression(QString Expression)
+QModelIndex MainWindow::insertExpression(QString Expression)
 {
     ProjectChanged = true;
     QModelIndex index = ExpressionMdl->index(0, 0, QModelIndex());
     ExpressionMdl->insertRows(0, 1, (const QModelIndex &)index);
     index = ExpressionMdl->index(0, 0, QModelIndex());
     ExpressionMdl->setData(index, Expression,Qt::EditRole);
+    return index;
 }
 
 void MainWindow::deleteVariable(QString Name)
@@ -278,13 +280,19 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     if(happened == NULL)
         return;
 
-    if(happened->text() == QString("delete"))
+    on_ExpressionListView_customContextMenuRequested(Index, happened->text());
+}
+
+void MainWindow::on_ExpressionListView_customContextMenuRequested(QModelIndex Index, QString MenuEntry)
+{
+
+    if(MenuEntry == QString("delete"))
     {
         ExpressionMdl->removeRow(Index.row());
         return;
     }
 
-    if(happened->text() == QString("clone and substitute"))
+    if(MenuEntry == QString("clone and substitute"))
     {
         ExpressionCloneDialog Dlg(this, ExpressionMdl->getExpressionDefinition(Index));
         Dlg.setModal(true);
@@ -295,15 +303,45 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
 
     ControlExpression *preExpression = ExpressionMdl->createExpression(Index, QString());
 
+    if(preExpression->getState() == false)
+    {
+        if(MenuEntry != QString("draw discrete step Response"))
+        {
+            QMessageBox Box;
+            Box.setText(QString("Could not parse Expression!!!"));
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+    }
+
     RangeSelectorDialog *Dlg;
 
-    if(happened->text() == QString("draw discrete step Response"))
+    if(MenuEntry == QString("draw discrete step Response"))
+    {
         Dlg = new RangeSelectorDialog(this, "n.a.");
+        Dlg->setWindowTitle("discrete step Response");
+    }
     else
     {
         Dlg = new RangeSelectorDialog(this, preExpression->getVariables());
-        if(happened->text() == QString("draw Response"))
+        if(MenuEntry == QString("draw Response"))
+        {
+            Dlg->setWindowTitle("draw Response");
             Dlg->variableSelected("sel. Compl. e.g. s");
+        }
+
+        if(MenuEntry == "draw Bode")
+        {
+            Dlg->variableSelected("sel. Compl. e.g. s");
+            Dlg->setWindowTitle("Bode Plot");
+        }
+
+        if(MenuEntry == "draw numeric Root Locus")
+        {
+            Dlg->variableSelected("sel. Gain");
+            Dlg->setWindowTitle("root locus");
+        }
     }
     delete preExpression;
 
@@ -377,7 +415,7 @@ RedoDlg:
     double Resolution = Dlg->getResolution();
     QColor Color = Dlg->getColor();
     delete Dlg;
-    if(happened->text() == QString("draw Complex"))
+    if(MenuEntry == QString("draw Complex"))
     {
 
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
@@ -440,7 +478,7 @@ RedoDlg:
     }
 
 
-    if(happened->text() == QString("draw Bode"))
+    if(MenuEntry == QString("draw Bode"))
     {
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
         if(FunctionName == QString())
@@ -470,7 +508,7 @@ RedoDlg:
         connect(MagCurve, SIGNAL(amplitudeMarkerChangeSignal(double)), PhaCurve, SLOT(phaseMarkerChangeSlot(double)));
     }
 
-    if(happened->text() == QString("draw Response"))
+    if(MenuEntry == QString("draw Response"))
     {
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
         ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
@@ -521,7 +559,7 @@ RedoDlg:
         Curve->setPen(QPen(Color));
 
     }
-    if(happened->text() == QString("draw discrete step Response"))
+    if(MenuEntry == QString("draw discrete step Response"))
     {
         StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
         StepRespDialog->show();
@@ -533,7 +571,7 @@ RedoDlg:
         enqueueCurve(Curve, StepRespDialog->getPlot());
         Curve->setPen(QPen(Color));
     }
-    if(happened->text() == QString("draw numeric Root Locus"))
+    if(MenuEntry == QString("draw numeric Root Locus"))
     {
         EvalInfo EvInfo;
         EvInfo.IndepStart = Range.x();
@@ -557,7 +595,8 @@ RedoDlg:
         enqueueCurve(Curve, ui->qwtPlot);
         Curve->setPen(QPen(Color));
 
-
+        while(Curve->isRunning())
+            usleep(100000);
         ui->qwtPlot->setAxisAutoScale( QwtPlot::xBottom );
         ui->qwtPlot->setAxisAutoScale( QwtPlot::yLeft );
         ui->qwtPlot->updateAxes();
@@ -1120,4 +1159,12 @@ void MainWindow::on_actionHelp_triggered()
         return;
     }
 
+}
+
+void MainWindow::on_actionDiscrete_System_triggered()
+{
+    QString Expression;
+    DiscreteSystemDialog Dlg((QWidget*)this, &Expression);
+    Dlg.setModal(true);
+    Dlg.exec();
 }

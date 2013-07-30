@@ -35,7 +35,7 @@ void castConstTo(QString *Buffer, QString Cast)
             i++;
             Buffer->insert(i, Cast);
             i+=Cast.count()+1;
-            for(;Buffer->at(i).isDigit() || Buffer->at(i) == QChar('.'); i++);
+            for(; (i < Buffer->size()) && (Buffer->at(i).isDigit() || Buffer->at(i) == QChar('.')) ; i++);
             Buffer->insert(i, ')');
             continue;
         }
@@ -45,7 +45,7 @@ void castConstTo(QString *Buffer, QString Cast)
             i++;
             Buffer->insert(i, Cast);
             i+=Cast.count();
-            for(;Buffer->at(i).isDigit() || Buffer->at(i) == QChar('.'); i++);
+            for(; (i < Buffer->size()) && (Buffer->at(i).isDigit() || Buffer->at(i) == QChar('.')) ; i++);
             Buffer->insert(i, ')');
         }
 
