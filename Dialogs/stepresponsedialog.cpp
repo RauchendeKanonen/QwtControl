@@ -7,7 +7,7 @@ StepResponseDialog::StepResponseDialog(QWidget *parent) :
 {
     pParent = parent;
     ui->setupUi(this);
-
+    setWindowTitle("Response");
     QwtLegend *legend = new QwtLegend;
     legend->setItemMode( QwtLegend::ClickableItem );
     ui->qwtPlot->insertLegend( legend, QwtPlot::RightLegend );

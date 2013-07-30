@@ -45,7 +45,8 @@ SOURCES += main.cpp \
     numeric/numericallaplace_weeks.cpp \
     numeric/numericallaplace_gaverstehfest.cpp \
     Dialogs/weeksetupdialog.cpp \
-    texteditdialog.cpp
+    texteditdialog.cpp \
+    Dialogs/discretesystemdialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -82,7 +83,8 @@ HEADERS += mainwindow.h \
     Curves/qwt_z_wd_curve.h \
     Dialogs/closeloopdialog.h \
     Dialogs/weeksetupdialog.h \
-    texteditdialog.h
+    texteditdialog.h \
+    Dialogs/discretesystemdialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -95,7 +97,8 @@ FORMS += mainwindow.ui \
     Dialogs/systemdialog.ui \
     Dialogs/closeloopdialog.ui \
     Dialogs/weeksetupdialog.ui \
-    texteditdialog.ui
+    texteditdialog.ui \
+    Dialogs/discretesystemdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \

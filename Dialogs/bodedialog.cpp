@@ -9,6 +9,7 @@ BodeDialog::BodeDialog(QWidget *parent) :
     ui(new Ui::BodeDialog)
 {
     ui->setupUi(this);
+    setWindowTitle("Bode Plot");
     pParent = parent;
     ui->qwtAmplitudePlot->setAxisScaleEngine( QwtPlot::yRight, new QwtLog10ScaleEngine );
     ui->qwtAmplitudePlot->setAxisScaleEngine( QwtPlot::xBottom, new QwtLog10ScaleEngine );

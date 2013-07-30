@@ -58,7 +58,7 @@ signals:
     void valueChangeSignal(QPair<QString,double> MarkerPair, bool Restart);
     void markerChangeSignal(QPair<QString,double>);
 public:
-
+    QModelIndex insertExpression(QString Definition);
     void deleteVariable(QString Name);
     void insertSlider(QString VariableName, QPointF Range);
     void parameterInit(QString VarName, double DblVal);
@@ -68,6 +68,7 @@ public:
     ~MainWindow();
     void closeEvent(QCloseEvent *event);
     void insertVariable(QString Definition);
+    void on_ExpressionListView_customContextMenuRequested(QModelIndex Index, QString MenuEntry);
 public slots:
     void rlZoomerSelected(QwtDoubleRect Rect);
     void emitAllValues(void);
@@ -76,6 +77,8 @@ public slots:
     void markerRelease(void);
     void parameterChange(QString VarName, double DblVal);
     void markerChange(QString VarName, double DblVal);
+
+
 private slots:
     void on_actionExpression_triggered();
 
@@ -116,6 +119,8 @@ private slots:
 
     void on_actionHelp_triggered();
 
+    void on_actionDiscrete_System_triggered();
+
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
@@ -134,7 +139,7 @@ private:
     QwtZWdCurve  *ZWdCurve;
     QwtPlotZoomer *d_zoomer;
     void deleteAllCurves(void);
-    void insertExpression(QString Definition);
+
     QStringList load(QString FilePath);
     bool store(QString FilePath, QStringList List);
     QString loadFile(QString FilePath);
