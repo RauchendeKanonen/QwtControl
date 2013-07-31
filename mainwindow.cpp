@@ -398,17 +398,37 @@ RedoDlg:
     }
     if(MissingVars.count())
     {
-        QString Message = "Variables Missing: ";
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Variables");
+        msgBox.setText("Insert all missing Variables?");
+        msgBox.addButton(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        if(msgBox.exec() == QMessageBox::Yes)
+        {
+
+        }
+        else
+        {
+            QString Message = "Variables Missing: ";
+            for(int i = 0 ; i < MissingVars.count() ; i ++ )
+            {
+                Message += MissingVars.at(i);
+                Message += " ";
+                insertVariable(MissingVars.at(i)+QString(" = 1.0"));
+            }
+
+            QMessageBox Box;
+            Box.setText(Message);
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+
         for(int i = 0 ; i < MissingVars.count() ; i ++ )
         {
-            Message += MissingVars.at(i);
-            Message += " ";
+            insertVariable(MissingVars.at(i)+QString(" = 1.0"));
         }
-        QMessageBox Box;
-        Box.setText(Message);
-        Box.setModal(true);
-        Box.exec();
-        return;
+
     }
 
 
