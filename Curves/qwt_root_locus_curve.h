@@ -57,6 +57,7 @@ class QWT_EXPORT QwtRootLocusCurve: public QwtControlPlotItem
     Q_OBJECT
 signals:
     void dataReadySig(QPolygonF);
+
 public slots:
     void dataReadySlot(QPolygonF Polygon);
     void valueChangeSlot(QPair <QString, double> VarPair, bool Restart);

@@ -312,6 +312,7 @@ protected:
         QwtPolygon &) const;
 
 private:
+    QwtPlotMarker *ThreadInformation;
     QwtData *d_xy;
     EvalInfo EvaluationInfo;
     ControlExpression *pExpression;
