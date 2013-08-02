@@ -41,6 +41,9 @@ void mathFunctionCompiler::compileComplex(QString FunctionDefinition, QString In
     QFile LibF(OutputLib);
     LibF.remove();
 
+    replaceComputerNotation(&FunctionDefinition);
+
+
     QStringList Variables = findCharacterStrings(FunctionDefinition);
     Variables.removeDuplicates();
     Variables.removeOne(IndependentVarName);

@@ -57,6 +57,7 @@ class MainWindow : public QMainWindow
 signals:
     void valueChangeSignal(QPair<QString,double> MarkerPair, bool Restart);
     void markerChangeSignal(QPair<QString,double>);
+
 public:
     QModelIndex insertExpression(QString Definition);
     void deleteVariable(QString Name);

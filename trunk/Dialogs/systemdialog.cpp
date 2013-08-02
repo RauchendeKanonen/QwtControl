@@ -2,6 +2,7 @@
 #include "ui_systemdialog.h"
 #include <QMessageBox>
 #include "mainwindow.h"
+#include "controlsystemtracker.h"
 
 SystemDialog::SystemDialog(QWidget *parent, QString *ExpressionA) :
     QDialog(parent),
@@ -79,4 +80,5 @@ void SystemDialog::on_pushButtonGenSystem_clicked()
 
     if(ui->checkBoxStepResponse->isChecked())
         ((MainWindow*)pParent)->on_ExpressionListView_customContextMenuRequested(StepResponseFunctionIndex, ("draw Response"));
+
 }

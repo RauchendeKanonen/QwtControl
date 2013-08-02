@@ -62,6 +62,7 @@ class QWT_EXPORT QwtNumericRootLocusCurve: public QwtControlPlotItem
     Q_OBJECT
 signals:
     void dataReadySig(QPolygonF);
+    void propertyChange(double, QString);
 public slots:
     void dataReadySlot(QPolygonF Polygon);
     void valueChangeSlot(QPair <QString, double> VarPair, bool Restart);

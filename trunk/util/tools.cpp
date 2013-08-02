@@ -1,4 +1,5 @@
 #include "tools.h"
+#include <math.h>
 
 void toComplexExpression(QString *Buffer)
 {
@@ -48,9 +49,51 @@ void castConstTo(QString *Buffer, QString Cast)
             for(; (i < Buffer->size()) && (Buffer->at(i).isDigit() || Buffer->at(i) == QChar('.')) ; i++);
             Buffer->insert(i, ')');
         }
-
     }
 }
+
+void replaceComputerNotation(QString *Buffer)
+{
+    for(int i = 0 ; i < Buffer->count() ; i ++)
+    {
+        if(i < Buffer->count()-1 && i > 0 && Buffer->at(i) == 'e' && Buffer->at(i+1) == '+' && Buffer->at(i-1).isDigit())
+        {
+            double Multiplier = 10.0;
+            if(Buffer->at(i+2).isDigit())
+                Multiplier = pow(10, strtof(Buffer->toStdString().c_str()+i+1, NULL));
+            Buffer->replace(i, 1, '*');
+            Buffer->remove(i+1, 1);
+
+            while(Buffer->at(i+1).isDigit())
+                Buffer->remove(i+1, 1);
+
+            QString MulStr;
+            MulStr.sprintf("%g", Multiplier);
+
+            Buffer->insert(i+1, MulStr);
+        }
+
+        if(i > 0 && Buffer->at(i) == 'e' && Buffer->at(i+1) == '-' && Buffer->at(i-1).isDigit())
+        {
+            double Multiplier = 10.0;
+            if(Buffer->at(i+2).isDigit())
+                Multiplier = pow(10,strtof(Buffer->toStdString().c_str()+i+1, NULL));
+            Buffer->replace(i, 1, '*');
+            Buffer->remove(i+1, 1);
+
+            while(Buffer->at(i+1).isDigit())
+                Buffer->remove(i+1, 1);
+
+
+            QString MulStr;
+            MulStr.sprintf("%g", Multiplier);
+
+
+            Buffer->insert(i+1, MulStr);
+        }
+    }
+}
+
 
 QStringList findCharacterStrings(QString Buffer)
 {

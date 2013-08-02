@@ -17,8 +17,6 @@ SOURCES += main.cpp \
     Dialogs/parametersliderdialog.cpp \
     mathFunction/mathfunctionevaluator.cpp \
     mathFunction/mathfunctioncompiler.cpp \
-    colorlisteditor.cpp \
-    controlexpression.cpp \
     Dialogs/csvdialog.cpp \
     Curves/qwt_root_locus_curve.cpp \
     Curves/qwt_response_curve.cpp \
@@ -45,8 +43,11 @@ SOURCES += main.cpp \
     numeric/numericallaplace_weeks.cpp \
     numeric/numericallaplace_gaverstehfest.cpp \
     Dialogs/weeksetupdialog.cpp \
-    texteditdialog.cpp \
-    Dialogs/discretesystemdialog.cpp
+    Dialogs/discretesystemdialog.cpp \
+    Dialogs/controlsystemtracker.cpp \
+    Dialogs/texteditdialog.cpp \
+    Dialogs/colorlisteditor.cpp \
+    mathFunction/controlexpression.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -57,8 +58,6 @@ HEADERS += mainwindow.h \
     definitions.h \
     mathFunction/mathfunctionevaluator.h \
     mathFunction/mathfunctioncompiler.h \
-    colorlisteditor.h \
-    controlexpression.h \
     Dialogs/csvdialog.h \
     Curves/qwt_root_locus_curve.h \
     Curves/qwt_response_curve.h \
@@ -83,8 +82,11 @@ HEADERS += mainwindow.h \
     Curves/qwt_z_wd_curve.h \
     Dialogs/closeloopdialog.h \
     Dialogs/weeksetupdialog.h \
-    texteditdialog.h \
-    Dialogs/discretesystemdialog.h
+    Dialogs/discretesystemdialog.h \
+    Dialogs/controlsystemtracker.h \
+    Dialogs/texteditdialog.h \
+    Dialogs/colorlisteditor.h \
+    mathFunction/controlexpression.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -97,11 +99,13 @@ FORMS += mainwindow.ui \
     Dialogs/systemdialog.ui \
     Dialogs/closeloopdialog.ui \
     Dialogs/weeksetupdialog.ui \
-    texteditdialog.ui \
-    Dialogs/discretesystemdialog.ui
+    Dialogs/discretesystemdialog.ui \
+    Dialogs/controlsystemtracker.ui \
+    Dialogs/texteditdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \
+    mathFunction \
     Curves \
     muparserx_v2_1_6/parser \
     Dialogs \

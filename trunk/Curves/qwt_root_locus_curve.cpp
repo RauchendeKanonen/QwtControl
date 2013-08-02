@@ -331,6 +331,7 @@ void QwtRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
         }
         else
             Marker->setLabel(QwtText(QString("")));
+
         Marker->setYValue(im);
         Marker->setXValue(re);
 

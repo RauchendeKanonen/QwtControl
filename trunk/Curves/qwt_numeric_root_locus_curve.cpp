@@ -283,14 +283,16 @@ void QwtNumericRootLocusCurve::dataReadySlot(QPolygonF Polygon)
 
 void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 {
+    double DominantPoleIm;
+    double DominantPoleRe;
+
     QwtPlot *Plot = plot();
     if(Plot && MarkerPair.first == IndependentVariable)
     {
         MarkerPos = MarkerPair.second;
         double InVal = MarkerPair.second;
         double im, re;
-
-
+        double SmallestPole = -HUGE_VAL;
 
         double Coefficients[ParserCoefficientMapping.count()];
         mup::Value *IndepVal = NameValueMapping.value(IndependentVariable);
@@ -361,7 +363,28 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
             Markers.at(i)->setYValue(im);
             Markers.at(i)->setXValue(re);
             Markers.at(i)->attach(Plot);
+            if(SmallestPole < re)
+            {
+                SmallestPole = re;
+                DominantPoleIm = im;
+                DominantPoleRe = re;
+            }
         }
+
+
+        double beta = atan(DominantPoleIm/DominantPoleRe);
+        double zeta = cos(beta);
+        emit propertyChange(zeta, QString("Damping"));
+
+        double omega_d = DominantPoleIm;
+        emit propertyChange(omega_d, QString("Omega"));
+
+        double omega_n = sqrt(pow(DominantPoleIm, 2.0)+pow(DominantPoleRe, 2.0));
+        double SettlingTime = 4/(omega_n*zeta);
+        emit propertyChange(SettlingTime, QString("SettlingTime"));
+
+        double OverShoot = exp(-zeta*3.141/sqrt(1-pow(zeta, 2.0)));//       zeta*3.141/(exp(sqrt(1-pow(zeta, 2.0))));
+        emit propertyChange(OverShoot, QString("Overshoot"));
 
         *IndepVal = 0.0;
         try
@@ -385,19 +408,9 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
         {
             im = roots[i+1].imag();
             re = roots[i+1].real();
-
-            //if(fabs(im) < 10000.0 && fabs(re) < 10000.0)
-            //{
-                PoleLocations.at(i)->setYValue(im);
-                PoleLocations.at(i)->setXValue(re);
-                PoleLocations.at(i)->attach(Plot);
-            //}
-            //else
-            //{
-            //   PoleLocations.at(i)->setYValue(0);
-            //    PoleLocations.at(i)->setXValue(0);
-            //    PoleLocations.at(i)->detach();
-            //}
+            PoleLocations.at(i)->setYValue(im);
+            PoleLocations.at(i)->setXValue(re);
+            PoleLocations.at(i)->attach(Plot);
         }
         *IndepVal = 1e200;
         try
@@ -422,18 +435,9 @@ void QwtNumericRootLocusCurve::markerChangeSlot(QPair<QString,double> MarkerPair
         {
             im = roots[i+1].imag();
             re = roots[i+1].real();
-            //if(fabs(im) < 10000.0 && fabs(re) < 10000.0)
-            //{
-                RootLocations.at(i)->setYValue(im);
-                RootLocations.at(i)->setXValue(re);
-                RootLocations.at(i)->attach(Plot);
-            //}
-            //else
-            //{
-            //    RootLocations.at(i)->setYValue(0);
-            //    RootLocations.at(i)->setXValue(0);
-            //    RootLocations.at(i)->detach();
-            //}
+            RootLocations.at(i)->setYValue(im);
+            RootLocations.at(i)->setXValue(re);
+            RootLocations.at(i)->attach(Plot);
         }
 
     }

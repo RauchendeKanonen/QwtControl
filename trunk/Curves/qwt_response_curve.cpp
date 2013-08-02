@@ -216,7 +216,7 @@ public:
 void QwtResponseCurve::run (void)
 {
     QPolygonF Polygon;
-    int NThreads = 3;
+    int NThreads = 9;
     QList <NumericalLaplace*> SplittedLaplace;
     SplittedLaplace.append(Laplace);
 
@@ -255,9 +255,11 @@ void QwtResponseCurve::run (void)
 
 void QwtResponseCurve::dataReadySlot(QPolygonF Polygon)
 {
+    ThreadInformation->detach();
     setData(Polygon);
     if(plot())
         plot()->replot();
+
 }
 
 void QwtResponseCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
@@ -286,7 +288,24 @@ void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Res
         }
     }
     if(Restart && Changed)
+    {
+        ThreadInformation->setLabel( QString("Work in progress!"));
+
+        const QwtScaleMap xMap = plot()->canvasMap(xAxis());
+        const QwtScaleMap yMap = plot()->canvasMap(yAxis());
+        float x = xMap.invTransform(100);
+        float y = yMap.invTransform(20);
+        ThreadInformation->setXValue(x);
+        ThreadInformation->setYValue(y);
+        ThreadInformation->attach(plot());
+        plot()->replot();
         start();
+    }
+    else
+    {
+
+
+    }
 }
 
 
@@ -337,7 +356,7 @@ void QwtResponseCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 {
     EvaluationInfo = EvInfo;
     pExpression = Expression;
-
+    ThreadInformation = new QwtPlotMarker();
 
 
     pEval = Expression->getComplexEvaluator();

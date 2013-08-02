@@ -15,6 +15,7 @@
 #include "systemdialog.h"
 #include <QColor>
 #include "discretesystemdialog.h"
+#include "controlsystemtracker.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -126,6 +127,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ControlSystemDocDlg = new TextEditDialog();
     ControlSystemDocDlg->setWindowTitle("Control System Documentation");
 
+    //clean up temporary files
+    system("rm *.png");
+    system("rm latex/*.tex");
+    system("rm mathFunction/compile/*.c");
+    system("rm mathFunction/compile/*.h");
+    system("rm mathFunction/compile/*.o");
+    system("rm mathFunction/compile/*.so.0.1");
 }
 
 void  MainWindow::rlZoomerSelected(QwtDoubleRect Rect)
@@ -627,6 +635,8 @@ RedoDlg:
         IndependentMarkerSliderDialog->activateWindow();
         IndependentMarkerSliderDialog->raise();
     }
+
+
 }
 
 void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &pos)
@@ -665,6 +675,7 @@ void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &po
         VariableSliderDialog->removeSlider(VariableName);
         VariabelMdl->deleteVar(VariableName);
     }
+
 }
 
 void MainWindow::insertSlider(QString VariableName, QPointF Range)
@@ -907,6 +918,7 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     ExpressionMenu.addAction(QString("delete"));
     ExpressionMenu.addAction(QString("toggle visability"));
     ExpressionMenu.addAction(QString("setup"));
+    ExpressionMenu.addAction(QString("install Tracker"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -936,6 +948,12 @@ void MainWindow::on_CurveListView_customContextMenuRequested(const QPoint &pos)
     {
         QwtControlPlotItem *Item = (QwtControlPlotItem *)CurveItem;
         Item->setup();
+    }
+    if(happened->text() == QString("install Tracker"))
+    {
+        ControlSystemTracker *Tracker = new ControlSystemTracker(this);
+        connect(CurveItem, SIGNAL(propertyChange(double, QString)), Tracker, SLOT(SystemProperty(double,QString)));
+        Tracker->show();
     }
 }
 
@@ -1178,7 +1196,6 @@ void MainWindow::on_actionHelp_triggered()
         std::cerr << "error opening output file\n";
         return;
     }
-
 }
 
 void MainWindow::on_actionDiscrete_System_triggered()
