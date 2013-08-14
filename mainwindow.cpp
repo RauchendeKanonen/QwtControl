@@ -17,8 +17,8 @@
 #include "discretesystemdialog.h"
 #include "controlsystemtracker.h"
 #include "tdkernel.h"
-#include "realtimeresponcedialog.h"
-#include "Dialogs/discretecontinoussystemdialog.h"
+#include "discretecontinoussystemdialog.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
