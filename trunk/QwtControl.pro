@@ -48,7 +48,6 @@ SOURCES += main.cpp \
     Dialogs/texteditdialog.cpp \
     Dialogs/colorlisteditor.cpp \
     mathFunction/controlexpression.cpp \
-    Dialogs/realtimeresponcedialog.cpp \
     util/tdkernel.cpp \
     Curves/qwt_discrete_continous_response_curve.cpp \
     Dialogs/discretecontinoussystemdialog.cpp
@@ -91,7 +90,6 @@ HEADERS += mainwindow.h \
     Dialogs/texteditdialog.h \
     Dialogs/colorlisteditor.h \
     mathFunction/controlexpression.h \
-    Dialogs/realtimeresponcedialog.h \
     util/tdkernel.h \
     Curves/qwt_discrete_continous_response_curve.h \
     Dialogs/discretecontinoussystemdialog.h
@@ -110,7 +108,6 @@ FORMS += mainwindow.ui \
     Dialogs/discretesystemdialog.ui \
     Dialogs/controlsystemtracker.ui \
     Dialogs/texteditdialog.ui \
-    Dialogs/realtimeresponcedialog.ui \
     Dialogs/discretecontinoussystemdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
