@@ -16,6 +16,9 @@
 #include <QColor>
 #include "discretesystemdialog.h"
 #include "controlsystemtracker.h"
+#include "tdkernel.h"
+#include "realtimeresponcedialog.h"
+#include "Dialogs/discretecontinoussystemdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1204,4 +1207,23 @@ void MainWindow::on_actionDiscrete_System_triggered()
     DiscreteSystemDialog Dlg((QWidget*)this, &Expression);
     Dlg.setModal(true);
     Dlg.exec();
+}
+
+void MainWindow::on_actionDiscrete_Continous_System_triggered()
+{
+    DiscreteContinousSystemDialog Dlg(this);
+    Dlg.setModal(true);
+    if(!Dlg.exec())
+        return;
+
+
+    QStringList Expressions = Dlg.getExpressions();
+    EvalInfo EvInfo = Dlg.getEvalInfo();
+    QwtDiscreteContinousResponseCurve *Curve = new QwtDiscreteContinousResponseCurve(Expressions, EvInfo);
+
+
+    StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
+    StepRespDialog->show();
+    enqueueCurve(Curve, StepRespDialog->getPlot());
+    Curve->setPen(QPen("red"));
 }

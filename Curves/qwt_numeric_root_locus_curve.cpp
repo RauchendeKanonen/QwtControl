@@ -166,7 +166,7 @@ public:
                 return false;
 
             const int idx = _rect.width() * (pos.y() - _rect.y()) +
-                (pos.x() - _rect.x());
+                    (pos.x() - _rect.x());
 
             const bool marked = testBit(idx);
             if ( !marked )
@@ -533,7 +533,7 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
 {
     EvaluationInfo = EvInfo;
     pExpression = Expression;
-
+    int NumLocus;
     QString ExpressionString = pExpression->getExpression();
     IndependentVariable = pExpression->independentVarName();
     QStringList Symbols = pExpression->getVariables();
@@ -570,43 +570,55 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
         (*NameValueMapping.value(Symbols.at(i))) = 0;
     }
 
-    // a little complicated to get the coefficients out
-    GiNaC::parser reader;
-    GiNaC::ex gExpression = reader(ExpressionString.toStdString());
-    GiNaC::ex DeNumerator = gExpression.denom();
-
-
-
-    GiNaC::ex Polynome = DeNumerator.expand();
-
-    GiNaC::parser reader2;
-    ostringstream denstring;
-    denstring << Polynome;
-    cout << endl <<  Polynome << endl;
-    GiNaC::ex Poly = reader2(denstring.str());
-
-    GiNaC::symtab table = reader2.get_syms();
-    GiNaC::symbol z = table.find(IndepSym.toStdString().c_str()) != table.end() ?
-           GiNaC::ex_to<GiNaC::symbol>(table[IndepSym.toStdString().c_str()]) : GiNaC::symbol(IndepSym.toStdString().c_str());
-    cout << "differential " << Poly.diff(z) << " " << endl;
-
-
-    //insert expressions for the coefficients
-    for( int i=0 ; i<=Poly.degree(z); ++i )
+    try
     {
-        GiNaC::ex coeffexpression = Poly.coeff(z,i);
-        ostringstream CoeffExStream;
-        CoeffExStream << coeffexpression;
 
-        ParserX *pParser = new ParserX();
-        pParser->SetExpr(CoeffExStream.str());
-        QList <QString> ValueNames = NameValueMapping.keys();
+        // a little complicated to get the coefficients out
+        GiNaC::parser reader;
+        GiNaC::ex gExpression = reader(ExpressionString.toStdString());
+        GiNaC::ex DeNumerator = gExpression.denom();
 
-        //define all vars
-        for(int m = 0 ; m < NameValueMapping.count() ; m ++)
-            pParser->DefineVar(ValueNames.at(m).toStdString(), Variable(NameValueMapping.value(ValueNames.at(m))));
 
-        ParserCoefficientMapping.insert(pParser, i);
+
+        GiNaC::ex Polynome = DeNumerator.expand();
+
+        GiNaC::parser reader2;
+        ostringstream denstring;
+        denstring << Polynome;
+        cout << endl <<  Polynome << endl;
+        GiNaC::ex Poly = reader2(denstring.str());
+
+        GiNaC::symtab table = reader2.get_syms();
+        GiNaC::symbol z = table.find(IndepSym.toStdString().c_str()) != table.end() ?
+                    GiNaC::ex_to<GiNaC::symbol>(table[IndepSym.toStdString().c_str()]) : GiNaC::symbol(IndepSym.toStdString().c_str());
+        cout << "differential " << Poly.diff(z) << " " << endl;
+
+
+        //insert expressions for the coefficients
+        for( int i=0 ; i<=Poly.degree(z); ++i )
+        {
+            GiNaC::ex coeffexpression = Poly.coeff(z,i);
+            ostringstream CoeffExStream;
+            CoeffExStream << coeffexpression;
+
+            ParserX *pParser = new ParserX();
+            pParser->SetExpr(CoeffExStream.str());
+            QList <QString> ValueNames = NameValueMapping.keys();
+
+            //define all vars
+            for(int m = 0 ; m < NameValueMapping.count() ; m ++)
+                pParser->DefineVar(ValueNames.at(m).toStdString(), Variable(NameValueMapping.value(ValueNames.at(m))));
+
+            ParserCoefficientMapping.insert(pParser, i);
+        }
+        NumLocus = Poly.degree(z);
+    }
+    catch (exception &p)
+    {
+        QMessageBox Box;
+        Box.setText(p.what());
+        Box.setModal(true);
+        Box.exec();
     }
 
     DrawSplitted = 0;
@@ -621,7 +633,7 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
 
     first_eval = true;
 
-    int NumLocus = Poly.degree(z);
+
     QColor Color(Qt::red);
 
 
@@ -633,13 +645,13 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
 
 
         PoleLocations.last()->setSymbol( QwtSymbol( QwtSymbol::XCross,
-                                            QColor(Color), QColor(Color), QSize( 15, 15 ) ) );
+                                                    QColor(Color), QColor(Color), QSize( 15, 15 ) ) );
         RootLocations.last()->setSymbol( QwtSymbol( QwtSymbol::Ellipse,
-                                            QColor(Color), QColor(Color), QSize( 10, 10 ) ) );
+                                                    QColor(Color), QColor(Color), QSize( 10, 10 ) ) );
 
         Markers.append(new QwtPlotMarker());
         Markers.last()->setSymbol( QwtSymbol( QwtSymbol::Cross,
-                                      QColor(Color), QColor(Color), QSize( 25, 25 ) ) );
+                                              QColor(Color), QColor(Color), QSize( 25, 25 ) ) );
     }
 
     connect(this, SIGNAL(dataReadySig(QPolygonF)), this , SLOT(dataReadySlot(QPolygonF)));
@@ -809,7 +821,7 @@ void QwtNumericRootLocusCurve::setData(const double *xData, const double *yData,
   \note Internally the data is stored in a QwtArrayData object
 */
 void QwtNumericRootLocusCurve::setData(const QwtArray<double> &xData,
-    const QwtArray<double> &yData)
+                                       const QwtArray<double> &yData)
 {
     delete d_xy;
     d_xy = new QwtArrayData(xData, yData);
@@ -890,8 +902,8 @@ QwtDoubleRect QwtNumericRootLocusCurve::boundingRect() const
   \sa drawCurve(), drawSymbols()
 */
 void QwtNumericRootLocusCurve::draw(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &) const
+                                    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                    const QRect &) const
 {
     draw(painter, xMap, yMap, 0, -1);
 }
@@ -935,7 +947,7 @@ void QwtNumericRootLocusCurve::draw(int from, int to) const
 #endif
 
     if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
-        !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
+         !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
     {
         /*
           We save curve and range in helper and call repaint.
@@ -948,7 +960,7 @@ void QwtNumericRootLocusCurve::draw(int from, int to) const
         canvas->installEventFilter(&helper);
 
         const bool noSystemBackground =
-            canvas->testAttribute(Qt::WA_NoSystemBackground);
+                canvas->testAttribute(Qt::WA_NoSystemBackground);
         canvas->setAttribute(Qt::WA_NoSystemBackground, true);
         canvas->repaint();
         canvas->setAttribute(Qt::WA_NoSystemBackground, noSystemBackground);
@@ -961,11 +973,11 @@ void QwtNumericRootLocusCurve::draw(int from, int to) const
     const QwtScaleMap yMap = plot()->canvasMap(yAxis());
 
     if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache() && !canvas->paintCache()->isNull() )
+         canvas->paintCache() && !canvas->paintCache()->isNull() )
     {
         QPainter cachePainter((QPixmap *)canvas->paintCache());
         cachePainter.translate(-canvas->contentsRect().x(),
-            -canvas->contentsRect().y());
+                               -canvas->contentsRect().y());
 
         draw(&cachePainter, xMap, yMap, from, to);
     }
@@ -1000,8 +1012,8 @@ void QwtNumericRootLocusCurve::draw(int from, int to) const
   \sa drawCurve(), drawSymbols(),
 */
 void QwtNumericRootLocusCurve::draw(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                    int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
@@ -1044,33 +1056,33 @@ void QwtNumericRootLocusCurve::draw(QPainter *painter,
 */
 
 void QwtNumericRootLocusCurve::drawCurve(QPainter *painter, int style,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                         int from, int to) const
 {
     switch (style)
     {
-        case Lines:
-            if ( testCurveAttribute(Fitted) )
-            {
-                // we always need the complete
-                // curve for fitting
-                from = 0;
-                to = dataSize() - 1;
-            }
-            drawDots(painter, xMap, yMap, from, to);
-            break;
-        case Sticks:
-            drawSticks(painter, xMap, yMap, from, to);
-            break;
-        case Steps:
-            drawSteps(painter, xMap, yMap, from, to);
-            break;
-        case Dots:
-            drawDots(painter, xMap, yMap, from, to);
-            break;
-        case NoCurve:
-        default:
-            break;
+    case Lines:
+        if ( testCurveAttribute(Fitted) )
+        {
+            // we always need the complete
+            // curve for fitting
+            from = 0;
+            to = dataSize() - 1;
+        }
+        drawDots(painter, xMap, yMap, from, to);
+        break;
+    case Sticks:
+        drawSticks(painter, xMap, yMap, from, to);
+        break;
+    case Steps:
+        drawSteps(painter, xMap, yMap, from, to);
+        break;
+    case Dots:
+        drawDots(painter, xMap, yMap, from, to);
+        break;
+    case NoCurve:
+    default:
+        break;
     }
 }
 
@@ -1090,8 +1102,8 @@ void QwtNumericRootLocusCurve::drawCurve(QPainter *painter, int style,
       drawLines(), drawDots(), drawSteps(), drawSticks()
 */
 void QwtNumericRootLocusCurve::drawLines(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                         int from, int to) const
 {
     int size = to - from + 1;
     if ( size <= 0 )
@@ -1228,8 +1240,8 @@ void QwtNumericRootLocusCurve::drawLines(QPainter *painter,
   \sa draw(), drawCurve(), drawDots(), drawLines(), drawSteps()
 */
 void QwtNumericRootLocusCurve::drawSticks(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                          const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                          int from, int to) const
 {
     int x0 = xMap.transform(d_data->reference);
     int y0 = yMap.transform(d_data->reference);
@@ -1258,8 +1270,8 @@ void QwtNumericRootLocusCurve::drawSticks(QPainter *painter,
   \sa draw(), drawCurve(), drawSticks(), drawLines(), drawSteps()
 */
 void QwtNumericRootLocusCurve::drawDots(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                        int from, int to) const
 {
     const QRect window = painter->window();
     if ( window.isEmpty() )
@@ -1307,7 +1319,7 @@ void QwtNumericRootLocusCurve::drawDots(QPainter *painter,
             for (int i = from; i <= to; i++)
             {
                 const QPoint p( xMap.transform(x(i)),
-                    yMap.transform(y(i)) );
+                                yMap.transform(y(i)) );
 
                 if ( pixelMatrix.testPixel(p) )
                     QwtPainter::drawPoint(painter, p.x(), p.y());
@@ -1351,8 +1363,8 @@ void QwtNumericRootLocusCurve::drawDots(QPainter *painter,
       draw(), drawCurve(), drawDots(), drawLines(), drawSticks()
 */
 void QwtNumericRootLocusCurve::drawSteps(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                         int from, int to) const
 {
     QwtPolygon polyline(2 * (to - from) + 1);
 
@@ -1476,8 +1488,8 @@ QwtCurveFitter *QwtNumericRootLocusCurve::curveFitter() const
   \sa setBrush(), setBaseline(), setCurveType()
 */
 void QwtNumericRootLocusCurve::fillCurve(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QwtPolygon &pa) const
+                                         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                         QwtPolygon &pa) const
 {
     if ( d_data->brush.style() == Qt::NoBrush )
         return;
@@ -1509,8 +1521,8 @@ void QwtNumericRootLocusCurve::fillCurve(QPainter *painter,
   \param pa Polygon to be completed
 */
 void QwtNumericRootLocusCurve::closePolyline(
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QwtPolygon &pa) const
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        QwtPolygon &pa) const
 {
     const int sz = pa.size();
     if ( sz < 2 )
@@ -1521,16 +1533,16 @@ void QwtNumericRootLocusCurve::closePolyline(
     if ( d_data->curveType == QwtNumericRootLocusCurve::Xfy )
     {
         pa.setPoint(sz,
-            xMap.transform(d_data->reference), pa.point(sz - 1).y());
+                    xMap.transform(d_data->reference), pa.point(sz - 1).y());
         pa.setPoint(sz + 1,
-            xMap.transform(d_data->reference), pa.point(0).y());
+                    xMap.transform(d_data->reference), pa.point(0).y());
     }
     else
     {
         pa.setPoint(sz,
-            pa.point(sz - 1).x(), yMap.transform(d_data->reference));
+                    pa.point(sz - 1).x(), yMap.transform(d_data->reference));
         pa.setPoint(pa.size() - 1,
-            pa.point(0).x(), yMap.transform(d_data->reference));
+                    pa.point(0).x(), yMap.transform(d_data->reference));
     }
 }
 
@@ -1546,8 +1558,8 @@ void QwtNumericRootLocusCurve::closePolyline(
   \sa setSymbol(), draw(), drawCurve()
 */
 void QwtNumericRootLocusCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+                                           const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+                                           int from, int to) const
 {
     painter->setBrush(symbol.brush());
     painter->setPen(QwtPainter::scaledPen(symbol.pen()));
@@ -1568,7 +1580,7 @@ void QwtNumericRootLocusCurve::drawSymbols(QPainter *painter, const QwtSymbol &s
         for (int i = from; i <= to; i++)
         {
             const QPoint pi( xMap.transform(x(i)),
-                yMap.transform(y(i)) );
+                             yMap.transform(y(i)) );
 
             if ( pixelMatrix.testPixel(pi) )
             {

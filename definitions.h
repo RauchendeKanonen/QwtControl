@@ -11,12 +11,6 @@
 
 
 
-#define CURVE_TYPE_XY           1
-#define CURVE_TYPE_COMPLEX      2
-#define CURVE_TYPE_MAGNITUDE    3
-#define CURVE_TYPE_XY_SET       4
-#define CURVE_TYPE_XY_COMPILED_NUMERICAL 5
-
 
 #define LINUX 1
 
