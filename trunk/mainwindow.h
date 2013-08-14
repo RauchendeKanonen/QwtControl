@@ -46,6 +46,7 @@
 #include "Dialogs/closeloopdialog.h"
 #include <QTimer>
 #include "texteditdialog.h"
+#include "qwt_discrete_continous_response_curve.h"
 
 namespace Ui {
 class MainWindow;
@@ -70,6 +71,14 @@ public:
     void closeEvent(QCloseEvent *event);
     void insertVariable(QString Definition);
     void on_ExpressionListView_customContextMenuRequested(QModelIndex Index, QString MenuEntry);
+    CurveModel *curveModel(void)
+    {
+        return CurveMdl;
+    }
+    ExpressionModel *expressionModel(void)
+    {
+        return ExpressionMdl;
+    }
 public slots:
     void rlZoomerSelected(QwtDoubleRect Rect);
     void emitAllValues(void);
@@ -121,6 +130,8 @@ private slots:
     void on_actionHelp_triggered();
 
     void on_actionDiscrete_System_triggered();
+
+    void on_actionDiscrete_Continous_System_triggered();
 
 private:
     Ui::MainWindow *ui;

@@ -116,6 +116,7 @@
     <addaction name="actionResponse_Plot"/>
     <addaction name="actionSystem"/>
     <addaction name="actionDiscrete_System"/>
+    <addaction name="actionDiscrete_Continous_System"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -215,6 +216,16 @@
   <action name="actionDiscrete_System">
    <property name="text">
     <string>Discrete System</string>
+   </property>
+  </action>
+  <action name="actionTest">
+   <property name="text">
+    <string>Test</string>
+   </property>
+  </action>
+  <action name="actionDiscrete_Continous_System">
+   <property name="text">
+    <string>Discrete-Continous System</string>
    </property>
   </action>
  </widget>

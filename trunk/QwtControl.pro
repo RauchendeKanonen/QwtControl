@@ -47,7 +47,11 @@ SOURCES += main.cpp \
     Dialogs/controlsystemtracker.cpp \
     Dialogs/texteditdialog.cpp \
     Dialogs/colorlisteditor.cpp \
-    mathFunction/controlexpression.cpp
+    mathFunction/controlexpression.cpp \
+    Dialogs/realtimeresponcedialog.cpp \
+    util/tdkernel.cpp \
+    Curves/qwt_discrete_continous_response_curve.cpp \
+    Dialogs/discretecontinoussystemdialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -86,7 +90,11 @@ HEADERS += mainwindow.h \
     Dialogs/controlsystemtracker.h \
     Dialogs/texteditdialog.h \
     Dialogs/colorlisteditor.h \
-    mathFunction/controlexpression.h
+    mathFunction/controlexpression.h \
+    Dialogs/realtimeresponcedialog.h \
+    util/tdkernel.h \
+    Curves/qwt_discrete_continous_response_curve.h \
+    Dialogs/discretecontinoussystemdialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -101,7 +109,9 @@ FORMS += mainwindow.ui \
     Dialogs/weeksetupdialog.ui \
     Dialogs/discretesystemdialog.ui \
     Dialogs/controlsystemtracker.ui \
-    Dialogs/texteditdialog.ui
+    Dialogs/texteditdialog.ui \
+    Dialogs/realtimeresponcedialog.ui \
+    Dialogs/discretecontinoussystemdialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \
@@ -119,3 +129,8 @@ LIBS += -L/usr/lib/ \
     -lqwt \
     -lm \
     -lginac
+
+OTHER_FILES +=
+
+RESOURCES += \
+    ressource.qrc

@@ -2,30 +2,32 @@
 #include "mathFunction/mathfunctioncompiler.h"
 #include "mathFunction/mathfunctionevaluator.h"
 #include "numericallaplace.h"
-
-
+#include "mathFunction/controlexpression.h"
+#include "rtresponcewindow.h"
+#include <QtGui/QApplication>
 
 class TDKernel
 {
 public:
     bool genKernel(mathFunctionEvaluator *Eval, double dt, int Length)
     {
-        Kernel->clear();
-        NumericalLaplace NLaplace;
+        Kernel.clear();
+        NumericalLaplace NLaplace(Eval, TRANSFORM_WEEKS);
         double t = 0.0;
         double Integral = 0;
+
+        Kernel = NLaplace.InverseTransform(dt, Length*dt, 0);
+
 
         for(int i = 0 ; i < Length ; i++ )
         {
             t += dt;
-            double Value = NLaplace.InverseTransform(Eval, t);
-            Kernel->append(Value);
-            Integral += Value;
+            Integral += Kernel.at(i).y();
         }
 
         for(int i = 0 ; i < Length ; i++ )
         {
-            Kernel->replace(i,Kernel->at(i)/Integral);
+            Kernel.replace(i,Kernel.at(i)/Integral);
         }
 
         return true;
@@ -35,7 +37,7 @@ public:
     {
         double Result;
         size_t SignalLen = Signal->count();
-        size_t KernelLen = Kernel->count();
+        size_t KernelLen = Kernel.count();
         size_t kmin, kmax, k;
 
         Result = 0;
@@ -45,7 +47,7 @@ public:
 
         for (k = kmin; k <= kmax; k++)
         {
-            Result += Signal->at(k) * Kernel->at(n - k);
+            Result += Signal->at(k) * Kernel.at(n - k).y();
         }
 
         return Result;
@@ -53,14 +55,13 @@ public:
 
     TDKernel(mathFunctionEvaluator *pEval, double dtA, size_t len)
     {
-        Kernel = new QList <double>();
         Evaluator = pEval;
         dt = dtA;
         KernelLength = len;
         genKernel(Evaluator, dt, KernelLength);
     }
 
-    QList<double> *getKernel(void)
+    QPolygonF getKernel(void)
     {
         return Kernel;
     }
@@ -68,7 +69,7 @@ public:
 
 private:
     mathFunctionEvaluator *Evaluator;
-    QList<double> *Kernel;
+    QPolygonF Kernel;
     double dt;
     size_t KernelLength;
 };
@@ -85,10 +86,18 @@ void putKernel(QList <double> Kernel)
         printf("%i %f\n", i, Kernel.at(i));
 }
 
+void putKernel(QPolygonF Kernel)
+{
+    for(int i = 0 ; i < Kernel.count() ; i++ )
+        printf("%i %f\n", i, Kernel.at(i).y());
+}
+
 int main(int argc, char *argv[])
 {
-    mathFunctionCompiler *Compiler = new mathFunctionCompiler("1/pow((pow(s,2.0)+1/a*s+1), 2)", "s", "sorder");
-    mathFunctionEvaluator *Eval = new mathFunctionEvaluator("s", "sorder");
+    QApplication a(argc, argv);
+    ControlExpression *Expression = new ControlExpression("1/pow((pow(s,2.0)+1/a*s+1), 2)", "s");
+
+    mathFunctionEvaluator *Eval = Expression->getComplexEvaluator();
     Eval->setVar("a", 1);
 
     int SignalLength = 10000;
@@ -102,14 +111,15 @@ int main(int argc, char *argv[])
     double Y = 0;
     QList<double> Output;
 
-    for( int i = 0 ; i < SignalLength ; i ++ )
+    RTResponceWindow Dlg;
+
+    Dlg.show();
+    for( int i = 0 ; i < SignalLength*2 ; i ++ )
     {
         Output.append(Y);
         double Error = (X - Y);
         Signal.append(0.9*Error);
         Y = Kernel1.convolvedDot(i, &Signal);
-
-
     }
     putKernel(Output);
 }

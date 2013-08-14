@@ -40,6 +40,33 @@ QString ExpressionModel::getExpressionName(const QModelIndex &index)
     return QString();
 }
 
+ControlExpression *ExpressionModel::createExpression(QString ExpressionName, QString IndepVarname)
+{
+    for(int i = 0 ; i < ExpressionList.count() ; i ++)
+    {
+        QString ExpressionStr = ExpressionList.at(i);
+        int FunctionNameEnd = ExpressionStr.indexOf(':');
+
+        if(FunctionNameEnd > 0)
+            if(ExpressionName == ExpressionStr.left(FunctionNameEnd))
+                return new ControlExpression(ExpressionStr, IndepVarname);
+    }
+    return NULL;
+}
+
+QString ExpressionModel::getExpression(QString ExpressionName)
+{
+    for(int i = 0 ; i < ExpressionList.count() ; i ++)
+    {
+        QString ExpressionStr = ExpressionList.at(i);
+        int FunctionNameEnd = ExpressionStr.indexOf(':');
+
+        if(FunctionNameEnd > 0)
+            if(ExpressionName == ExpressionStr.left(FunctionNameEnd))
+                return ExpressionStr.right(ExpressionStr.count()-FunctionNameEnd-1);
+    }
+    return NULL;
+}
 
 ControlExpression *ExpressionModel::createExpression(const QModelIndex &index, QString IndepVarname)
 {
