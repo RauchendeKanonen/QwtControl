@@ -29,4 +29,6 @@ typedef struct
 #define Rtti_PlotMagnitude 5
 #define Rtti_PlotNumericRootLocus 6
 #define Rtti_PlotDiscreteResponse 7
+#define Rtti_PlotContinousDiscreteResponse 8
+
 #endif // DEFINITIONS_H

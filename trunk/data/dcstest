@@ -1,2 +1,5 @@
-a:1/(a*s+1)^4
-b:x[i-1]
+cl:((Ki/s+Kp+Kd*s)*1/(a*s+1))/(((Ki/s+Kp+Kd*s)*1/(a*s+1))+1)/s
+ol:(Ki/s+Kp+Kd*s)*1/(a*s+1)
+ctl:Kp+Ki*0.1*z/(z-1)+Kd*(z-1)/0.1*z
+tf:1/(a*s+1)
+g/(g+1)

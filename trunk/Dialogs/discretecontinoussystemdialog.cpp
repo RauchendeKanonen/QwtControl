@@ -18,7 +18,7 @@ DiscreteContinousSystemDialog::DiscreteContinousSystemDialog(QWidget *parent) :
 
 DiscreteContinousSystemDialog::~DiscreteContinousSystemDialog()
 {
-    delete ui;
+
     if(Kernel)
     {
         pParent->curveModel()->removeCurve(Kernel);
@@ -26,13 +26,18 @@ DiscreteContinousSystemDialog::~DiscreteContinousSystemDialog()
         Kernel->detach();
         Kernel->stopThread();
         delete Kernel;
-        if(Plot)
-            Plot->replot();
+
     }
+
+    Marker->detach();
+    delete Marker;
+
     if(StepRespDialog)
     {
         delete StepRespDialog;
     }
+
+    delete ui;
 }
 
 void DiscreteContinousSystemDialog::on_checkBoxShowKernel_clicked()
@@ -72,6 +77,7 @@ void DiscreteContinousSystemDialog::on_checkBoxShowKernel_clicked()
     try
     {
         Kernel = new QwtResponseCurve(pExp, Evinfo);
+        qDebug("%d", (long int)Kernel);
     }
     catch(const QString &e)
     {
@@ -109,7 +115,11 @@ EvalInfo DiscreteContinousSystemDialog::getEvalInfo(void)
 
 void DiscreteContinousSystemDialog::on_doubleSpinBoxDt_valueChanged(double arg1)
 {
+
     double KernelSampling = ui->doubleSpinBoxDt->value()*ui->spinBoxDots->value();
+
+    if(Kernel == 0)
+        return;
 
     QwtPlot *Plot = Kernel->plot();
 
@@ -121,7 +131,11 @@ void DiscreteContinousSystemDialog::on_doubleSpinBoxDt_valueChanged(double arg1)
 
 void DiscreteContinousSystemDialog::on_spinBoxDots_valueChanged(int arg1)
 {
+
     double KernelSampling = ui->doubleSpinBoxDt->value()*ui->spinBoxDots->value();
+
+    if(Kernel == 0)
+        return;
 
     QwtPlot *Plot = Kernel->plot();
 
@@ -129,4 +143,9 @@ void DiscreteContinousSystemDialog::on_spinBoxDots_valueChanged(int arg1)
     Marker->setYValue(Kernel->data().y(ui->spinBoxDots->value()));
     Marker->attach(Plot);
     Plot->replot();
+}
+
+void DiscreteContinousSystemDialog::on_toolButtonUpdate_clicked()
+{
+    on_checkBoxShowKernel_clicked();
 }

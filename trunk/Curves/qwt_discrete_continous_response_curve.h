@@ -325,7 +325,7 @@ private:
     mathFunctionEvaluator *pSysEvaluator;
     NumericalLaplace *Laplace;
     TDKernel *Kernel;
-
+    bool RegenKernel;
 };
 
 //! \return the the curve data

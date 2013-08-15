@@ -222,6 +222,11 @@ void QwtDiscreteContinousResponseCurve::run (void)
     Value I;
     DiscreteEvaluator->DefineVar("i", Variable(&I));
 
+    if(RegenKernel)
+    {
+        delete Kernel;
+        Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots);
+    }
 
     //initialize input and output-vectors of the discrete transferfunction
     for(int i = 0 ; i < EvaluationInfo.Dots+Grade ; i ++ )
@@ -279,7 +284,7 @@ void QwtDiscreteContinousResponseCurve::markerChangeSlot(QPair<QString,double> M
 
 void QwtDiscreteContinousResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restart)
 {
-    bool Changed = false, RegenKernel = false;
+    bool Changed = false;
     if(isRunning())
         return;
     var_maptype vmap = DiscreteEvaluator->GetVar();
@@ -306,11 +311,7 @@ void QwtDiscreteContinousResponseCurve::valueChangeSlot(QPair <QString, double> 
             Changed = true;
         }
     }
-    if(RegenKernel)
-    {
-        delete Kernel;
-        Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots);
-    }
+
 
     if(Restart && Changed)
         start();
@@ -351,6 +352,13 @@ QwtDiscreteContinousResponseCurve::~QwtDiscreteContinousResponseCurve()
     this->terminate();
     delete d_xy;
     delete d_data;
+    delete X;
+    delete Y;
+    delete pSysExpression;
+    delete pSysEvaluator;
+    delete Laplace;
+    delete Kernel;
+
 
 }
 
@@ -406,6 +414,7 @@ void QwtDiscreteContinousResponseCurve::init(QStringList Expression, EvalInfo Ev
 
 
     Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots);
+    RegenKernel = false;
 
     setStyle(QwtDiscreteContinousResponseCurve::Steps);
 
@@ -422,7 +431,7 @@ void QwtDiscreteContinousResponseCurve::init(QStringList Expression, EvalInfo Ev
 //! \return QwtPlotItem::Rtti_PlotCurve
 int QwtDiscreteContinousResponseCurve::rtti() const
 {
-    return QwtPlotItem::Rtti_PlotUserItem+Rtti_PlotDiscreteResponse;
+    return QwtPlotItem::Rtti_PlotUserItem+Rtti_PlotContinousDiscreteResponse;
 }
 
 /*!

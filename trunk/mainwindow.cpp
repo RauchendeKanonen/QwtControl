@@ -17,8 +17,8 @@
 #include "discretesystemdialog.h"
 #include "controlsystemtracker.h"
 #include "tdkernel.h"
-#include "discretecontinoussystemdialog.h"
-
+#include "realtimeresponcedialog.h"
+#include "Dialogs/discretecontinoussystemdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -265,6 +265,8 @@ void MainWindow::enqueueCurve(QwtControlPlotItem *Item, QwtPlot *Plot)
     QCoreApplication::processEvents(QEventLoop::AllEvents);
     emitAllValues();
     QCoreApplication::processEvents(QEventLoop::AllEvents);
+
+    usleep(250*1000);
     Item->terminate();
     Item->start();
 }
@@ -1218,6 +1220,7 @@ void MainWindow::on_actionDiscrete_Continous_System_triggered()
 
 
     QStringList Expressions = Dlg.getExpressions();
+    Expressions.replace(0, inverseZTransform(Expressions.at(0)));
     EvalInfo EvInfo = Dlg.getEvalInfo();
     QwtDiscreteContinousResponseCurve *Curve = new QwtDiscreteContinousResponseCurve(Expressions, EvInfo);
 
