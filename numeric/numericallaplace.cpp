@@ -13,7 +13,7 @@ NumericalLaplace::NumericalLaplace(mathFunctionEvaluator *EvalA, int TransformTy
 
     if(TRANSFORM_WEEKS == TransformType)
     {
-        NumCoeffWeeks = 16;
+        NumCoeffWeeks = 14;
         ConvergenceAbscissaWeeks = 0.1;
         ContourScaleWeeks = 1.0;
         EvaluationPosWeeks = 1.0;

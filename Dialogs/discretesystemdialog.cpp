@@ -111,28 +111,7 @@ void DiscreteSystemDialog::on_ExpressionEdit_textChanged(const QString &arg1)
 
 void DiscreteSystemDialog::on_pushButton_clicked()
 {
-    GiNaC::parser reader;
-    GiNaC::ex Expression;
-    try
-    {
-        Expression = reader(ui->ExpressionEdit->text().toStdString());
-    }
-    catch (exception &p)
-    {
-        QMessageBox Box;
-        Box.setText(p.what());
-        Box.setModal(true);
-        Box.exec();
-        return;
-    }
-
-    GiNaC::symtab table = reader.get_syms();
-    GiNaC::symbol z = table.find("z") != table.end() ?
-                GiNaC::ex_to<GiNaC::symbol>(table["z"]) : GiNaC::symbol("z");
-    ex DifferenceEq = assembleDifferenceEquation(Expression, z);
-    ostringstream DiffStr;
-    DiffStr << DifferenceEq;
-    ui->InverseZlineEdit->setText(QString::fromStdString(DiffStr.str()));
+    ui->InverseZlineEdit->setText(inverseZTransform(ui->ExpressionEdit->text()));
 }
 
 

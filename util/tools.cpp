@@ -1,5 +1,101 @@
 #include "tools.h"
 #include <math.h>
+#include <QDialog>
+#include <iostream>
+
+#include <iostream>
+#include <string>
+#include <ginac/ginac.h>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
+#include "controlexpression.h"
+#include <QMessageBox>
+
+
+
+
+GiNaC::ex EXinverseZTransform(GiNaC::ex Rational, GiNaC::symbol s)
+{
+    GiNaC::symbol x("x");
+    GiNaC::symbol y("y");
+    GiNaC::symbol *y0;
+    GiNaC::ex Numerator = Rational.numer();
+    GiNaC::ex DeNumerator = Rational.denom();
+
+    GiNaC::ex Polynome = DeNumerator;
+
+    Polynome /= GiNaC::ex(pow(s, Polynome.expand().degree(s)));
+    GiNaC::ex Poly = Polynome.expand();
+    GiNaC::ex YTerm;
+
+    for (int i=Poly.ldegree(s); i<=Poly.degree(s); ++i)
+    {
+        QString SymbolStr;
+        if(i!=0)
+            SymbolStr.sprintf("%s[i%d]",y.get_name().c_str(),i);
+        else
+            SymbolStr.sprintf("%s[i]",y.get_name().c_str());
+
+        GiNaC::symbol *ydq = new GiNaC::symbol(SymbolStr.toStdString());
+        if(i==0)
+            y0 = ydq;
+        YTerm += *ydq*Poly.coeff(s,i);
+    }
+
+
+    Polynome = Numerator;
+    Polynome /= GiNaC::ex(pow(s, Polynome.expand().degree(s)));
+    Poly = Polynome.expand();
+    GiNaC::ex XTerm;
+
+    for (int i=Poly.ldegree(s); i<=Poly.degree(s); ++i)
+    {
+        QString SymbolStr;
+
+
+        if(i!=0)
+            SymbolStr.sprintf("%s[i%d]",x.get_name().c_str(),i);
+        else
+            SymbolStr.sprintf("%s[i]",x.get_name().c_str());
+
+        GiNaC::symbol *xdq = new GiNaC::symbol(SymbolStr.toStdString());
+        XTerm += *xdq*Poly.coeff(s,i);
+    }
+
+    GiNaC::ex DifferenceEquation = YTerm==XTerm;
+
+    DifferenceEquation = GiNaC::lsolve(DifferenceEquation, *y0);
+    return DifferenceEquation;
+}
+
+QString inverseZTransform(QString ZDExpression)
+{
+    GiNaC::parser reader;
+    GiNaC::ex Expression;
+
+    try
+    {
+        Expression = reader(ZDExpression.toStdString());
+    }
+    catch (exception &p)
+    {
+        QMessageBox Box;
+        Box.setText(p.what());
+        Box.setModal(true);
+        Box.exec();
+        return QString();
+    }
+
+    GiNaC::symtab table = reader.get_syms();
+    GiNaC::symbol z = table.find("z") != table.end() ?
+                GiNaC::ex_to<GiNaC::symbol>(table["z"]) : GiNaC::symbol("z");
+    GiNaC::ex DifferenceEq = EXinverseZTransform(Expression, z);
+
+    ostringstream DiffStr;
+    DiffStr << DifferenceEq;
+    return QString::fromStdString(DiffStr.str());
+}
+
 
 void toComplexExpression(QString *Buffer)
 {

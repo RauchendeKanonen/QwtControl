@@ -327,7 +327,8 @@ QwtDiscreteResponseCurve::~QwtDiscreteResponseCurve()
     this->terminate();
     delete d_xy;
     delete d_data;
-
+    delete X;
+    delete Y;
 }
 
 /*!

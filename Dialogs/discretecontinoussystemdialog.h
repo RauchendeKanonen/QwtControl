@@ -26,6 +26,8 @@ private slots:
 
     void on_spinBoxDots_valueChanged(int arg1);
 
+    void on_toolButtonUpdate_clicked();
+
 private:
     Ui::DiscreteContinousSystemDialog *ui;
     MainWindow *pParent;
