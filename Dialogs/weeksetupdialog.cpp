@@ -1,6 +1,6 @@
 #include "weeksetupdialog.h"
 #include "ui_weeksetupdialog.h"
-
+#include <QShortcut>
 WeekSetupDialog::WeekSetupDialog(int NumCoeffWeeks, double ConvergenceAbscissaWeeks, double ContourScaleWeeks, double EvaluationPosWeeks) :
     QDialog(NULL),
     ui(new Ui::WeekSetupDialog)
@@ -10,11 +10,19 @@ WeekSetupDialog::WeekSetupDialog(int NumCoeffWeeks, double ConvergenceAbscissaWe
     ui->doubleSpinBoxAbscissica->setValue(ConvergenceAbscissaWeeks);
     ui->doubleSpinBoxScaleParm->setValue(ContourScaleWeeks);
     ui->doubleSpinBoxEvaluationPos->setValue(EvaluationPosWeeks);
+    new QShortcut (Qt::Key_F1, this, SLOT(help()));
 }
 
 WeekSetupDialog::~WeekSetupDialog()
 {
     delete ui;
+}
+
+void WeekSetupDialog::help()
+{
+    QString CMD;
+    CMD.sprintf("okular Doc/TimeDomain.pdf &");
+    system(CMD.toStdString().c_str());
 }
 
 void WeekSetupDialog::on_buttonBox_accepted()

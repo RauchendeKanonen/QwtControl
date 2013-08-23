@@ -88,6 +88,19 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Press F1 for help</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>

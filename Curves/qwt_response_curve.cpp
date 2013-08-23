@@ -363,6 +363,12 @@ void QwtResponseCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
     if(pEval == NULL)
         throw QString("Could not Compile mathmatial function c-code!! Have to exit now!");
 
+
+
+
+
+
+
     Laplace = new NumericalLaplace(pEval, TRANSFORM_WEEKS);// TRANSFORM_GAVER_STEHFEST);
 
     setItemAttribute(QwtPlotItem::Legend);

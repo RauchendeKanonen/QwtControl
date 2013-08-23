@@ -20,6 +20,7 @@
 #include "Dialogs/discretecontinoussystemdialog.h"
 #include <QIcon>
 #include "helpselectordialog.h"
+#include "QShortcut"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -140,6 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
     system("rm mathFunction/compile/*.so.0.1");
 
     setWindowIcon(QIcon(QPixmap("Pictures/logo.png")));
+    new QShortcut (Qt::Key_F1, this, SLOT(on_actionHelp_triggered()));
 }
 
 void  MainWindow::rlZoomerSelected(QwtDoubleRect Rect)
