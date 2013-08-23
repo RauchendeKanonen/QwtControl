@@ -35,6 +35,14 @@
 Laplace-Explorer was made for exploring the properties of control systems. In the first development
 stages, ist was only ment for visualizing the root locus of a close loop system. I found it
 hard to to use a programm like scilab or matlab for doing this.
+Later extension have been time-domain- and frequencyresponse plots.
+All those views on one and the same system can be viewed at the same time. Parameter changes are actualized
+to all views immediately.
+The inversion of laplace back into the time domain is done numerically too. Two algorithms have been implemented
+so far. Gaver-Stehfest and Week's method. See:
+\begin{lstlisting}
+http://www.cs.hs-rm.de/~weber/lapinv/weeks/weeks.htm
+\end{lstlisting}
 
 \subsection{root locus}
 $F(s) = \frac{num(s)}{den(s)}$\\\\
@@ -80,7 +88,17 @@ In the root locus options dialog select Kp as Variable for the sweep and click o
 Click onto the Variable $Ki$ and select add slider in the pulldown menu.
 By varying Kp one can observe the roots moving on the path. By varying Ki, one can observe
 the changing paths of the loci.
-\subsection{Time domain response}
 
+\subsection{Time domain response}
+Take one of the examples above and modify the transfer function by multiplying it with $1/s$ (step response).\\\\
+$S_r(s)=\frac{((Kp+Ki/s)/(s+1)^3)}{(1+((Kp+Ki/s)/(s+1)^3))}*1/s$\\\\
+By right-mouse click onto this expression and selecting draw Response the response-options dialog opens.
+Select the complex variable s as variable and click Ok. A new window with the response opens.
+
+\subsection{Frequency response}
+Take one of the examples above.\\\\
+$S_r(s)=\frac{((Kp+Ki/s)/(s+1)^3)}{(1+((Kp+Ki/s)/(s+1)^3))}$\\\\
+By right-mouse click onto this expression and selecting draw Bode the bode-options dialog opens.
+Select the complex variable s as variable and click Ok. A new window with the response opens.
 
 \end{document}

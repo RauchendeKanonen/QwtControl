@@ -17,6 +17,7 @@ public:
     void getParms(int *NumCoeffWeeks, double *ConvergenceAbscissaWeeks, double *ContourScaleWeeks, double *EvaluationPosWeeks);
 private slots:
     void on_buttonBox_accepted();
+    void help();
 
 private:
     Ui::WeekSetupDialog *ui;
