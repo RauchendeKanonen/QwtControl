@@ -1,0 +1,104 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{ngermanb}
+\usepackage[ngermanb]{babel}
+\usepackage{graphicx}
+
+\usepackage[noindentafter]{titlesec}
+\usepackage[latin1]{inputenc}
+\usepackage{ngermanb}
+\usepackage[ngermanb]{babel}
+\usepackage{graphicx}
+
+\usepackage[noindentafter]{titlesec}
+\usepackage{vhistory}
+\usepackage{pdflscape} 
+\usepackage{listings}
+% paragraphs sehen aus wie subsubsubsections
+\titleformat{\paragraph}[hang]{\bf}{\thetitle\quad}{0pt}{}						
+\titlespacing{\paragraph}{0pt}{1em}{0.5em} 
+
+% subparagraphs sehen aus wie vorher paragraphs
+\titleformat{\subparagraph}[runin]{\bf}{}{0.5em}{}
+\titlespacing{\subparagraph}{0pt}{1em}{1em}
+
+
+
+%opening
+\title{Spezifikation, Validierung und Verifizierung der Maßnahme 2 für die Software des Medi Stream 3000}
+\author{Florian Hillen}
+
+
+
+\begin{document}
+\section{Introduction}
+Laplace-Explorer was made for exploring the properties of control systems. In the first development
+stages, ist was only ment for visualizing the root locus of a close loop system. I found it
+hard to to use a programm like scilab or matlab for doing this.
+Later extension have been time-domain- and frequencyresponse plots.
+All those views on one and the same system can be viewed at the same time. Parameter changes are actualized
+to all views immediately.
+The inversion of laplace back into the time domain is done numerically too. Two algorithms have been implemented
+so far. Gaver-Stehfest and Week's method. See:
+\begin{lstlisting}
+http://www.cs.hs-rm.de/~weber/lapinv/weeks/weeks.htm
+\end{lstlisting}
+
+\subsection{root locus}
+$F(s) = \frac{num(s)}{den(s)}$\\\\
+The root locus of a closed loop system is extracted out of the carakteristic equation.\\\\
+$den(s) = 0$.\\\\
+Laplace-Explorer solves this by using Newton's (Madsen) methode.
+So the solution is a numerical one.
+\\
+\subsubsection{Simple Example}
+For example take the Plant as:\\\\
+$G(s)=1/(s+1)^3$\\\\
+And the controller as only proportional with gain k. So the open loop transfer function is:\\\\
+$G_o(s)=k/(s+1)^3$\\\\
+By closing the loop we get:\\\\
+$G_c(s)=\frac{(k/(s+1)^3)}{(1+(k/(s+1)^3))}$\\\\
+Add the Expression into Laplace Explorer:
+\begin{lstlisting}
+tf:(k/(s+1)^3)/(1+(k/(s+1)^3))
+\end{lstlisting}
+Where tf: names the expression as tf.
+Then do a right-mouse click onto this expression and select in the pulldown-menu draw 
+numeric root locus. A option dialog opens where you have to select a variable for 
+parameter-sweep, the resolution and the range. By clicking Ok the Curve is added to the mainwindow
+and a independent slider is added. By moving the slider from zero to some value, one can observe
+the poles of the system moving toward the asymptotes. In the example above are 3 poles. 2 
+(one conjugate complex) poles cross the imaginary axis when the gain $k>=8$. This is the point where the
+System gets instable.
+
+\subsubsection{Extendet Example}
+For example take the Plant as:\\\\
+$G(s)=1/(s+1)^3$\\\\
+And the controller as proportional and integral with gain Kp and Ki:\\\\
+$G_c(s)=Kp+Ki/s$\\\\
+So the open loop transfer function is:\\\\
+$G_o(s)=(Kp+Ki/s)/(s+1)^3$\\\\
+By closing the loop we get:\\\\
+$G_c(s)=\frac{((Kp+Ki/s)/(s+1)^3)}{(1+((Kp+Ki/s)/(s+1)^3))}$\\\\
+Add the Expression into Laplace Explorer:
+\begin{lstlisting}
+tf:((Kp+Ki/s)/(s+1)^3)/(1+((Kp+Ki/s)/(s+1)^3))
+\end{lstlisting}
+In the root locus options dialog select Kp as Variable for the sweep and click ok.
+Click onto the Variable $Ki$ and select add slider in the pulldown menu.
+By varying Kp one can observe the roots moving on the path. By varying Ki, one can observe
+the changing paths of the loci.
+
+\subsection{Time domain response}
+Take one of the examples above and modify the transfer function by multiplying it with $1/s$ (step response).\\\\
+$S_r(s)=\frac{((Kp+Ki/s)/(s+1)^3)}{(1+((Kp+Ki/s)/(s+1)^3))}*1/s$\\\\
+By right-mouse click onto this expression and selecting draw Response the response-options dialog opens.
+Select the complex variable s as variable and click Ok. A new window with the response opens.
+
+\subsection{Frequency response}
+Take one of the examples above.\\\\
+$S_r(s)=\frac{((Kp+Ki/s)/(s+1)^3)}{(1+((Kp+Ki/s)/(s+1)^3))}$\\\\
+By right-mouse click onto this expression and selecting draw Bode the bode-options dialog opens.
+Select the complex variable s as variable and click Ok. A new window with the response opens.
+
+\end{document}
