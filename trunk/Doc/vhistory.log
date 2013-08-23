@@ -1,0 +1,122 @@
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2013.5.6)  21 AUG 2013 13:38
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**vhistory.sty
+(./vhistory.sty
+LaTeX2e <2011/06/27>
+Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, lo
+aded.
+
+LaTeX Warning: You have requested package `',
+               but the package provides `vhistory'.
+
+Package: vhistory 
+(/usr/share/texmf-dist/tex/latex/carlisle/ltxtable.sty
+Package: ltxtable 1995/12/11 v0.2 longtable/tabularx merge (DPC)
+
+(/usr/share/texmf-dist/tex/latex/tools/tabularx.sty
+Package: tabularx 1999/01/07 v2.07 `tabularx' package (DPC)
+
+(/usr/share/texmf-dist/tex/latex/tools/array.sty
+Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
+\col@sep=\dimen102
+\extrarowheight=\dimen103
+\NC@list=\toks14
+\extratabsurround=\skip41
+\backup@length=\skip42
+)
+\TX@col@width=\dimen104
+\TX@old@table=\dimen105
+\TX@old@col=\dimen106
+\TX@target=\dimen107
+\TX@delta=\dimen108
+\TX@cols=\count79
+\TX@ftn=\toks15
+)
+(/usr/share/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2004/02/01 v4.11 Multi-page Table package (DPC)
+\LTleft=\skip43
+\LTright=\skip44
+\LTpre=\skip45
+\LTpost=\skip46
+\LTchunksize=\count80
+\LTcapwidth=\dimen109
+\LT@head=\box26
+\LT@firsthead=\box27
+\LT@foot=\box28
+\LT@lastfoot=\box29
+\LT@cols=\count81
+\LT@rows=\count82
+\c@LT@tables=\count83
+\c@LT@chunks=\count84
+\c@table=\count85
+\LT@p@ftn=\toks16
+)) (./sets.sty
+Package: sets 
+\c@s@tlength=\count86
+)
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.84 \let \vh@x
+               pa=\expandafter
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no x in font nullfont!
+Missing character: There is no p in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no = in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 84--87
+[]
+ []
+
+File vhistory.hst not found.
+\vh=\write3
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.252 \newwrite \vh@
+                    verfile
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no @ in font nullfont!
+Missing character: There is no v in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no r in font nullfont!
+Missing character: There is no f in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no e in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 252--253
+[] 
+ []
+
+)
+! Emergency stop.
+<*> vhistory.sty
+                
+*** (job aborted, no legal \end found)
+
+ 
+Here is how much of TeX's memory you used:
+ 300 strings out of 495063
+ 3575 string characters out of 3180616
+ 47745 words of memory out of 3000000
+ 3565 multiletter control sequences out of 15000+200000
+ 3640 words of font info for 14 fonts, out of 3000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 28i,0n,19p,148b,14s stack positions out of 5000i,500n,10000p,200000b,50000s
+!  ==> Fatal error occurred, no output PDF file produced!
