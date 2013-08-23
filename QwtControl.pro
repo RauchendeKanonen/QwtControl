@@ -3,8 +3,9 @@
 # -------------------------------------------------
 #QMAKE_CXXFLAGS += -ffast-math -O2 -ftree-vectorize -msse2 -ftree-vectorizer-verbose=5
 QT += core \
+    webkit \
     gui
-TARGET = QwtControl
+TARGET = LaplaceExplorer
 TEMPLATE = app
 CONFIG += debug
 SOURCES += main.cpp \
@@ -39,7 +40,6 @@ SOURCES += main.cpp \
     models/curvemodel.cpp \
     util/csv.cpp \
     Curves/qwt_z_wd_curve.cpp \
-    Dialogs/closeloopdialog.cpp \
     numeric/numericallaplace_weeks.cpp \
     numeric/numericallaplace_gaverstehfest.cpp \
     Dialogs/weeksetupdialog.cpp \
@@ -48,10 +48,10 @@ SOURCES += main.cpp \
     Dialogs/texteditdialog.cpp \
     Dialogs/colorlisteditor.cpp \
     mathFunction/controlexpression.cpp \
-    Dialogs/realtimeresponcedialog.cpp \
     util/tdkernel.cpp \
     Curves/qwt_discrete_continous_response_curve.cpp \
-    Dialogs/discretecontinoussystemdialog.cpp
+    Dialogs/discretecontinoussystemdialog.cpp \
+    Dialogs/helpselectordialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -84,17 +84,16 @@ HEADERS += mainwindow.h \
     models/curvemodel.h \
     util/csv.h \
     Curves/qwt_z_wd_curve.h \
-    Dialogs/closeloopdialog.h \
     Dialogs/weeksetupdialog.h \
     Dialogs/discretesystemdialog.h \
     Dialogs/controlsystemtracker.h \
     Dialogs/texteditdialog.h \
     Dialogs/colorlisteditor.h \
     mathFunction/controlexpression.h \
-    Dialogs/realtimeresponcedialog.h \
     util/tdkernel.h \
     Curves/qwt_discrete_continous_response_curve.h \
-    Dialogs/discretecontinoussystemdialog.h
+    Dialogs/discretecontinoussystemdialog.h \
+    Dialogs/helpselectordialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -105,13 +104,12 @@ FORMS += mainwindow.ui \
     Dialogs/csvdialog.ui \
     Dialogs/expressionclonedialog.ui \
     Dialogs/systemdialog.ui \
-    Dialogs/closeloopdialog.ui \
     Dialogs/weeksetupdialog.ui \
     Dialogs/discretesystemdialog.ui \
     Dialogs/controlsystemtracker.ui \
     Dialogs/texteditdialog.ui \
-    Dialogs/realtimeresponcedialog.ui \
-    Dialogs/discretecontinoussystemdialog.ui
+    Dialogs/discretecontinoussystemdialog.ui \
+    Dialogs/helpselectordialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \

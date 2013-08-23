@@ -123,7 +123,6 @@ private slots:
 
     void on_actionSystem_triggered();
 
-    void on_actionClosedLoop_System_triggered();
 
     void on_actionView_Control_System_Doc_triggered();
 
@@ -132,6 +131,8 @@ private slots:
     void on_actionDiscrete_System_triggered();
 
     void on_actionDiscrete_Continous_System_triggered();
+
+    void on_actionAbout_triggered();
 
 private:
     Ui::MainWindow *ui;
