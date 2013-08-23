@@ -38,6 +38,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;give Name of Expression (Transferfunction of Complex Variable z)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
   </widget>
   <widget class="QLineEdit" name="lineEditLSystem">
    <property name="geometry">
@@ -48,12 +51,15 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;give Name of Expression (Transferfunction of Complex Variable s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>220</y>
+     <y>230</y>
      <width>311</width>
      <height>71</height>
     </rect>
@@ -116,6 +122,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sampling interval for discretizing the Continous Transferfunction&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
    <property name="decimals">
     <number>5</number>
    </property>
@@ -140,6 +149,9 @@
      <width>111</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dot for discretizing the Continous Transferfunction&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="maximum">
     <number>1000000000</number>

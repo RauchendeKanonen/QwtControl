@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/pic">
         <file>Pictures/DiscreteContinousSys.png</file>
+        <file>Pictures/logo.png</file>
     </qresource>
 </RCC>

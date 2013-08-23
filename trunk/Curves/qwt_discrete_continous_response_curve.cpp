@@ -311,8 +311,6 @@ void QwtDiscreteContinousResponseCurve::valueChangeSlot(QPair <QString, double> 
             Changed = true;
         }
     }
-
-
     if(Restart && Changed)
         start();
 }

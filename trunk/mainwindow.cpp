@@ -17,8 +17,9 @@
 #include "discretesystemdialog.h"
 #include "controlsystemtracker.h"
 #include "tdkernel.h"
-#include "realtimeresponcedialog.h"
 #include "Dialogs/discretecontinoussystemdialog.h"
+#include <QIcon>
+#include "helpselectordialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -137,6 +138,8 @@ MainWindow::MainWindow(QWidget *parent) :
     system("rm mathFunction/compile/*.h");
     system("rm mathFunction/compile/*.o");
     system("rm mathFunction/compile/*.so.0.1");
+
+    setWindowIcon(QIcon(QPixmap("Pictures/logo.png")));
 }
 
 void  MainWindow::rlZoomerSelected(QwtDoubleRect Rect)
@@ -1173,15 +1176,6 @@ void MainWindow::on_actionSystem_triggered()
     Dlg.exec();
 }
 
-void MainWindow::on_actionClosedLoop_System_triggered()
-{
-    CloseLoopDialog Dlg(this);
-    Dlg.setModal(true);
-    if(!Dlg.exec())
-        return;
-    QString Expression = Dlg.getEquation();
-}
-
 void MainWindow::on_actionView_Control_System_Doc_triggered()
 {
     ControlSystemDocDlg->show();
@@ -1189,17 +1183,18 @@ void MainWindow::on_actionView_Control_System_Doc_triggered()
 
 void MainWindow::on_actionHelp_triggered()
 {
-    QFile fIn("help/Mainpage.txt");
-    if (fIn.open(QFile::ReadOnly | QFile::Text))
+    QDir HelpDir("Doc");
+    QStringList Filters;
+    Filters.append("*.pdf");
+    QStringList PdfEntries = HelpDir.entryList(Filters);
+    HelpSelectorDialog Dlg(this, PdfEntries);
+    Dlg.setModal(true);
+
+    if(Dlg.exec())
     {
-        QString HelpText(fIn.read(1024*1024));
-        HelpDlg->setText(HelpText);
-        HelpDlg->show();
-    }
-    else
-    {
-        std::cerr << "error opening output file\n";
-        return;
+        QString CMD;
+        CMD.sprintf("okular Doc/%s &", Dlg.getSelectedHelpEntry().toStdString().c_str());
+        system(CMD.toStdString().c_str());
     }
 }
 
@@ -1213,6 +1208,7 @@ void MainWindow::on_actionDiscrete_System_triggered()
 
 void MainWindow::on_actionDiscrete_Continous_System_triggered()
 {
+redoDCS:
     DiscreteContinousSystemDialog Dlg(this);
     Dlg.setModal(true);
     if(!Dlg.exec())
@@ -1220,6 +1216,18 @@ void MainWindow::on_actionDiscrete_Continous_System_triggered()
 
 
     QStringList Expressions = Dlg.getExpressions();
+
+    if(Expressions.at(0).count() == 0 ||
+            Expressions.at(1).count() == 0)
+    {
+        QMessageBox Box;
+        Box.setText("Please give proper Expressions!");
+        Box.setModal(true);
+        Box.exec();
+        goto redoDCS;
+    }
+
+
     Expressions.replace(0, inverseZTransform(Expressions.at(0)));
     EvalInfo EvInfo = Dlg.getEvalInfo();
     QwtDiscreteContinousResponseCurve *Curve = new QwtDiscreteContinousResponseCurve(Expressions, EvInfo);
@@ -1229,4 +1237,12 @@ void MainWindow::on_actionDiscrete_Continous_System_triggered()
     StepRespDialog->show();
     enqueueCurve(Curve, StepRespDialog->getPlot());
     Curve->setPen(QPen("red"));
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox Box;
+    Box.setText("Laplace Explorer(C) 2013\nFlorian Hillen");
+    Box.setModal(true);
+    Box.exec();
 }
