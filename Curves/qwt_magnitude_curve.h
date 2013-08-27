@@ -316,8 +316,7 @@ private:
     QwtData *d_xy;
     EvalInfo EvaluationInfo;
     ControlExpression *pExpression;
-    mathFunctionEvaluator *pRealEval;
-    mathFunctionEvaluator*pImagEval;
+    mathFunctionEvaluator *pComplexEval;
     class PrivateData;
     QwtPlotMarker *AmplitudeMarker;
     PrivateData *d_data;

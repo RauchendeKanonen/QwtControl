@@ -120,6 +120,7 @@ INCLUDEPATH += /usr/include/qwt5/ \
     models \
     util \
     numeric
+
 LIBS += -L/usr/lib/ \
     -L. \
     -L muparserx_v2_1_6/bin \

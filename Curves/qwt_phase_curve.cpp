@@ -226,7 +226,8 @@ void QwtPhaseCurve::run (void)
     for(int i = 0 ; i < dots ; i ++ )
     {
         w +=  EvaluationInfo.Resolution;
-        phi = atan2(pImagEval->eval(w), pRealEval->eval(w));
+        complex <long double> Result = pComplexEval->eval(complex <long double>(0, w));
+        phi = atan2(Result.imag(), Result.real());
 
         if(isinf(phi))
             continue;
@@ -253,8 +254,8 @@ void QwtPhaseCurve::phaseMarkerChangeSlot(double w)
     QwtPlot *Plot = plot();
     if(Plot)
     {
-
-        double phi = atan2(pImagEval->eval(w), pRealEval->eval(w));
+        complex <long double> Result = pComplexEval->eval(complex <long double>(0, w));
+        double phi = atan2(Result.imag(), Result.real());
         PhaseMarker->setXValue(w);
         PhaseMarker->setYValue(phi);
         PhaseMarker->attach(plot());
@@ -268,21 +269,12 @@ void QwtPhaseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Restar
     if(isRunning())
         return;
 
-    QStringList reVars = pRealEval->getExpressionVars();
-    for(int i = 0 ; i < reVars.count() ;  i ++ )
+    QStringList ComVars = pComplexEval->getExpressionVars();
+    for(int i = 0 ; i < ComVars.count() ;  i ++ )
     {
-        if(reVars.at(i) == VarPair.first)
+        if(ComVars.at(i) == VarPair.first)
         {
-            pRealEval->setVar(VarPair.first, VarPair.second);
-            Changed = true;
-        }
-    }
-    QStringList imVars = pImagEval->getExpressionVars();
-    for(int i = 0 ; i < imVars.count() ;  i ++ )
-    {
-        if(imVars.at(i) == VarPair.first)
-        {
-            pImagEval->setVar(VarPair.first, VarPair.second);
+            pComplexEval->setVar(VarPair.first, VarPair.second);
             Changed = true;
         }
     }
@@ -327,7 +319,7 @@ QwtPhaseCurve::~QwtPhaseCurve()
     delete d_data;
 
     delete pExpression;
-    delete pRealEval;
+    delete pComplexEval;
 }
 
 /*!
@@ -337,8 +329,7 @@ void QwtPhaseCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 {
     EvaluationInfo = EvInfo;
     pExpression = Expression;
-    pRealEval = Expression->getRealEvaluator();
-    pImagEval = Expression->getImagEvaluator();
+    pComplexEval = Expression->getComplexEvaluator();
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);
 
