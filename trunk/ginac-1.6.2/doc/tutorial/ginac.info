@@ -1,0 +1,98 @@
+This is ginac.info, produced by makeinfo version 4.13 from ginac.texi.
+
+INFO-DIR-SECTION Mathematics
+START-INFO-DIR-ENTRY
+* ginac: (ginac).                   C++ library for symbolic computation.
+END-INFO-DIR-ENTRY
+
+This is a tutorial that documents GiNaC 1.6.2, an open framework for
+symbolic computation within the C++ programming language.
+
+Copyright (C) 1999-2011 Johannes Gutenberg University Mainz, Germany
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+
+Indirect:
+ginac.info-1: 824
+ginac.info-2: 288736
+
+Tag Table:
+(Indirect)
+Node: Top824
+Node: Introduction1679
+Node: A tour of GiNaC4877
+Node: How to use it from within C++5312
+Node: What it can do for you7635
+Node: Installation13558
+Node: Prerequisites14106
+Node: Configuration15072
+Ref: Configuration-Footnote-118560
+Node: Building GiNaC18919
+Node: Installing GiNaC20925
+Ref: Installing GiNaC-Footnote-122332
+Node: Basic concepts22797
+Node: Expressions24162
+Node: Automatic evaluation26459
+Node: Error handling28902
+Node: The class hierarchy30562
+Node: Symbols32931
+Node: Numbers39635
+Node: Constants50660
+Node: Fundamental containers51318
+Node: Lists54152
+Node: Mathematical functions58318
+Node: Relations60210
+Node: Integrals61571
+Node: Matrices64150
+Node: Indexed objects72212
+Node: Non-commutative objects98138
+Node: Hash maps120458
+Node: Methods and functions121531
+Node: Information about expressions124086
+Node: Numerical evaluation134922
+Node: Substituting expressions136108
+Node: Pattern matching and advanced substitutions139503
+Node: Applying a function on subexpressions150041
+Node: Visitors and tree traversal154563
+Node: Polynomial arithmetic161442
+Node: Rational expressions174192
+Node: Symbolic differentiation178220
+Node: Series expansion180131
+Node: Symmetrization183689
+Node: Built-in functions184972
+Node: Multiple polylogarithms188231
+Node: Complex expressions194705
+Node: Solving linear systems of equations196520
+Node: Input/output197953
+Ref: csrc printing200239
+Node: Extending GiNaC217103
+Node: What does not belong into GiNaC218043
+Node: Symbolic functions219229
+Node: Printing230516
+Node: Structures242514
+Node: Adding classes254207
+Ref: Adding classes-Footnote-1268173
+Node: A comparison with other CAS268285
+Node: Advantages268883
+Node: Disadvantages272265
+Ref: Disadvantages-Footnote-1273541
+Node: Why C++?273867
+Node: Internal structures274691
+Node: Expressions are reference counted274964
+Node: Internal representation of products and sums278767
+Node: Package tools281260
+Ref: Package tools-Footnote-1283270
+Node: Configure script options283435
+Node: Example package284800
+Node: Bibliography287437
+Node: Concept index288736
+
+End Tag Table

@@ -228,7 +228,10 @@ void QwtMagnitudeCurve::run (void)
     for(int i = 0 ; i < dots ; i ++ )
     {
         w +=  EvaluationInfo.Resolution;
-        a = sqrt(pow(pRealEval->eval(w),2.0) + pow(pImagEval->eval(w), 2.0));
+        complex <long double> Result = pComplexEval->eval(complex <long double> (0,w));
+
+        a = sqrt(pow(Result.real(),2) + pow(Result.imag(), 2));
+
         if(isinf(a))
             continue;
         if(isnan(a))
@@ -274,21 +277,12 @@ void QwtMagnitudeCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Re
     if(isRunning())
         return;
 
-    QStringList reVars = pRealEval->getExpressionVars();
-    for(int i = 0 ; i < reVars.count() ;  i ++ )
+    QStringList ComVars = pComplexEval->getExpressionVars();
+    for(int i = 0 ; i < ComVars.count() ;  i ++ )
     {
-        if(reVars.at(i) == VarPair.first)
+        if(ComVars.at(i) == VarPair.first)
         {
-            pRealEval->setVar(VarPair.first, VarPair.second);
-            Changed = true;
-        }
-    }
-    QStringList imVars = pImagEval->getExpressionVars();
-    for(int i = 0 ; i < imVars.count() ;  i ++ )
-    {
-        if(imVars.at(i) == VarPair.first)
-        {
-            pImagEval->setVar(VarPair.first, VarPair.second);
+            pComplexEval->setVar(VarPair.first, VarPair.second);
             Changed = true;
         }
     }
@@ -333,7 +327,7 @@ QwtMagnitudeCurve::~QwtMagnitudeCurve()
     delete d_data;
 
     delete pExpression;
-    delete pRealEval;
+    delete pComplexEval;
 }
 
 /*!
@@ -343,12 +337,12 @@ void QwtMagnitudeCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 {
     EvaluationInfo = EvInfo;
     pExpression = Expression;
-    pRealEval = Expression->getRealEvaluator();
-    pImagEval = Expression->getImagEvaluator();
+    pComplexEval = Expression->getComplexEvaluator();
+
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);
 
-
+    qDebug((Expression->getExpression()+"\n").toStdString().c_str());
 
     AmplitudeMarker = new QwtPlotMarker();
     AmplitudeMarker->setLineStyle( QwtPlotMarker::HLine );

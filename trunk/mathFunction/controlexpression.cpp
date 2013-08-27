@@ -99,6 +99,7 @@ ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
     ExpressionName+=Random;
     QStringList Variables = findCharacterStrings(ExpressionString);
     Variables.removeDuplicates();
+    //Variables.removeOne(independentVarName());
     GiNaC::lst VarList;
     state = true;
     for(int i = 0 ; i < Variables.count() ; i ++ )
@@ -106,6 +107,7 @@ ControlExpression::ControlExpression(QString ExpressionDef, QString IndepVar)
         GiNaC::realsymbol Sym(Variables.at(i).toStdString());
         VarList.append(Sym);
     }
+
     try
     {
         exExpression = new GiNaC::ex(ExpressionString.toStdString().c_str(), VarList);
