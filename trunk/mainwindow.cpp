@@ -660,8 +660,6 @@ RedoDlg:
         IndependentMarkerSliderDialog->activateWindow();
         IndependentMarkerSliderDialog->raise();
     }
-
-
 }
 
 void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &pos)
