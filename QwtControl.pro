@@ -127,7 +127,9 @@ LIBS += -L/usr/lib/ \
     -lmuparserx \
     -lqwt \
     -lm \
-    -lginac
+    -lginac \
+    -ldl
+
 
 OTHER_FILES +=
 
