@@ -543,8 +543,11 @@ RedoDlg:
 
         qDebug((StrExpression+"\n").toStdString().c_str() );
 
-        ControlExpression *MagExpression = new ControlExpression(StrExpression, "s");
-        ControlExpression *PhaExpression = new ControlExpression(StrExpression, "s");
+
+
+
+        ControlExpression *MagExpression = new ControlExpression(StrExpression, VarName);
+        ControlExpression *PhaExpression = new ControlExpression(StrExpression, VarName);
         qDebug((MagExpression->getExpression()+"\n").toStdString().c_str() );
         qDebug(((MagExpression->cSourceString()+"\n").toStdString().c_str()) );
 
