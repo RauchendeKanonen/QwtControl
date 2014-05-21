@@ -259,7 +259,6 @@ void QwtPhaseCurve::phaseMarkerChangeSlot(double w)
         PhaseMarker->setXValue(w);
         PhaseMarker->setYValue(phi);
         PhaseMarker->attach(plot());
-
     }
 }
 
