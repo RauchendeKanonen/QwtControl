@@ -28,6 +28,10 @@ private slots:
 
     void on_toolButtonUpdate_clicked();
 
+    void on_commandLinkButtonContTemp_clicked();
+
+    void on_commandLinkButtonSysTemp_clicked();
+
 private:
     Ui::DiscreteContinousSystemDialog *ui;
     MainWindow *pParent;

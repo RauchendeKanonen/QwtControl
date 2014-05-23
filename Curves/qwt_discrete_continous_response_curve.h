@@ -173,7 +173,7 @@ public:
         ClipPolygons = 2
     };
 
-    explicit QwtDiscreteContinousResponseCurve(QStringList Expression, EvalInfo EvInfo);
+    explicit QwtDiscreteContinousResponseCurve(QStringList Expression, EvalInfo EvInfo, QWidget *pParent=0);
     explicit QwtDiscreteContinousResponseCurve(const QwtText &title, QStringList Expression, EvalInfo EvInfo);
     explicit QwtDiscreteContinousResponseCurve(const QString &title, QStringList Expression, EvalInfo EvInfo);
 
@@ -191,7 +191,7 @@ public:
     }
     QString typeName(void)
     {
-        return QString("discrete Response ")+ExpressionName;
+        return QString("discrete/continous Response ")+ExpressionName;
     }
     void   setColor(QColor Col)
     {
@@ -312,6 +312,7 @@ protected:
         QwtPolygon &) const;
 
 private:
+    QWidget *Parent;
     double SamplingInterval;
     QwtData *d_xy;
     EvalInfo EvaluationInfo;

@@ -441,7 +441,8 @@ double *NumericalLaplace::davec(long nl, long nh)
     double *v;
 
     v= (double *) malloc((size_t) ((nh-nl+1+NR_END)*sizeof(double)));
-    if (!v) aerror("allocation failure in davec()");
+    if (!v)
+        aerror("allocation failure in davec()");
     return v-nl+NR_END;
 }
 

@@ -21,6 +21,7 @@
 #include <QIcon>
 #include "helpselectordialog.h"
 #include "QShortcut"
+#include "Dialogs/templatedialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1232,7 +1233,6 @@ redoDCS:
     if(!Dlg.exec())
         return;
 
-
     QStringList Expressions = Dlg.getExpressions();
 
     if(Expressions.at(0).count() == 0 ||
@@ -1245,22 +1245,28 @@ redoDCS:
         goto redoDCS;
     }
 
-
     Expressions.replace(0, inverseZTransform(Expressions.at(0)));
     EvalInfo EvInfo = Dlg.getEvalInfo();
-    QwtDiscreteContinousResponseCurve *Curve = new QwtDiscreteContinousResponseCurve(Expressions, EvInfo);
-
+    QwtDiscreteContinousResponseCurve *DCCurve;
+    try
+    {
+        DCCurve = new QwtDiscreteContinousResponseCurve(Expressions, EvInfo, this);
+    }
+    catch(QString Str)
+    {
+        return;
+    }
 
     StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
     StepRespDialog->show();
-    enqueueCurve(Curve, StepRespDialog->getPlot());
-    Curve->setPen(QPen("red"));
+    enqueueCurve(DCCurve, StepRespDialog->getPlot());
+    DCCurve->setPen(QPen("red"));
 }
 
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox Box;
-    Box.setText("Laplace Explorer(C) 2013\nFlorian Hillen");
+    Box.setText("Laplace Explorer(C) 2014\nFlorian Hillen");
     Box.setModal(true);
     Box.exec();
 }
