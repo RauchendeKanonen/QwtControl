@@ -1,1 +1,2 @@
-h:(z-1)*(z+1)/((z-r*e^(I*pi/2)*(z-r*e^(-I*pi/2))
+tf:1/(s+1)
+ctrl:Kp+Ki*Ts/2*(z+1)/(z-1)+Kd*(z-1)/(z*Ts)

@@ -51,7 +51,8 @@ SOURCES += main.cpp \
     util/tdkernel.cpp \
     Curves/qwt_discrete_continous_response_curve.cpp \
     Dialogs/discretecontinoussystemdialog.cpp \
-    Dialogs/helpselectordialog.cpp
+    Dialogs/helpselectordialog.cpp \
+    Dialogs/templatedialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -93,7 +94,8 @@ HEADERS += mainwindow.h \
     util/tdkernel.h \
     Curves/qwt_discrete_continous_response_curve.h \
     Dialogs/discretecontinoussystemdialog.h \
-    Dialogs/helpselectordialog.h
+    Dialogs/helpselectordialog.h \
+    Dialogs/templatedialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -109,7 +111,8 @@ FORMS += mainwindow.ui \
     Dialogs/controlsystemtracker.ui \
     Dialogs/texteditdialog.ui \
     Dialogs/discretecontinoussystemdialog.ui \
-    Dialogs/helpselectordialog.ui
+    Dialogs/helpselectordialog.ui \
+    Dialogs/templatedialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \

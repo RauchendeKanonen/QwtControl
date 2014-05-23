@@ -198,6 +198,8 @@ public:
     void stopThread(void)
     {
         terminate();
+        while(this->isRunning())
+            usleep(10000);
     }
 
     void setup(void)

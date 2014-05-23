@@ -16,7 +16,7 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
 #include "tdkernel.h"
-
+#include "mainwindow.h"
 #define Grade 100
 
 #if QT_VERSION < 0x040000
@@ -225,7 +225,7 @@ void QwtDiscreteContinousResponseCurve::run (void)
     if(RegenKernel)
     {
         delete Kernel;
-        Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots);
+        Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots*2+Grade);
     }
 
     //initialize input and output-vectors of the discrete transferfunction
@@ -239,7 +239,7 @@ void QwtDiscreteContinousResponseCurve::run (void)
             X->At(i) = 0;
     }
     QList <double> DiscreteOutput;
-    QPolygonF Error;
+
 
 
     for(int i = Grade ; i < EvaluationInfo.Dots+Grade ; i ++ )
@@ -267,9 +267,16 @@ void QwtDiscreteContinousResponseCurve::run (void)
 
 void QwtDiscreteContinousResponseCurve::dataReadySlot(QPolygonF Polygon)
 {
-    setData(Polygon);
-    if(plot())
-        plot()->replot();
+    try
+    {
+        setData(Polygon);
+        if(plot())
+            plot()->replot();
+    }
+    catch(std::bad_alloc& ba)
+    {
+        printf("error\n");
+    }
 }
 
 void QwtDiscreteContinousResponseCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
@@ -287,7 +294,7 @@ void QwtDiscreteContinousResponseCurve::valueChangeSlot(QPair <QString, double> 
     bool Changed = false;
     if(isRunning())
         return;
-    var_maptype vmap = DiscreteEvaluator->GetVar();
+    var_maptype vmap = DiscreteEvaluator->GetExprVar();
     for (var_maptype::iterator item = vmap.begin(); item!=vmap.end(); ++item)
     {
         cout << item->first << endl;
@@ -318,9 +325,10 @@ void QwtDiscreteContinousResponseCurve::valueChangeSlot(QPair <QString, double> 
 
 
 //! Constructor
-QwtDiscreteContinousResponseCurve::QwtDiscreteContinousResponseCurve(QStringList Expression, EvalInfo EvInfo):
+QwtDiscreteContinousResponseCurve::QwtDiscreteContinousResponseCurve(QStringList Expression, EvalInfo EvInfo, QWidget *pParent):
     QwtPlotItem(QwtText())
 {
+    Parent = pParent;
     init(Expression, EvInfo);
 }
 
@@ -388,12 +396,58 @@ void QwtDiscreteContinousResponseCurve::init(QStringList Expression, EvalInfo Ev
         Expression.replace(0, Expression.at(0).right(Expression.length()-index-1));
     }
 
-    QStringList VarNames = findCharacterStrings(Expression.at(0));
 
-    for(int i = 0; i < VarNames.count() ; i ++)
+    QStringList VarStrings = findCharacterStrings(Expression.at(0));
+    QStringList MissingVars;
+    for(int i = 0 ; i < VarStrings.count() ; i++)
     {
-        if(VarNames.at(i) != "y" && VarNames.at(i) != "x")
-            DiscreteEvaluator->DefineVar(VarNames.at(i).toStdString(), new Variable(new Value(0.0)));
+        if(NULL == ((MainWindow*)Parent)->VariabelMdl->getVarValuePtr(VarStrings.at(i)))
+        {
+            if(VarStrings.at(i) != "I" && VarStrings.at(i) != "i" &&
+                    VarStrings.at(i) != "S" && VarStrings.at(i) != "s" &&
+                    VarStrings.at(i) != "Z" && VarStrings.at(i) != "z"&&
+                    VarStrings.at(i) != "x" && VarStrings.at(i) != "y")
+
+                MissingVars.append(VarStrings.at(i));
+        }
+    }
+
+
+    if(MissingVars.count())
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Variables");
+        msgBox.setText("Insert all missing Variables?");
+        msgBox.addButton(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        if(msgBox.exec() == QMessageBox::Yes)
+        {
+
+        }
+        else
+        {
+            QString Message = "Variables Missing: ";
+            for(int i = 0 ; i < MissingVars.count() ; i ++ )
+            {
+                Message += MissingVars.at(i);
+                Message += " ";
+                ((MainWindow*)Parent)->insertVariable(MissingVars.at(i)+QString(" = 1.0"));
+                DiscreteEvaluator->DefineVar(VarStrings.at(i).toStdString(), new Variable(new Value(1.0)));
+            }
+
+            QMessageBox Box;
+            Box.setText(Message);
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+
+        for(int i = 0 ; i < MissingVars.count() ; i ++ )
+        {
+            ((MainWindow*)Parent)->insertVariable(MissingVars.at(i)+QString(" = 1.0"));
+            DiscreteEvaluator->DefineVar(VarStrings.at(i).toStdString(), new Variable(new Value(1.0)));
+        }
+
     }
 
     DiscreteEvaluator->SetExpr(Expression.at(0).toStdString());
@@ -404,14 +458,16 @@ void QwtDiscreteContinousResponseCurve::init(QStringList Expression, EvalInfo Ev
     pSysEvaluator = pSysExpression->getComplexEvaluator();
 
     if(pSysEvaluator == NULL)
+    {
         throw QString("Could not Compile mathmatial function c-code!! Have to exit now!");
-
+        return;
+    }
 
     Laplace = new NumericalLaplace(pSysEvaluator, TRANSFORM_WEEKS);// TRANSFORM_GAVER_STEHFEST);
 
 
 
-    Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots);
+    Kernel = new TDKernel(pSysEvaluator, EvaluationInfo.Resolution, EvaluationInfo.Dots*2+Grade);
     RegenKernel = false;
 
     setStyle(QwtDiscreteContinousResponseCurve::Steps);

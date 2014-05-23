@@ -60,6 +60,7 @@ signals:
     void markerChangeSignal(QPair<QString,double>);
 
 public:
+    VarModel *VariabelMdl;
     QModelIndex insertExpression(QString Definition);
     void deleteVariable(QString Name);
     void insertSlider(QString VariableName, QPointF Range);
@@ -137,7 +138,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     ExpressionModel *ExpressionMdl;
-    VarModel *VariabelMdl;
+
     CurveModel *CurveMdl;
     QTimer *UpdateTimer;
     TextEditDialog *HelpDlg;

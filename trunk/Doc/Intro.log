@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2013.5.6)  22 AUG 2013 11:39
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2014.1.6)  23 MAY 2014 10:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -388,9 +388,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 99--103
 
 [3] (./Intro.aux) ) 
 Here is how much of TeX's memory you used:
- 4100 strings out of 495063
- 54616 string characters out of 3180616
- 116941 words of memory out of 3000000
+ 4097 strings out of 495063
+ 54495 string characters out of 3182674
+ 116861 words of memory out of 3000000
  7229 multiletter control sequences out of 15000+200000
  7894 words of font info for 28 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191

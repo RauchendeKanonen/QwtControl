@@ -65,7 +65,7 @@ QString ExpressionModel::getExpression(QString ExpressionName)
             if(ExpressionName == ExpressionStr.left(FunctionNameEnd))
                 return ExpressionStr.right(ExpressionStr.count()-FunctionNameEnd-1);
     }
-    return NULL;
+    return QString();
 }
 
 ControlExpression *ExpressionModel::createExpression(const QModelIndex &index, QString IndepVarname)
