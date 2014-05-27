@@ -34,7 +34,6 @@ SOURCES += main.cpp \
     util/tools.cpp \
     Dialogs/systemdialog.cpp \
     Curves/qwt_z_zeta_curve.cpp \
-    numeric/numericallaplace.cpp \
     models/varmodel.cpp \
     models/expressionmodel.cpp \
     models/curvemodel.cpp \
@@ -52,7 +51,10 @@ SOURCES += main.cpp \
     Curves/qwt_discrete_continous_response_curve.cpp \
     Dialogs/discretecontinoussystemdialog.cpp \
     Dialogs/helpselectordialog.cpp \
-    Dialogs/templatedialog.cpp
+    Dialogs/templatedialog.cpp \
+    numeric/numericallaplace.cpp \
+    numeric/numericallaplace_dubnerabate.cpp \
+    Curves/transformtypedialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -79,7 +81,6 @@ HEADERS += mainwindow.h \
     util/tools.h \
     Dialogs/systemdialog.h \
     Curves/qwt_z_zeta_curve.h \
-    numeric/numericallaplace.h \
     models/varmodel.h \
     models/expressionmodel.h \
     models/curvemodel.h \
@@ -95,7 +96,9 @@ HEADERS += mainwindow.h \
     Curves/qwt_discrete_continous_response_curve.h \
     Dialogs/discretecontinoussystemdialog.h \
     Dialogs/helpselectordialog.h \
-    Dialogs/templatedialog.h
+    Dialogs/templatedialog.h \
+    numeric/numericallaplace.h \
+    Curves/transformtypedialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -112,7 +115,8 @@ FORMS += mainwindow.ui \
     Dialogs/texteditdialog.ui \
     Dialogs/discretecontinoussystemdialog.ui \
     Dialogs/helpselectordialog.ui \
-    Dialogs/templatedialog.ui
+    Dialogs/templatedialog.ui \
+    Curves/transformtypedialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \

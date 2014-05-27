@@ -170,6 +170,7 @@ public:
         ClipPolygons = 2
     };
 
+    QwtResponseCurve(ControlExpression *Expression, EvalInfo EvInfo, int Algorithm);
     explicit QwtResponseCurve(ControlExpression *Expression, EvalInfo EvInfo);
     explicit QwtResponseCurve(const QwtText &title, ControlExpression *Expression, EvalInfo EvInfo);
     explicit QwtResponseCurve(const QString &title, ControlExpression *Expression, EvalInfo EvInfo);
@@ -204,6 +205,9 @@ public:
 
     void setup(void)
     {
+
+
+
         Laplace->setup();
     }
 
@@ -320,6 +324,7 @@ private:
     ControlExpression *pExpression;
     mathFunctionEvaluator *pEval;
     NumericalLaplace *Laplace;
+    int InversLaplaceAlgorithm;
     class PrivateData;
     PrivateData *d_data;
 };
