@@ -10,6 +10,7 @@
 typedef double FunktionPrt(double t);
 #define TRANSFORM_GAVER_STEHFEST 1
 #define TRANSFORM_WEEKS          2
+#define TRANSFORM_DUBBNERABATE   4
 #define NR_END 1
 #define FREE_ARG char*
 
@@ -41,12 +42,23 @@ public:
         return ThreadOutput;
     }
 
+    int linvdubf(mathFunctionEvaluator *EvalA,
+                 int p,
+                 int ausw,
+                 double a,
+                 double deltat,
+                 int anz,
+                 double *t,
+                 double *y);
+    double sqwave(double t);
+
+
     void run(void);
     void InverseTransformSetup(double dt, double tEnd, double tStart);
     NumericalLaplace(mathFunctionEvaluator *EvalA, int TransformType=TRANSFORM_GAVER_STEHFEST);
     ~NumericalLaplace();
     void setup(void);
-    void setup(NumericalLaplace *pLaplace);
+    void CopySetup(NumericalLaplace *pLaplace);
 
     //Weeks algorithm
     double acosh(double x);

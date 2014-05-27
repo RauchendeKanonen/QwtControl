@@ -116,12 +116,8 @@ void StepResponseDialog::dropEvent ( QDropEvent * event )
         Evinfo.IndepEnd = Range.y();
         Evinfo.Resolution = Resolution;
 
+
         QwtResponseCurve *Curve = new QwtResponseCurve(Expression, Evinfo);
-
-
-        Curve->attach(getPlot());
-        Curve->setPen(QPen(Color));
-        Curve->start();
 
         ((MainWindow*)pParent)->enqueueCurve(Curve, ui->qwtPlot);
         ui->qwtPlot->replot();

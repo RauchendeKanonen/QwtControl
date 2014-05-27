@@ -446,6 +446,7 @@ double *NumericalLaplace::davec(long nl, long nh)
     return v-nl+NR_END;
 }
 
+
 void NumericalLaplace::dfvec(double *v, long nl, long nh)
 {
     free((FREE_ARG) (v+nl-NR_END));

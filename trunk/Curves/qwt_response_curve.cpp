@@ -16,6 +16,8 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
 #include "QMessageBox"
+#include "transformtypedialog.h"
+
 
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
@@ -215,42 +217,60 @@ public:
 
 void QwtResponseCurve::run (void)
 {
-    QPolygonF Polygon;
-    int NThreads = 9;
-    QList <NumericalLaplace*> SplittedLaplace;
-    SplittedLaplace.append(Laplace);
 
-    for(int i = 0 ; i < (NThreads-1) ; i ++)
+    if(InversLaplaceAlgorithm == TRANSFORM_WEEKS)
     {
-        NumericalLaplace *pLaplace = new NumericalLaplace(pEval, TRANSFORM_WEEKS);
-        SplittedLaplace.append(pLaplace);
-    }
+        QPolygonF Polygon;
+        int NThreads = 9;
+        QList <NumericalLaplace*> SplittedLaplace;
+        SplittedLaplace.append(Laplace);
 
-    double SectorT = (EvaluationInfo.IndepEnd - EvaluationInfo.IndepStart)/(double)NThreads;
-
-    for(int i = 0 ; i < SplittedLaplace.count() ; i ++)
-    {
-        SplittedLaplace.at(i)->setup(Laplace);
-        SplittedLaplace.at(i)->InverseTransformSetup(EvaluationInfo.Resolution, EvaluationInfo.IndepStart+(SectorT*((double)i+1.0)), EvaluationInfo.IndepStart+(SectorT*((double)i)));
-    }
-
-    for(int i = 0; i < SplittedLaplace.count() ; i ++)
-    {
-        if(SplittedLaplace.at(i)->isRunning())
+        for(int i = 0 ; i < (NThreads-1) ; i ++)
         {
-            i = 0;
-            usleep(10000);
+            NumericalLaplace *pLaplace = new NumericalLaplace(pEval, TRANSFORM_WEEKS);
+            SplittedLaplace.append(pLaplace);
         }
-    }
 
-    for(int i = 0; i < SplittedLaplace.count() ; i ++)
+        double SectorT = (EvaluationInfo.IndepEnd - EvaluationInfo.IndepStart)/(double)NThreads;
+
+        for(int i = 0 ; i < SplittedLaplace.count() ; i ++)
+        {
+            SplittedLaplace.at(i)->CopySetup(Laplace);
+            SplittedLaplace.at(i)->InverseTransformSetup(EvaluationInfo.Resolution, EvaluationInfo.IndepStart+(SectorT*((double)i+1.0)), EvaluationInfo.IndepStart+(SectorT*((double)i)));
+        }
+
+        for(int i = 0; i < SplittedLaplace.count() ; i ++)
+        {
+            if(SplittedLaplace.at(i)->isRunning())
+            {
+                i = 0;
+                usleep(10000);
+            }
+        }
+
+        for(int i = 0; i < SplittedLaplace.count() ; i ++)
+        {
+            Polygon += SplittedLaplace.at(i)->getThreadOutput();
+            if(SplittedLaplace.at(i) != Laplace)
+                delete SplittedLaplace.at(i);
+        }
+
+        emit dataReadySig(Polygon);
+    }
+    if(InversLaplaceAlgorithm == TRANSFORM_DUBBNERABATE)
     {
-        Polygon += SplittedLaplace.at(i)->getThreadOutput();
-        if(SplittedLaplace.at(i) != Laplace)
-            delete SplittedLaplace.at(i);
+        QPolygonF Polygon;
+        NumericalLaplace *pLaplace = new NumericalLaplace(pEval, TRANSFORM_DUBBNERABATE);
+        pLaplace->InverseTransformSetup(EvaluationInfo.Resolution, EvaluationInfo.IndepEnd, EvaluationInfo.IndepStart);
+        for(int i = 0 ; i < 1000 && !pLaplace->isRunning() ; i ++)
+            usleep(1000);
+        while(pLaplace->isRunning())
+            usleep(10000);
+
+        Polygon = pLaplace->getThreadOutput();
+        emit dataReadySig(Polygon);
     }
 
-    emit dataReadySig(Polygon);
 }
 
 void QwtResponseCurve::dataReadySlot(QPolygonF Polygon)
@@ -308,12 +328,32 @@ void QwtResponseCurve::valueChangeSlot(QPair <QString, double> VarPair, bool Res
     }
 }
 
+//! Constructor
+QwtResponseCurve::QwtResponseCurve(ControlExpression *Expression, EvalInfo EvInfo, int Algorithm):
+    QwtPlotItem(QwtText())
+{
+    TransformTypeDialog Dlg;
+    Dlg.setModal(true);
 
+    InversLaplaceAlgorithm = TRANSFORM_WEEKS;
+
+    if(Dlg.exec())
+        InversLaplaceAlgorithm = Dlg.getAlgorithm();
+
+    init(Expression, EvInfo);
+}
 
 //! Constructor
 QwtResponseCurve::QwtResponseCurve(ControlExpression *Expression, EvalInfo EvInfo):
     QwtPlotItem(QwtText())
 {
+    TransformTypeDialog Dlg;
+    Dlg.setModal(true);
+
+    InversLaplaceAlgorithm = TRANSFORM_WEEKS;
+
+    if(Dlg.exec())
+        InversLaplaceAlgorithm = Dlg.getAlgorithm();
     init(Expression, EvInfo);
 }
 
@@ -324,6 +364,13 @@ QwtResponseCurve::QwtResponseCurve(ControlExpression *Expression, EvalInfo EvInf
 QwtResponseCurve::QwtResponseCurve(const QwtText &title, ControlExpression *Expression, EvalInfo EvInfo):
     QwtPlotItem(title)
 {
+    TransformTypeDialog Dlg;
+    Dlg.setModal(true);
+
+    InversLaplaceAlgorithm = TRANSFORM_WEEKS;
+
+    if(Dlg.exec())
+        InversLaplaceAlgorithm = Dlg.getAlgorithm();
     init(Expression, EvInfo);
 }
 
@@ -334,6 +381,7 @@ QwtResponseCurve::QwtResponseCurve(const QwtText &title, ControlExpression *Expr
 QwtResponseCurve::QwtResponseCurve(const QString &title, ControlExpression *Expression, EvalInfo EvInfo):
     QwtPlotItem(QwtText(title))
 {
+    InversLaplaceAlgorithm = TRANSFORM_WEEKS;
     init(Expression, EvInfo);
 }
 
@@ -369,7 +417,7 @@ void QwtResponseCurve::init(ControlExpression *Expression, EvalInfo EvInfo)
 
 
 
-    Laplace = new NumericalLaplace(pEval, TRANSFORM_WEEKS);// TRANSFORM_GAVER_STEHFEST);
+    Laplace = new NumericalLaplace(pEval, InversLaplaceAlgorithm);// TRANSFORM_GAVER_STEHFEST);
 
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);

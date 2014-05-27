@@ -1,1 +1,12 @@
-Kd*(z−z0)/(z−zp)
+A lead-lag compensator consists of a lead compensator cascaded with a lag compensator.
+Typically |p_1| > |z_1| > |z_2| > |p_2| , where z1 and p1 are the zero and pole of the lead 
+compensator and z2 and p2 are the zero and pole of the lag compensator. The lead compensator 
+provides phase lead at high frequencies. This shifts the poles to the left, which enhances 
+the responsiveness and stability of the system. The lag compensator provides phase lag at 
+low frequencies which reduces the steady state error.
+
+The precise locations of the poles and zeros depend on both the desired characteristics of 
+the closed loop response and the characteristics of the system being controlled. However, 
+the pole and zero of the lag compensator should be close together so as not to cause the 
+poles to shift right, which could cause instability or slow convergence. Since their purpose 
+is to affect the low frequency behaviour, they should be near the origin.
