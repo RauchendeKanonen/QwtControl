@@ -54,7 +54,7 @@ SOURCES += main.cpp \
     Dialogs/templatedialog.cpp \
     numeric/numericallaplace.cpp \
     numeric/numericallaplace_dubnerabate.cpp \
-    Curves/transformtypedialog.cpp
+    Dialogs/transformtypedialog.cpp
 HEADERS += mainwindow.h \
     Dialogs/vardialog.h \
     Dialogs/stepresponsedialog.h \
@@ -98,7 +98,7 @@ HEADERS += mainwindow.h \
     Dialogs/helpselectordialog.h \
     Dialogs/templatedialog.h \
     numeric/numericallaplace.h \
-    Curves/transformtypedialog.h
+    Dialogs/transformtypedialog.h
 FORMS += mainwindow.ui \
     Dialogs/vardialog.ui \
     Dialogs/bodedialog.ui \
@@ -116,7 +116,7 @@ FORMS += mainwindow.ui \
     Dialogs/discretecontinoussystemdialog.ui \
     Dialogs/helpselectordialog.ui \
     Dialogs/templatedialog.ui \
-    Curves/transformtypedialog.ui
+    Dialogs/transformtypedialog.ui
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \
