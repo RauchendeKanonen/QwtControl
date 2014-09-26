@@ -320,7 +320,7 @@ void putVector(double *x, double *y, int len)
 int main(int argc, char *argv[])
 {
 	int m = 10000;
-	int p = 9;
+	int p = 12;
 	int n = pow(2.0, p)-1;
 	
 	double t[m+1];

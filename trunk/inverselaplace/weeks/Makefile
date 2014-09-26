@@ -2,7 +2,7 @@
 
 INC     = -I. 
 LDLIBS  = -L/lib -L/usr/lib -L/usr/local/lib -lm 
-CFLAGS = -D_FILE_OFFSET_BITS=64 -g
+CFLAGS = -D_FILE_OFFSET_BITS=64 -g 
   
  
   
