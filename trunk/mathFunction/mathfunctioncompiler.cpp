@@ -1,6 +1,7 @@
 #include "mathfunctioncompiler.h"
 #include <QFile>
 #include <errno.h>
+#include <unistd.h>
 
 mathFunctionCompiler::mathFunctionCompiler(QString FunctionDefinition, QString IndependentVarName, QString FunctionName, bool Complex)
 {
@@ -364,13 +365,13 @@ bool mathFunctionCompiler::readFile(QString Path, QString *Buffer)
     char RawBuffer[1024*1024];
     Buffer->clear();
 
-    if((INFILE = ::open(Path.toStdString().c_str(),O_RDONLY))<=0)
+    if((INFILE = open(Path.toStdString().c_str(),O_RDONLY))<=0)
     {
         return false;
     }
 
 
-    if((size = ::read(INFILE, (char*)RawBuffer, 1024*1024)) > 0)
+    if((size = read(INFILE, (char*)RawBuffer, 1024*1024)) > 0)
     {
         Buffer->append(RawBuffer);
         ret = true;
@@ -390,7 +391,7 @@ bool mathFunctionCompiler::writeFile(QString Path, QString *Buffer)
         return false;
     }
 
-    if(::write(OUTFILE, (char*)Buffer->toStdString().c_str(), Buffer->size()) == Buffer->size())
+    if(write(OUTFILE, (char*)Buffer->toStdString().c_str(), Buffer->size()) == Buffer->size())
         ret = true;
     ::close(OUTFILE);
 

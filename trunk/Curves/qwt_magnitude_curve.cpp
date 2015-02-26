@@ -228,8 +228,16 @@ void QwtMagnitudeCurve::run (void)
     for(int i = 0 ; i < dots ; i ++ )
     {
         w +=  EvaluationInfo.Resolution;
-        complex <long double> Result = pComplexEval->eval(complex <long double> (0,w));
+        complex <long double> Result;
 
+        if(!pComplexEval->indepVarName().compare(QString('s')))
+            Result = pComplexEval->eval(complex <long double> (0,w));
+
+        else if(!pComplexEval->indepVarName().compare(QString('z')))
+        {
+            complex <long double> Input = complex <long double> (cos(w), sin(w));
+            Result = pComplexEval->eval(Input);
+        }
         a = sqrt(pow(Result.real(),2) + pow(Result.imag(), 2));
 
         if(isinf(a))
