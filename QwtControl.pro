@@ -117,6 +117,7 @@ FORMS += mainwindow.ui \
     Dialogs/helpselectordialog.ui \
     Dialogs/templatedialog.ui \
     Dialogs/transformtypedialog.ui
+
 INCLUDEPATH += /usr/include/qwt5/ \
     /usr/include/qwt-qt4/ \
     /usr/include/qt4 \
@@ -126,6 +127,9 @@ INCLUDEPATH += /usr/include/qwt5/ \
     Dialogs \
     models \
     util \
+    ginac-1.6.2 \
+    ginac-1.6.2/ginac \
+    ginac-1.6.2/ginac/parser \
     numeric
 
 LIBS += -L/usr/lib/ \

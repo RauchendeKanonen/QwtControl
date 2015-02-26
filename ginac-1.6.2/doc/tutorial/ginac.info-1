@@ -7096,8 +7096,8 @@ C++ than with any other programming language.
 
 File: ginac.info,  Node: Internal structures,  Next: Expressions are reference counted,  Prev: Why C++?,  Up: Top
 
-Anhang A Internal structures
-****************************
+Appendix A Internal structures
+******************************
 
 * Menu:
 
@@ -7237,8 +7237,8 @@ is inherited from `expairseq'.
 
 File: ginac.info,  Node: Package tools,  Next: Configure script options,  Prev: Internal representation of products and sums,  Up: Top
 
-Anhang B Package tools
-**********************
+Appendix B Package tools
+************************
 
 If you are creating a software package that uses the GiNaC library,
 setting the correct command line options for the compiler and linker can
@@ -7414,8 +7414,8 @@ You now have a package that can be built in the normal fashion
 
 File: ginac.info,  Node: Bibliography,  Next: Concept index,  Prev: Example package,  Up: Top
 
-Anhang C Bibliography
-*********************
+Appendix C Bibliography
+***********************
 
    - `ISO/IEC 14882:1998: Programming Languages: C++'
 

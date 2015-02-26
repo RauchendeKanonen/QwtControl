@@ -2,7 +2,7 @@
 
 # libtool - Provide generalized library-building support services.
 # Generated automatically by config.status (ginac) 1.6.2
-# Libtool was configured on host atlasA8:
+# Libtool was configured on host atlas:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
 #   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
@@ -269,10 +269,10 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3 /usr/lib64 /lib64 /usr/x86_64-pc-linux-gnu/lib "
+sys_lib_search_path_spec="/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3 /usr/lib64 /lib64 /usr/x86_64-pc-linux-gnu/lib "
 
 # Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 /usr/local/lib64 /lib32 /usr/lib32 /usr/local/lib32 /lib /usr/lib /usr/local/lib /usr/x86_64-pc-linux-gnu/lib /usr/lib/gcc/x86_64-pc-linux-gnu/4.6.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.6.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3 /usr/lib/gcc/x86_64-pc-linux-gnu/3.4.6/32 /usr/lib/gcc/x86_64-pc-linux-gnu/3.4.6 /usr/lib32/OpenCL/vendors/nvidia /usr/lib64/OpenCL/vendors/nvidia /usr/lib32/opengl/nvidia/lib /usr/lib64/opengl/nvidia/lib /usr/lib64/itcl3.4/ /usr/lib64/itk3.4/ /usr/lib64/qca2 /usr/lib64/qt4 /usr/lib32/qt4 /usr/lib/qt4 /usr/lib64/opencascade-6.5/ros/lin/lib64 /usr/lib64/gnat-gcc/x86_64-pc-linux-gnu/4.3 /usr/lib64/gnat-gcc/x86_64-pc-linux-gnu/4.3/adalib /usr/lib64/fltk-1 /usr/lib64/octave-3.6.4 "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 /usr/local/lib64 /lib32 /usr/lib32 /usr/local/lib32 /lib /usr/lib /usr/local/lib /usr/x86_64-pc-linux-gnu/lib /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.7.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.7.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.6.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.6.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.4/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.4 /usr/lib32/OpenCL/vendors/amd /usr/lib64/OpenCL/vendors/amd /usr/lib32/opengl/xorg-x11/lib /usr/lib64/opengl/xorg-x11/lib /usr/lib64/qca2 /usr/lib64/qt4 /usr/lib32/qt4 /usr/lib/qt4 /usr/games/lib64 /usr/games/lib32 /usr/games/lib /usr/lib64/fltk-1 /usr/lib64/octave/3.8.2 "
 
 # Whether dlopen is supported.
 dlopen_support=unknown
@@ -10229,17 +10229,17 @@ file_list_spec=""
 hardcode_action=immediate
 
 # The directories searched by this compiler when creating a shared library.
-compiler_lib_search_dirs="/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../../../lib64 /lib/../lib64 /usr/lib/../lib64 /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../../../x86_64-pc-linux-gnu/lib /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../.."
+compiler_lib_search_dirs="/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../../../lib64 /lib/../lib64 /usr/lib/../lib64 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../../../x86_64-pc-linux-gnu/lib /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../.."
 
 # Dependencies to place before and after the objects being linked to
 # create a shared library.
-predep_objects="/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../../../lib64/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/crtbeginS.o"
-postdep_objects="/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../../../lib64/crtn.o"
+predep_objects="/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../../../lib64/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/crtbeginS.o"
+postdep_objects="/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/crtendS.o /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../../../lib64/crtn.o"
 predeps=""
 postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-L/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3 -L/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../../../x86_64-pc-linux-gnu/lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/../../.."
+compiler_lib_search_path="-L/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3 -L/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../../../x86_64-pc-linux-gnu/lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/4.8.3/../../.."
 
 # ### END LIBTOOL TAG CONFIG: CXX

@@ -22,7 +22,7 @@ permission notice identical to this one.
 
 Indirect:
 ginac.info-1: 824
-ginac.info-2: 288736
+ginac.info-2: 288748
 
 Tag Table:
 (Indirect)
@@ -86,13 +86,13 @@ Node: Disadvantages272265
 Ref: Disadvantages-Footnote-1273541
 Node: Why C++?273867
 Node: Internal structures274691
-Node: Expressions are reference counted274964
-Node: Internal representation of products and sums278767
-Node: Package tools281260
-Ref: Package tools-Footnote-1283270
-Node: Configure script options283435
-Node: Example package284800
-Node: Bibliography287437
-Node: Concept index288736
+Node: Expressions are reference counted274968
+Node: Internal representation of products and sums278771
+Node: Package tools281264
+Ref: Package tools-Footnote-1283278
+Node: Configure script options283443
+Node: Example package284808
+Node: Bibliography287445
+Node: Concept index288748
 
 End Tag Table

@@ -15,7 +15,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
-
+#include "QMessageBox"
 
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
@@ -226,7 +226,17 @@ void QwtPhaseCurve::run (void)
     for(int i = 0 ; i < dots ; i ++ )
     {
         w +=  EvaluationInfo.Resolution;
-        complex <long double> Result = pComplexEval->eval(complex <long double>(0, w));
+        complex <long double> Result = complex <long double> (0,0);
+
+        if(!pComplexEval->indepVarName().compare(QString('s')))
+            Result = pComplexEval->eval(complex <long double> (0,w));
+
+        else if(!pComplexEval->indepVarName().compare(QString('z')))
+        {
+            complex <long double> Input = complex <long double> (cos(w), sin(w));
+            Result = pComplexEval->eval(Input);
+        }
+
         phi = atan2(Result.imag(), Result.real());
 
         if(isinf(phi))
@@ -248,7 +258,9 @@ void QwtPhaseCurve::dataReadySlot(QPolygonF Polygon)
 
 void QwtPhaseCurve::markerChangeSlot(QPair<QString,double> MarkerPair)
 {
+
 }
+
 void QwtPhaseCurve::phaseMarkerChangeSlot(double w)
 {
     QwtPlot *Plot = plot();
