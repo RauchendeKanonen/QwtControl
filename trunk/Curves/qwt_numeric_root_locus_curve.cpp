@@ -523,6 +523,7 @@ QwtNumericRootLocusCurve::~QwtNumericRootLocusCurve()
         delete Markers.takeAt(0);
     }
 
+
     delete pExpression;
 }
 
@@ -636,13 +637,10 @@ void QwtNumericRootLocusCurve::init(ControlExpression *Expression, EvalInfo EvIn
 
     QColor Color(Qt::red);
 
-
     for(int i = 0 ; i < NumLocus ; i ++)
     {
         PoleLocations.append(new QwtPlotMarker());
         RootLocations.append(new QwtPlotMarker());
-
-
 
         PoleLocations.last()->setSymbol( QwtSymbol( QwtSymbol::XCross,
                                                     QColor(Color), QColor(Color), QSize( 15, 15 ) ) );

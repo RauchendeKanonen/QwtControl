@@ -160,7 +160,7 @@ void replaceComputerNotation(QString *Buffer)
             Buffer->replace(i, 1, '*');
             Buffer->remove(i+1, 1);
 
-            while(Buffer->at(i+1).isDigit())
+            while(Buffer->count() > i+1 && Buffer->at(i+1).isDigit())
                 Buffer->remove(i+1, 1);
 
             QString MulStr;
