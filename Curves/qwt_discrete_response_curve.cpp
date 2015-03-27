@@ -17,7 +17,7 @@
 #include "qwt_symbol.h"
 
 
-#define Grade 100
+#define Grade 200
 
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
@@ -343,8 +343,8 @@ void QwtDiscreteResponseCurve::init(QString Expression, EvalInfo EvInfo)
     d_data = new PrivateData;
     d_xy = new QwtPolygonFData(QwtArray<QwtDoublePoint>());
     DiscreteEvaluator = new ParserX();
-    X = new Value(EvInfo.Dots*2,0);
-    Y = new Value(EvInfo.Dots*2,0);
+    X = new Value((EvInfo.Dots+Grade)*2,0);
+    Y = new Value((EvInfo.Dots+Grade)*2,0);
     DiscreteEvaluator->DefineVar("x", Variable(X));
     DiscreteEvaluator->DefineVar("y", Variable(Y));
 

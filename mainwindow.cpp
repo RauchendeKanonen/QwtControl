@@ -22,6 +22,9 @@
 #include "helpselectordialog.h"
 #include "QShortcut"
 #include "Dialogs/templatedialog.h"
+#include "Dialogs/samplerdialog.h"
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -292,7 +295,7 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(const QPoint &
     ExpressionMenu.addAction(QString("draw Bode"));
     ExpressionMenu.addAction(QString("clone and substitute"));
     ExpressionMenu.addAction(QString("delete"));
-
+    ExpressionMenu.addAction(QString("Sample"));
 
     QAction *happened = ExpressionMenu.exec(globalPos);
 
@@ -361,6 +364,12 @@ void MainWindow::on_ExpressionListView_customContextMenuRequested(QModelIndex In
             Dlg->variableSelected("sel. Gain");
             Dlg->setWindowTitle("root locus");
         }
+        if(MenuEntry == QString("Sample"))
+        {
+            Dlg->setWindowTitle("draw sampling Response");
+            Dlg->variableSelected("sel. Compl. e.g. s");
+        }
+
     }
     delete preExpression;
 
@@ -565,6 +574,63 @@ RedoDlg:
         connect(MagCurve, SIGNAL(amplitudeMarkerChangeSignal(double)), PhaCurve, SLOT(phaseMarkerChangeSlot(double)));
     }
 
+    if(MenuEntry == QString("Sample"))
+    {
+        QString FunctionName = ExpressionMdl->getExpressionName(Index);
+        ControlExpression *Expression = ExpressionMdl->createExpression(Index, VarName);
+
+        if(FunctionName == QString())
+        {
+            QMessageBox Box;
+            Box.setText(QString("Unnamed Functions are not allowed!!!"));
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+        //add the marker to the variables
+        if(NULL == VariabelMdl->getVarValuePtr(VarName))
+        {
+            double Val = 0;
+            QString ValueString;
+            ValueString.sprintf("%f", Val);
+            QModelIndex index = VariabelMdl->index(0, 0, QModelIndex());
+            VariabelMdl->insertRows(0, 1, (const QModelIndex &)index);
+            index = VariabelMdl->index(0, 0, QModelIndex());
+            VariabelMdl->setData(index, QString(VarName + QString(" = ") + ValueString),Qt::EditRole);
+        }
+
+
+        EvalInfo Evinfo;
+        Evinfo.IndepStart = Range.x();
+        Evinfo.IndepEnd = Range.y();
+        Evinfo.Resolution = Resolution;
+
+        StepResponseDialog *StepRespDialog = new StepResponseDialog(this);
+        StepRespDialog->show();
+        QwtResponseCurve *Curve;
+        try
+        {
+            Curve = new QwtResponseCurve(Expression, Evinfo);
+        }
+        catch(const QString &e)
+        {
+            QMessageBox Box;
+            Box.setText(e);
+            Box.setModal(true);
+            Box.exec();
+            return;
+        }
+
+        enqueueCurve(Curve, StepRespDialog->getPlot());
+        Curve->setPen(QPen(Color));
+
+
+        SamplerDialog *Dlg = new SamplerDialog(this);
+        Dlg->insertCurve(Curve);
+        Dlg->show();
+        connect(Dlg, SIGNAL(newExpression(QString)), this, SLOT(newExpression(QString)));
+    }
+
     if(MenuEntry == QString("draw Response"))
     {
         QString FunctionName = ExpressionMdl->getExpressionName(Index);
@@ -664,6 +730,11 @@ RedoDlg:
         IndependentMarkerSliderDialog->activateWindow();
         IndependentMarkerSliderDialog->raise();
     }
+}
+
+void MainWindow::newExpression(QString Expression)
+{
+     insertExpression(Expression);
 }
 
 void MainWindow::on_VariableListView_customContextMenuRequested(const QPoint &pos)
@@ -1269,4 +1340,11 @@ void MainWindow::on_actionAbout_triggered()
     Box.setText("Laplace Explorer(C) 2014\nFlorian Hillen");
     Box.setModal(true);
     Box.exec();
+}
+
+void MainWindow::on_actionOpen_Sampling_Window_triggered()
+{
+    SamplerDialog *Dlg = new SamplerDialog(this);
+    connect(Dlg, SIGNAL(newExpression(QString)), this, SLOT(newExpression(QString)));
+    Dlg->show();
 }

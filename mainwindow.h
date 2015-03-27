@@ -88,7 +88,7 @@ public slots:
     void markerRelease(void);
     void parameterChange(QString VarName, double DblVal);
     void markerChange(QString VarName, double DblVal);
-
+    void newExpression(QString);
 
 private slots:
     void on_actionExpression_triggered();
@@ -134,6 +134,8 @@ private slots:
     void on_actionDiscrete_Continous_System_triggered();
 
     void on_actionAbout_triggered();
+
+    void on_actionOpen_Sampling_Window_triggered();
 
 private:
     Ui::MainWindow *ui;
