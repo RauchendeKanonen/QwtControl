@@ -1,3 +1,80 @@
+# QwtControl
+
+## Overview
+
+**QwtControl** appears to be a large Qt/C++ desktop application for control engineering, mathematical modeling, and system analysis, built around **Qwt** and additional math libraries.
+
+From the repository structure, it looks like a broad technical application rather than a small demo.
+
+## Top-level contents
+
+- `Curves/`
+- `Dialogs/`
+- `Doc/`
+- `Pictures/`
+- `Templates/`
+- `data/`
+- `diferenceequation/`
+- `discrete-continous-system/`
+- `ginac-1.6.2/`
+- `inverselaplace/`
+- `latex/`
+- `mathFunction/`
+- `models/`
+- `muparserx_v2_1_6/`
+- `numeric-root/`
+- `numeric/`
+- `res/`
+- `sets/`
+- `util/`
+- `website/`
+- `ztrans/`
+- `QwtControl.pro`
+- `README`
+
+## Existing build notes visible in the repo
+
+The existing repository README says to build `muParserx` first, then adjust Qwt include and library paths inside `QwtControl.pro`, then run `qmake` and `make`.
+
+## Likely build flow
+
+```bash
+cd muparserx_v2_1_6
+make
+cd ..
+qmake
+make
+```
+
+You may need to edit `QwtControl.pro` to match your local Qwt include and linker paths.
+
+## What this project appears to do
+
+This is partly inferred from the repository structure, but likely areas include:
+- plotting and graphing using Qwt,
+- modeling continuous and discrete systems,
+- inverse Laplace and numeric methods,
+- equation handling and function parsing,
+- educational or exploratory control-engineering workflows.
+
+## What a stronger README should explain
+
+- main user workflows,
+- supported Qt and Qwt versions,
+- whether the app still builds on modern Linux systems,
+- bundled versus external dependencies,
+- screenshots and example sessions.
+
+## Caveats
+
+The repository looks older and may require manual path editing and older qmake/Qwt assumptions.
+
+## License
+
+No visible license from the public top-level snapshot.
+
+
+
 Build QwtControl
 
 First it is necessary to build the
